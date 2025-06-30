@@ -4,25 +4,27 @@
  * This service handles the WebSocket connection to your Home Assistant backend.
  * 
  * To configure for your setup:
- * 1. Update SOCKET_URL to your Home Assistant WebSocket endpoint
- * 2. Replace the bearer token with your actual Home Assistant long-lived access token
- * 3. Adjust event names if your backend uses different conventions
+ * 1. Update VITE_HA_WEBSOCKET_URL to your Home Assistant WebSocket endpoint
+ * 2. Replace VITE_HA_ACCESS_TOKEN with your actual Home Assistant long-lived access token
+ * 3. Set VITE_DEV_MODE=false when ready to connect to real Home Assistant
  */
 
 import { io, Socket } from 'socket.io-client';
 import { Device, EntityUpdateEvent, DeviceControlCommand, ConnectionState } from '../types/devices';
 
 // Configuration - Update these for your Home Assistant setup
-const SOCKET_URL = import.meta.env.VITE_REACT_APP_HA_WEBSOCKET_URL || 'ws://localhost:8123';
-const ACCESS_TOKEN = import.meta.env.VITE_REACT_APP_HA_ACCESS_TOKEN || 'your-home-assistant-long-lived-access-token';
+const SOCKET_URL = import.meta.env.VITE_HA_WEBSOCKET_URL || 'ws://localhost:8123';
+const ACCESS_TOKEN = import.meta.env.VITE_HA_ACCESS_TOKEN || 'your-home-assistant-long-lived-access-token';
+const DEV_MODE = import.meta.env.VITE_DEV_MODE === 'true';
 
 export class SocketService {
   private socket: Socket | null = null;
   private connectionState: ConnectionState = 'disconnected';
   private reconnectAttempts = 0;
-  private maxReconnectAttempts = 5;
-  private reconnectDelay = 1000; // Start with 1 second
-  private maxReconnectDelay = 30000; // Max 30 seconds
+  private maxReconnectAttempts = 3; // Reduced for development
+  private reconnectDelay = 2000; // Start with 2 seconds
+  private maxReconnectDelay = 10000; // Max 10 seconds
+  private isManuallyDisconnected = false;
   
   // Event callbacks
   private onConnectionStateChange: ((state: ConnectionState, error?: string) => void) | null = null;
@@ -30,32 +32,61 @@ export class SocketService {
   private onDevicesUpdate: ((devices: Device[]) => void) | null = null;
 
   constructor() {
-    this.connect();
+    if (!DEV_MODE) {
+      this.connect();
+    } else {
+      console.log('🔧 Development mode: Socket connection disabled');
+      console.log('💡 To enable Home Assistant connection:');
+      console.log('   1. Set VITE_DEV_MODE=false in .env');
+      console.log('   2. Update VITE_HA_WEBSOCKET_URL with your Home Assistant URL');
+      console.log('   3. Add your Home Assistant access token to VITE_HA_ACCESS_TOKEN');
+      this.setConnectionState('disconnected', 'Development mode - socket connection disabled');
+    }
   }
 
   /**
    * Establish connection to Home Assistant WebSocket API
    */
   public connect(): void {
+    if (DEV_MODE) {
+      console.log('🔧 Cannot connect in development mode. Set VITE_DEV_MODE=false to enable.');
+      return;
+    }
+
     if (this.socket?.connected) {
       return;
     }
 
+    // Validate configuration
+    if (!SOCKET_URL || SOCKET_URL === 'ws://localhost:8123') {
+      this.setConnectionState('error', 'Home Assistant URL not configured. Please update VITE_HA_WEBSOCKET_URL in .env');
+      return;
+    }
+
+    if (!ACCESS_TOKEN || ACCESS_TOKEN === 'your-home-assistant-long-lived-access-token') {
+      this.setConnectionState('error', 'Home Assistant access token not configured. Please update VITE_HA_ACCESS_TOKEN in .env');
+      return;
+    }
+
+    this.isManuallyDisconnected = false;
     this.setConnectionState('connecting');
 
     try {
+      console.log(`🔌 Attempting to connect to Home Assistant at: ${SOCKET_URL}`);
+      
       this.socket = io(SOCKET_URL, {
         auth: {
           token: ACCESS_TOKEN
         },
         transports: ['websocket'],
-        timeout: 10000,
-        forceNew: true
+        timeout: 5000, // Reduced timeout for faster feedback
+        forceNew: true,
+        autoConnect: true
       });
 
       this.setupEventListeners();
     } catch (error) {
-      console.error('Failed to create socket connection:', error);
+      console.error('❌ Failed to create socket connection:', error);
       this.setConnectionState('error', error instanceof Error ? error.message : 'Connection failed');
       this.scheduleReconnect();
     }
@@ -65,6 +96,7 @@ export class SocketService {
    * Disconnect from Home Assistant
    */
   public disconnect(): void {
+    this.isManuallyDisconnected = true;
     if (this.socket) {
       this.socket.disconnect();
       this.socket = null;
@@ -81,34 +113,47 @@ export class SocketService {
 
     // Connection events
     this.socket.on('connect', () => {
-      console.log('Connected to Home Assistant');
+      console.log('✅ Connected to Home Assistant');
       this.setConnectionState('connected');
       this.reconnectAttempts = 0;
-      this.reconnectDelay = 1000;
+      this.reconnectDelay = 2000;
       
       // Subscribe to entity updates
       this.subscribeToUpdates();
     });
 
     this.socket.on('disconnect', (reason) => {
-      console.log('Disconnected from Home Assistant:', reason);
+      console.log('🔌 Disconnected from Home Assistant:', reason);
       this.setConnectionState('disconnected');
       
       // Auto-reconnect unless manually disconnected
-      if (reason !== 'io client disconnect') {
+      if (reason !== 'io client disconnect' && !this.isManuallyDisconnected) {
         this.scheduleReconnect();
       }
     });
 
     this.socket.on('connect_error', (error) => {
-      console.error('Connection error:', error);
-      this.setConnectionState('error', error.message);
-      this.scheduleReconnect();
+      console.error('❌ Connection error:', error.message);
+      
+      let errorMessage = 'Connection failed';
+      if (error.message.includes('websocket error')) {
+        errorMessage = 'Cannot reach Home Assistant. Please check if Home Assistant is running and accessible.';
+      } else if (error.message.includes('timeout')) {
+        errorMessage = 'Connection timeout. Home Assistant may be unreachable.';
+      } else if (error.message.includes('auth')) {
+        errorMessage = 'Authentication failed. Please check your access token.';
+      }
+      
+      this.setConnectionState('error', errorMessage);
+      
+      if (!this.isManuallyDisconnected) {
+        this.scheduleReconnect();
+      }
     });
 
     // Home Assistant specific events
     this.socket.on('entity_update', (data: EntityUpdateEvent) => {
-      console.log('Entity update received:', data);
+      console.log('📡 Entity update received:', data);
       if (this.onEntityUpdate) {
         this.onEntityUpdate(data);
       }
@@ -129,7 +174,7 @@ export class SocketService {
     });
 
     this.socket.on('devices_update', (devices: Device[]) => {
-      console.log('Devices update received:', devices);
+      console.log('📡 Devices update received:', devices);
       if (this.onDevicesUpdate) {
         this.onDevicesUpdate(devices);
       }
@@ -137,17 +182,17 @@ export class SocketService {
 
     // Authentication events
     this.socket.on('auth_required', () => {
-      console.log('Authentication required');
+      console.log('🔐 Authentication required');
       this.authenticate();
     });
 
     this.socket.on('auth_ok', () => {
-      console.log('Authentication successful');
+      console.log('✅ Authentication successful');
     });
 
     this.socket.on('auth_invalid', (error: any) => {
-      console.error('Authentication failed:', error);
-      this.setConnectionState('error', 'Authentication failed');
+      console.error('❌ Authentication failed:', error);
+      this.setConnectionState('error', 'Authentication failed - please check your access token');
     });
   }
 
@@ -181,19 +226,23 @@ export class SocketService {
    * Schedule reconnection attempt
    */
   private scheduleReconnect(): void {
+    if (this.isManuallyDisconnected || DEV_MODE) {
+      return;
+    }
+
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-      console.error('Max reconnection attempts reached');
-      this.setConnectionState('error', 'Max reconnection attempts reached');
+      console.error('❌ Max reconnection attempts reached');
+      this.setConnectionState('error', 'Cannot connect to Home Assistant. Please check your configuration and try refreshing the page.');
       return;
     }
 
     this.reconnectAttempts++;
-    const delay = Math.min(this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1), this.maxReconnectDelay);
+    const delay = Math.min(this.reconnectDelay * this.reconnectAttempts, this.maxReconnectDelay);
     
-    console.log(`Scheduling reconnection attempt ${this.reconnectAttempts} in ${delay}ms`);
+    console.log(`🔄 Scheduling reconnection attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts} in ${delay}ms`);
     
     setTimeout(() => {
-      if (this.connectionState !== 'connected') {
+      if (this.connectionState !== 'connected' && !this.isManuallyDisconnected) {
         this.connect();
       }
     }, delay);
@@ -213,12 +262,17 @@ export class SocketService {
    * Control a device (send command to Home Assistant)
    */
   public controlDevice(command: DeviceControlCommand): void {
-    if (!this.socket?.connected) {
-      console.error('Cannot send command: not connected to Home Assistant');
+    if (DEV_MODE) {
+      console.log('🔧 Development mode: Device control simulated -', command);
       return;
     }
 
-    console.log('Sending device control command:', command);
+    if (!this.socket?.connected) {
+      console.error('❌ Cannot send command: not connected to Home Assistant');
+      return;
+    }
+
+    console.log('📤 Sending device control command:', command);
     this.socket.emit('call_service', {
       domain: command.service.split('.')[0],
       service: command.service.split('.')[1],
@@ -387,6 +441,22 @@ export class SocketService {
   }
 
   /**
+   * Manual connection control
+   */
+  public manualConnect(): void {
+    if (DEV_MODE) {
+      console.log('🔧 Cannot connect in development mode. Set VITE_DEV_MODE=false in .env to enable.');
+      return;
+    }
+    this.reconnectAttempts = 0;
+    this.connect();
+  }
+
+  public manualDisconnect(): void {
+    this.disconnect();
+  }
+
+  /**
    * Event listener setters
    */
   public onConnectionChange(callback: (state: ConnectionState, error?: string) => void): void {
@@ -413,6 +483,13 @@ export class SocketService {
    */
   public isConnected(): boolean {
     return this.socket?.connected || false;
+  }
+
+  /**
+   * Check if in development mode
+   */
+  public isDevMode(): boolean {
+    return DEV_MODE;
   }
 }
 

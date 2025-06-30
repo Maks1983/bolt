@@ -1,5 +1,6 @@
 import React from 'react';
 import { Home, Shield, User, Moon, Plane, Sun } from 'lucide-react';
+import ConnectionStatus from './ConnectionStatus';
 
 const Header: React.FC = () => {
   const currentTime = new Date().toLocaleTimeString('en-US', { 
@@ -69,8 +70,9 @@ const Header: React.FC = () => {
           ))}
         </div>
 
-        {/* Critical Alerts - Center */}
-        <div className="flex items-center">
+        {/* Connection Status and System Status - Center */}
+        <div className="flex items-center space-x-3">
+          <ConnectionStatus />
           <div className="flex items-center space-x-2 bg-emerald-50/80 text-emerald-700 px-3 py-1.5 rounded-lg border border-emerald-200/50 shadow-sm">
             <Shield className="w-3 h-3" />
             <div className="text-xs font-bold">All Systems Normal</div>
