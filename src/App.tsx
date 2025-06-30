@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { io } from 'socket.io-client';
 import Header from './components/Header';
 import InfoRow from './components/InfoRow';
