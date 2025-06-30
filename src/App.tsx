@@ -347,6 +347,22 @@ function App() {
     },
   ];
 
+  const toggleLight = (entityId: string, currentState: boolean) => {
+    const socket = socketRef.current;
+    if (!socket) return;
+    // Emit toggle request with target state (opposite of current)
+    socket.emit('toggle_light', {
+      entity_id: entityId,
+      state: currentState ? 'off' : 'on',
+    });
+  
+    // Optimistically update state (only for laundry light here)
+    if (entityId === 'light.lightswitch_laundry_switch') {
+      setLaundryLightState(!currentState);
+    }
+  };
+
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
       <Header />
