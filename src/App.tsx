@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
 import Header from './components/Header';
 import InfoRow from './components/InfoRow';
@@ -9,11 +9,12 @@ const TOKEN = 'your_bearer_token_here'; // replace with your actual token
 
 function App() {
   const [laundryLightState, setLaundryLightState] = useState<boolean | null>(null);
+  const socketRef = useRef(null);
 
   useEffect(() => {
     const socket = io(SOCKET_URL, {
       auth: {
-        token: `Bearer ${TOKEN}`, // pass token here
+        token: `Bearer ${TOKEN}`,
       },
       transports: ['websocket', 'polling'],
     });
@@ -31,6 +32,8 @@ function App() {
     socket.on('disconnect', () => {
       console.log('Disconnected from backend socket');
     });
+
+    socketRef.current = socket;
 
     return () => {
       socket.disconnect();
