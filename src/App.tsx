@@ -1,10 +1,39 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { io } from 'socket.io-client';
 import Header from './components/Header';
 import InfoRow from './components/InfoRow';
 import FloorSection from './components/FloorSection';
 
+const SOCKET_URL = 'http://10.150.50.24:3000'; // your backend URL
+
 function App() {
-  // Upper Floor rooms with explicitly assigned devices
+  // State for the live laundry light entity
+  const [laundryLightState, setLaundryLightState] = useState(null);
+
+  useEffect(() => {
+    const socket = io(SOCKET_URL);
+
+    socket.on('connect', () => {
+      console.log('Connected to backend socket');
+    });
+
+    socket.on('entity_update', (data) => {
+      if (data.entity_id === 'light.lightswitch_laundry_switch') {
+        // Update laundry light state from backend
+        setLaundryLightState(data.state === 'on');
+      }
+    });
+
+    socket.on('disconnect', () => {
+      console.log('Disconnected from backend socket');
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
+
+  // Upper Floor rooms with explicitly assigned devices (UNCHANGED)
   const upperFloorRooms = [
     {
       name: 'Master Bedroom',
@@ -197,7 +226,7 @@ function App() {
     },
   ];
 
-  // Lower Floor rooms with explicitly assigned devices
+  // Lower Floor rooms with live-updated laundry light
   const lowerFloorRooms = [
     {
       name: 'Entrance',
@@ -255,68 +284,48 @@ function App() {
     {
       name: 'Laundry',
       floor: 'Lower Floor',
-      lights: { on: 1, total: 1 }, // Only 1 light switch assigned
-      temperature: 20,
-      humidity: 55,
+      // Update light counts based on live state:
+      lights: {
+        on: laundryLightState ? 1 : 0,
+        total: 1,
+      },
+      temperature: 18,
+      humidity: 60,
       presence: false,
       windowOpen: false,
       backgroundImage:
-        'https://images.pexels.com/photos/4107123/pexels-photo-4107123.jpeg?auto=compress&cs=tinysrgb&w=800',
+        'https://images.pexels.com/photos/271624/pexels-photo-271624.jpeg?auto=compress&cs=tinysrgb&w=800',
       devices: {
         lights: [
           {
             id: 1,
             name: 'Light Switch',
-            on: true,
+            on: laundryLightState ?? false, // Use live state or default false
             brightness: 100,
             color: '#ffffff',
             hasColor: false,
           },
         ],
         sensors: {
-          temperature: 20,
-          humidity: 55,
-          flood: [false, false],
+          temperature: 18,
+          humidity: 60,
+          flood1: false,
+          flood2: false,
         },
       },
     },
   ];
 
-  // Cameras for NVR system
-  const cameras = [
-    {
-      id: 1,
-      name: 'Front Yard Camera',
-      location: 'Front Yard',
-      recording: true,
-      nightVision: true,
-      temperature: 15,
-      humidity: 60,
-      backgroundImage:
-        'https://images.pexels.com/photos/1396122/pexels-photo-1396122.jpeg?auto=compress&cs=tinysrgb&w=800',
-    },
-    {
-      id: 2,
-      name: 'Backyard Camera',
-      location: 'Backyard',
-      recording: true,
-      nightVision: false,
-      temperature: 16,
-      humidity: 58,
-      backgroundImage:
-        'https://images.pexels.com/photos/1105766/pexels-photo-1105766.jpeg?auto=compress&cs=tinysrgb&w=800',
-    },
-  ];
+  // Combine floors
+  const allRooms = [...upperFloorRooms, ...lowerFloorRooms];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
+    <div className="App">
       <Header />
-      <InfoRow cameras={cameras} />
-
-      <main className="py-4 space-y-6 pb-8">
-        <FloorSection title="Upper Floor" rooms={upperFloorRooms} />
-        <FloorSection title="Lower Floor" rooms={lowerFloorRooms} />
-      </main>
+      <InfoRow />
+      {allRooms.map((room) => (
+        <FloorSection key={room.name} room={room} />
+      ))}
     </div>
   );
 }
