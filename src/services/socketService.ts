@@ -13,8 +13,8 @@ import { io, Socket } from 'socket.io-client';
 import { Device, EntityUpdateEvent, DeviceControlCommand, ConnectionState } from '../types/devices';
 
 // Configuration - Update these for your Home Assistant setup
-const SOCKET_URL = process.env.REACT_APP_HA_WEBSOCKET_URL || 'ws://localhost:8123';
-const ACCESS_TOKEN = process.env.REACT_APP_HA_ACCESS_TOKEN || 'your-home-assistant-long-lived-access-token';
+const SOCKET_URL = import.meta.env.VITE_REACT_APP_HA_WEBSOCKET_URL || 'ws://localhost:8123';
+const ACCESS_TOKEN = import.meta.env.VITE_REACT_APP_HA_ACCESS_TOKEN || 'your-home-assistant-long-lived-access-token';
 
 export class SocketService {
   private socket: Socket | null = null;

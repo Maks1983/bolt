@@ -53,8 +53,8 @@ src/
 Create a `.env` file in the root directory:
 
 ```env
-REACT_APP_HA_WEBSOCKET_URL=ws://your-home-assistant-ip:8123
-REACT_APP_HA_ACCESS_TOKEN=your-long-lived-access-token
+VITE_REACT_APP_HA_WEBSOCKET_URL=ws://your-home-assistant-ip:8123
+VITE_REACT_APP_HA_ACCESS_TOKEN=your-long-lived-access-token
 ```
 
 ### 2. Home Assistant Configuration
