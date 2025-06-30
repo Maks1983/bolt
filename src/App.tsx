@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { io } from 'socket.io-client';
 import Header from './components/Header';
 import InfoRow from './components/InfoRow';
@@ -294,8 +294,7 @@ function App() {
       presence: false,
       windowOpen: false,
       backgroundImage:
-        'https://images.pexels.com/photos/271624/pexels-photo-271624.jpeg?auto=compress&cs=tinysrgb&w=800',
-      devices: {
+          'https://images.pexels.com/photos/4107123/pexels-photo-4107123.jpeg?auto=compress&cs=tinysrgb&w=800',      devices: {
         lights: [
           {
             id: 1,
@@ -309,25 +308,47 @@ function App() {
         sensors: {
           temperature: 18,
           humidity: 60,
-          flood1: false,
-          flood2: false,
+          flood: [false, false],
         },
       },
     },
   ];
 
-  // Combine floors
-  const allRooms = [...upperFloorRooms, ...lowerFloorRooms];
+   // Cameras for NVR systemAdd commentMore actions
+  const cameras = [
+    {
+      id: 1,
+      name: 'Front Yard Camera',
+      location: 'Front Yard',
+      recording: true,
+      nightVision: true,
+      temperature: 15,
+      humidity: 60,
+      backgroundImage:
+        'https://images.pexels.com/photos/1396122/pexels-photo-1396122.jpeg?auto=compress&cs=tinysrgb&w=800',
+    },
+    {
+      id: 2,
+      name: 'Backyard Camera',
+      location: 'Backyard',
+      recording: true,
+      nightVision: false,
+      temperature: 16,
+      humidity: 58,
+      backgroundImage:
+        'https://images.pexels.com/photos/1105766/pexels-photo-1105766.jpeg?auto=compress&cs=tinysrgb&w=800',Add commentMore actions
+    },
+  ];
 
   return (
-    <div className="App">
-      <Header />
-      <InfoRow />
-      {allRooms.map((room) => (
-        <FloorSection key={room.name} room={room} />
-      ))}
-    </div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
+        <Header />
+              <InfoRow cameras={cameras} />
+
+        <main className="py-4 space-y-6 pb-8">
+          <FloorSection title="Upper Floor" rooms={upperFloorRooms} />
+          <FloorSection title="Lower Floor" rooms={lowerFloorRooms} />
+        </main>
+      </div>
   );
 }
-
-export default App;
