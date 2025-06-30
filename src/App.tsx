@@ -5,13 +5,18 @@ import InfoRow from './components/InfoRow';
 import FloorSection from './components/FloorSection';
 
 const SOCKET_URL = 'http://10.150.50.24:3000'; // your backend URL
+const TOKEN = 'your_bearer_token_here'; // replace with your actual token
 
 function App() {
-  // State for the live laundry light entity
-  const [laundryLightState, setLaundryLightState] = useState(null);
+  const [laundryLightState, setLaundryLightState] = useState<boolean | null>(null);
 
   useEffect(() => {
-    const socket = io(SOCKET_URL);
+    const socket = io(SOCKET_URL, {
+      auth: {
+        token: `Bearer ${TOKEN}`, // pass token here
+      },
+      transports: ['websocket', 'polling'],
+    });
 
     socket.on('connect', () => {
       console.log('Connected to backend socket');
@@ -19,7 +24,6 @@ function App() {
 
     socket.on('entity_update', (data) => {
       if (data.entity_id === 'light.lightswitch_laundry_switch') {
-        // Update laundry light state from backend
         setLaundryLightState(data.state === 'on');
       }
     });
@@ -341,15 +345,15 @@ function App() {
   ];
 
   return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
-        <Header />
-              <InfoRow cameras={cameras} />
-
-        <main className="py-4 space-y-6 pb-8">
-          <FloorSection title="Upper Floor" rooms={upperFloorRooms} />
-          <FloorSection title="Lower Floor" rooms={lowerFloorRooms} />
-        </main>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
+      <Header />
+      <InfoRow cameras={cameras} />
+      <main className="py-4 space-y-6 pb-8">
+        <FloorSection title="Upper Floor" rooms={upperFloorRooms} />
+        <FloorSection title="Lower Floor" rooms={lowerFloorRooms} />
+      </main>
+    </div>
   );
 }
+
 export default App;
