@@ -336,7 +336,7 @@ function App() {
       temperature: 16,
       humidity: 58,
       backgroundImage:
-        'https://images.pexels.com/photos/1105766/pexels-photo-1105766.jpeg?auto=compress&cs=tinysrgb&w=800',Add commentMore actions
+        'https://images.pexels.com/photos/1105766/pexels-photo-1105766.jpeg?auto=compress&cs=tinysrgb&w=800',
     },
   ];
 
@@ -352,3 +352,4 @@ function App() {
       </div>
   );
 }
+export default App;
