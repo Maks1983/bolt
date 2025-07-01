@@ -24,7 +24,8 @@ type DeviceAction =
   | { type: 'UPDATE_DEVICE'; payload: { entityId: string; updates: Partial<Device> } }
   | { type: 'SET_CONNECTION_STATE'; payload: { state: ConnectionState; error?: string } }
   | { type: 'ENTITY_UPDATE'; payload: EntityUpdateEvent }
-  | { type: 'SET_LAST_UPDATE'; payload: Date };
+  | { type: 'SET_LAST_UPDATE'; payload: Date }
+  | { type: 'SIMULATE_STATE_CHANGE'; payload: { entityId: string; newState: any; attributes?: any } };
 
 const initialState: DeviceState = {
   devices: deviceConfigs,
@@ -128,6 +129,20 @@ function deviceReducer(state: DeviceState, action: DeviceAction): DeviceState {
       };
     }
 
+    case 'SIMULATE_STATE_CHANGE': {
+      // For testing - simulate a Home Assistant state_changed event
+      const { entityId, newState, attributes } = action.payload;
+      return deviceReducer(state, {
+        type: 'ENTITY_UPDATE',
+        payload: {
+          entity_id: entityId,
+          state: newState,
+          attributes: attributes || {},
+          last_updated: new Date().toISOString()
+        }
+      });
+    }
+
     case 'SET_CONNECTION_STATE':
       return {
         ...state,
@@ -184,6 +199,8 @@ interface DeviceContextType {
   controlFan: (entityId: string, on: boolean, percentage?: number) => void;
   controlLock: (entityId: string, action: 'lock' | 'unlock', code?: string) => void;
   controlAlarm: (entityId: string, action: 'arm_home' | 'arm_away' | 'disarm', code?: string) => void;
+  // Testing method
+  simulateStateChange: (entityId: string, newState: any, attributes?: any) => void;
 }
 
 const DeviceContext = createContext<DeviceContextType | undefined>(undefined);
@@ -208,6 +225,46 @@ export const DeviceProvider: React.FC<DeviceProviderProps> = ({ children }) => {
     socketService.onDevicesUpdated((devices) => {
       dispatch({ type: 'SET_DEVICES', payload: devices });
     });
+
+    // Simulate some state changes for demonstration (remove when going live)
+    const simulateUpdates = () => {
+      // Simulate motion sensor changes
+      setTimeout(() => {
+        dispatch({ 
+          type: 'SIMULATE_STATE_CHANGE', 
+          payload: { 
+            entityId: 'binary_sensor.living_room_motion', 
+            newState: 'off' 
+          } 
+        });
+      }, 5000);
+
+      // Simulate temperature changes
+      setTimeout(() => {
+        dispatch({ 
+          type: 'SIMULATE_STATE_CHANGE', 
+          payload: { 
+            entityId: 'sensor.kitchen_temperature', 
+            newState: 24 
+          } 
+        });
+      }, 8000);
+
+      // Simulate light state change
+      setTimeout(() => {
+        dispatch({ 
+          type: 'SIMULATE_STATE_CHANGE', 
+          payload: { 
+            entityId: 'light.kitchen_led_strip', 
+            newState: 'on',
+            attributes: { brightness: 200, rgb_color: [255, 100, 100] }
+          } 
+        });
+      }, 12000);
+    };
+
+    // Start simulation (remove when going live)
+    simulateUpdates();
 
     // Cleanup on unmount
     return () => {
@@ -340,6 +397,13 @@ export const DeviceProvider: React.FC<DeviceProviderProps> = ({ children }) => {
     }
   };
 
+  const simulateStateChange = (entityId: string, newState: any, attributes?: any) => {
+    dispatch({ 
+      type: 'SIMULATE_STATE_CHANGE', 
+      payload: { entityId, newState, attributes } 
+    });
+  };
+
   const contextValue: DeviceContextType = {
     state,
     updateDevice,
@@ -352,7 +416,8 @@ export const DeviceProvider: React.FC<DeviceProviderProps> = ({ children }) => {
     controlMediaPlayer,
     controlFan,
     controlLock,
-    controlAlarm
+    controlAlarm,
+    simulateStateChange
   };
 
   return (
