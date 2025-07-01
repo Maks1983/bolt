@@ -1,7 +1,7 @@
 /**
- * Socket.io Service for Home Assistant Integration
+ * WebSocket Service for Home Assistant Integration
  * 
- * This service handles the WebSocket connection to your Home Assistant backend.
+ * This service handles the native WebSocket connection to your Home Assistant backend.
  * 
  * To configure for your setup:
  * 1. Update VITE_HA_WEBSOCKET_URL to your Home Assistant WebSocket endpoint
@@ -9,22 +9,30 @@
  * 3. Set VITE_DEV_MODE=false when ready to connect to real Home Assistant
  */
 
-import { io, Socket } from 'socket.io-client';
 import { Device, EntityUpdateEvent, DeviceControlCommand, ConnectionState } from '../types/devices';
 
 // Configuration - Update these for your Home Assistant setup
-const SOCKET_URL = import.meta.env.VITE_HA_WEBSOCKET_URL || 'ws://localhost:8123';
+const WEBSOCKET_URL = import.meta.env.VITE_HA_WEBSOCKET_URL || 'ws://localhost:8123/api/websocket';
 const ACCESS_TOKEN = import.meta.env.VITE_HA_ACCESS_TOKEN || 'your-home-assistant-long-lived-access-token';
 const DEV_MODE = import.meta.env.VITE_DEV_MODE === 'true';
 
-export class SocketService {
-  private socket: Socket | null = null;
+interface HAMessage {
+  id?: number;
+  type: string;
+  [key: string]: any;
+}
+
+export class WebSocketService {
+  private ws: WebSocket | null = null;
   private connectionState: ConnectionState = 'disconnected';
   private reconnectAttempts = 0;
-  private maxReconnectAttempts = 3; // Reduced for development
-  private reconnectDelay = 2000; // Start with 2 seconds
-  private maxReconnectDelay = 10000; // Max 10 seconds
+  private maxReconnectAttempts = 3;
+  private reconnectDelay = 2000;
+  private maxReconnectDelay = 10000;
   private isManuallyDisconnected = false;
+  private messageId = 1;
+  private pendingMessages = new Map<number, (response: any) => void>();
+  private subscriptions = new Set<number>();
   
   // Event callbacks
   private onConnectionStateChange: ((state: ConnectionState, error?: string) => void) | null = null;
@@ -35,12 +43,12 @@ export class SocketService {
     if (!DEV_MODE) {
       this.connect();
     } else {
-      console.log('🔧 Development mode: Socket connection disabled');
+      console.log('🔧 Development mode: WebSocket connection disabled');
       console.log('💡 To enable Home Assistant connection:');
       console.log('   1. Set VITE_DEV_MODE=false in .env');
-      console.log('   2. Update VITE_HA_WEBSOCKET_URL with your Home Assistant URL');
+      console.log('   2. Update VITE_HA_WEBSOCKET_URL with your Home Assistant WebSocket URL');
       console.log('   3. Add your Home Assistant access token to VITE_HA_ACCESS_TOKEN');
-      this.setConnectionState('disconnected', 'Development mode - socket connection disabled');
+      this.setConnectionState('disconnected', 'Development mode - WebSocket connection disabled');
     }
   }
 
@@ -53,13 +61,13 @@ export class SocketService {
       return;
     }
 
-    if (this.socket?.connected) {
+    if (this.ws?.readyState === WebSocket.OPEN) {
       return;
     }
 
     // Validate configuration
-    if (!SOCKET_URL || SOCKET_URL === 'ws://localhost:8123') {
-      this.setConnectionState('error', 'Home Assistant URL not configured. Please update VITE_HA_WEBSOCKET_URL in .env');
+    if (!WEBSOCKET_URL || WEBSOCKET_URL === 'ws://localhost:8123/api/websocket') {
+      this.setConnectionState('error', 'Home Assistant WebSocket URL not configured. Please update VITE_HA_WEBSOCKET_URL in .env');
       return;
     }
 
@@ -72,21 +80,12 @@ export class SocketService {
     this.setConnectionState('connecting');
 
     try {
-      console.log(`🔌 Attempting to connect to Home Assistant at: ${SOCKET_URL}`);
+      console.log(`🔌 Attempting to connect to Home Assistant at: ${WEBSOCKET_URL}`);
       
-      this.socket = io(SOCKET_URL, {
-        auth: {
-          token: ACCESS_TOKEN
-        },
-        transports: ['websocket'],
-        timeout: 5000, // Reduced timeout for faster feedback
-        forceNew: true,
-        autoConnect: true
-      });
-
+      this.ws = new WebSocket(WEBSOCKET_URL);
       this.setupEventListeners();
     } catch (error) {
-      console.error('❌ Failed to create socket connection:', error);
+      console.error('❌ Failed to create WebSocket connection:', error);
       this.setConnectionState('error', error instanceof Error ? error.message : 'Connection failed');
       this.scheduleReconnect();
     }
@@ -97,129 +96,188 @@ export class SocketService {
    */
   public disconnect(): void {
     this.isManuallyDisconnected = true;
-    if (this.socket) {
-      this.socket.disconnect();
-      this.socket = null;
+    if (this.ws) {
+      this.ws.close();
+      this.ws = null;
     }
     this.setConnectionState('disconnected');
     this.reconnectAttempts = 0;
+    this.pendingMessages.clear();
+    this.subscriptions.clear();
   }
 
   /**
-   * Setup socket event listeners
+   * Setup WebSocket event listeners
    */
   private setupEventListeners(): void {
-    if (!this.socket) return;
+    if (!this.ws) return;
 
-    // Connection events
-    this.socket.on('connect', () => {
-      console.log('✅ Connected to Home Assistant');
-      this.setConnectionState('connected');
-      this.reconnectAttempts = 0;
-      this.reconnectDelay = 2000;
-      
-      // Subscribe to entity updates
-      this.subscribeToUpdates();
-    });
+    this.ws.onopen = () => {
+      console.log('✅ WebSocket connection opened');
+      // Home Assistant will send auth_required message first
+    };
 
-    this.socket.on('disconnect', (reason) => {
-      console.log('🔌 Disconnected from Home Assistant:', reason);
+    this.ws.onmessage = (event) => {
+      try {
+        const message: HAMessage = JSON.parse(event.data);
+        this.handleMessage(message);
+      } catch (error) {
+        console.error('❌ Failed to parse WebSocket message:', error);
+      }
+    };
+
+    this.ws.onclose = (event) => {
+      console.log('🔌 WebSocket connection closed:', event.code, event.reason);
       this.setConnectionState('disconnected');
       
+      // Clear pending messages and subscriptions
+      this.pendingMessages.clear();
+      this.subscriptions.clear();
+      
       // Auto-reconnect unless manually disconnected
-      if (reason !== 'io client disconnect' && !this.isManuallyDisconnected) {
-        this.scheduleReconnect();
-      }
-    });
-
-    this.socket.on('connect_error', (error) => {
-      console.error('❌ Connection error:', error.message);
-      
-      let errorMessage = 'Connection failed';
-      if (error.message.includes('websocket error')) {
-        errorMessage = 'Cannot reach Home Assistant. Please check if Home Assistant is running and accessible.';
-      } else if (error.message.includes('timeout')) {
-        errorMessage = 'Connection timeout. Home Assistant may be unreachable.';
-      } else if (error.message.includes('auth')) {
-        errorMessage = 'Authentication failed. Please check your access token.';
-      }
-      
-      this.setConnectionState('error', errorMessage);
-      
       if (!this.isManuallyDisconnected) {
         this.scheduleReconnect();
       }
-    });
+    };
 
-    // Home Assistant specific events
-    this.socket.on('entity_update', (data: EntityUpdateEvent) => {
-      console.log('📡 Entity update received:', data);
-      if (this.onEntityUpdate) {
-        this.onEntityUpdate(data);
-      }
-    });
+    this.ws.onerror = (error) => {
+      console.error('❌ WebSocket error:', error);
+      this.setConnectionState('error', 'WebSocket connection error');
+    };
+  }
 
-    this.socket.on('state_changed', (data: any) => {
-      // Handle Home Assistant state_changed events
-      const update: EntityUpdateEvent = {
-        entity_id: data.entity_id,
-        state: data.new_state?.state,
-        attributes: data.new_state?.attributes,
-        last_updated: data.new_state?.last_updated || new Date().toISOString()
-      };
-      
-      if (this.onEntityUpdate) {
-        this.onEntityUpdate(update);
-      }
-    });
+  /**
+   * Handle incoming WebSocket messages
+   */
+  private handleMessage(message: HAMessage): void {
+    console.log('📡 Received message:', message);
 
-    this.socket.on('devices_update', (devices: Device[]) => {
-      console.log('📡 Devices update received:', devices);
-      if (this.onDevicesUpdate) {
-        this.onDevicesUpdate(devices);
-      }
-    });
+    switch (message.type) {
+      case 'auth_required':
+        this.authenticate();
+        break;
 
-    // Authentication events
-    this.socket.on('auth_required', () => {
-      console.log('🔐 Authentication required');
-      this.authenticate();
-    });
+      case 'auth_ok':
+        console.log('✅ Authentication successful');
+        this.setConnectionState('connected');
+        this.reconnectAttempts = 0;
+        this.reconnectDelay = 2000;
+        this.subscribeToUpdates();
+        break;
 
-    this.socket.on('auth_ok', () => {
-      console.log('✅ Authentication successful');
-    });
+      case 'auth_invalid':
+        console.error('❌ Authentication failed:', message);
+        this.setConnectionState('error', 'Authentication failed - please check your access token');
+        break;
 
-    this.socket.on('auth_invalid', (error: any) => {
-      console.error('❌ Authentication failed:', error);
-      this.setConnectionState('error', 'Authentication failed - please check your access token');
-    });
+      case 'result':
+        // Handle command responses
+        if (message.id && this.pendingMessages.has(message.id)) {
+          const callback = this.pendingMessages.get(message.id);
+          if (callback) {
+            callback(message);
+            this.pendingMessages.delete(message.id);
+          }
+        }
+        break;
+
+      case 'event':
+        // Handle state change events
+        if (message.event?.event_type === 'state_changed') {
+          const eventData = message.event.data;
+          if (eventData?.new_state) {
+            const update: EntityUpdateEvent = {
+              entity_id: eventData.entity_id,
+              state: eventData.new_state.state,
+              attributes: eventData.new_state.attributes,
+              last_updated: eventData.new_state.last_updated || new Date().toISOString()
+            };
+            
+            if (this.onEntityUpdate) {
+              this.onEntityUpdate(update);
+            }
+          }
+        }
+        break;
+
+      default:
+        console.log('📡 Unhandled message type:', message.type);
+    }
   }
 
   /**
    * Authenticate with Home Assistant
    */
   private authenticate(): void {
-    if (!this.socket) return;
+    if (!this.ws || this.ws.readyState !== WebSocket.OPEN) return;
 
-    this.socket.emit('auth', {
+    const authMessage: HAMessage = {
+      type: 'auth',
       access_token: ACCESS_TOKEN
-    });
+    };
+
+    this.ws.send(JSON.stringify(authMessage));
   }
 
   /**
    * Subscribe to entity updates
    */
   private subscribeToUpdates(): void {
-    if (!this.socket) return;
+    if (!this.ws || this.ws.readyState !== WebSocket.OPEN) return;
 
-    // Subscribe to all entity updates
-    this.socket.emit('subscribe_events', {
+    // Subscribe to state_changed events
+    const subscribeMessage: HAMessage = {
+      id: this.messageId++,
+      type: 'subscribe_events',
       event_type: 'state_changed'
+    };
+
+    this.ws.send(JSON.stringify(subscribeMessage));
+    this.subscriptions.add(subscribeMessage.id!);
+
+    // Get initial states
+    this.getStates();
+  }
+
+  /**
+   * Get all current states
+   */
+  private getStates(): void {
+    if (!this.ws || this.ws.readyState !== WebSocket.OPEN) return;
+
+    const getStatesMessage: HAMessage = {
+      id: this.messageId++,
+      type: 'get_states'
+    };
+
+    this.pendingMessages.set(getStatesMessage.id!, (response) => {
+      if (response.success && response.result) {
+        // Convert HA states to our device format
+        const devices = this.convertHAStatesToDevices(response.result);
+        if (this.onDevicesUpdate) {
+          this.onDevicesUpdate(devices);
+        }
+      }
     });
 
-    // Request initial state
-    this.socket.emit('get_states');
+    this.ws.send(JSON.stringify(getStatesMessage));
+  }
+
+  /**
+   * Convert Home Assistant states to our device format
+   */
+  private convertHAStatesToDevices(states: any[]): Device[] {
+    return states.map(state => ({
+      entity_id: state.entity_id,
+      friendly_name: state.attributes?.friendly_name || state.entity_id,
+      device_type: state.entity_id.split('.')[0],
+      room: state.attributes?.area_id || 'Unknown',
+      floor: 'Unknown',
+      state: state.state,
+      last_updated: state.last_updated,
+      available: state.state !== 'unavailable',
+      ...state.attributes
+    }));
   }
 
   /**
@@ -259,28 +317,40 @@ export class SocketService {
   }
 
   /**
+   * Send a service call to Home Assistant
+   */
+  private callService(domain: string, service: string, entityId: string, serviceData?: any): void {
+    if (DEV_MODE) {
+      console.log('🔧 Development mode: Service call simulated -', { domain, service, entityId, serviceData });
+      return;
+    }
+
+    if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
+      console.error('❌ Cannot send service call: WebSocket not connected');
+      return;
+    }
+
+    const message: HAMessage = {
+      id: this.messageId++,
+      type: 'call_service',
+      domain,
+      service,
+      target: {
+        entity_id: entityId
+      },
+      service_data: serviceData || {}
+    };
+
+    console.log('📤 Sending service call:', message);
+    this.ws.send(JSON.stringify(message));
+  }
+
+  /**
    * Control a device (send command to Home Assistant)
    */
   public controlDevice(command: DeviceControlCommand): void {
-    if (DEV_MODE) {
-      console.log('🔧 Development mode: Device control simulated -', command);
-      return;
-    }
-
-    if (!this.socket?.connected) {
-      console.error('❌ Cannot send command: not connected to Home Assistant');
-      return;
-    }
-
-    console.log('📤 Sending device control command:', command);
-    this.socket.emit('call_service', {
-      domain: command.service.split('.')[0],
-      service: command.service.split('.')[1],
-      target: {
-        entity_id: command.entity_id
-      },
-      service_data: command.service_data || {}
-    });
+    const [domain, service] = command.service.split('.');
+    this.callService(domain, service, command.entity_id, command.service_data);
   }
 
   /**
@@ -297,77 +367,50 @@ export class SocketService {
       serviceData.rgb_color = rgbColor;
     }
 
-    this.controlDevice({
-      entity_id: entityId,
-      service: 'light.turn_on',
-      service_data: serviceData
-    });
+    this.callService('light', 'turn_on', entityId, serviceData);
   }
 
   /**
    * Turn off a light
    */
   public turnOffLight(entityId: string): void {
-    this.controlDevice({
-      entity_id: entityId,
-      service: 'light.turn_off'
-    });
+    this.callService('light', 'turn_off', entityId);
   }
 
   /**
    * Set cover position (blinds/curtains)
    */
   public setCoverPosition(entityId: string, position: number): void {
-    this.controlDevice({
-      entity_id: entityId,
-      service: 'cover.set_cover_position',
-      service_data: { position }
-    });
+    this.callService('cover', 'set_cover_position', entityId, { position });
   }
 
   /**
    * Open cover
    */
   public openCover(entityId: string): void {
-    this.controlDevice({
-      entity_id: entityId,
-      service: 'cover.open_cover'
-    });
+    this.callService('cover', 'open_cover', entityId);
   }
 
   /**
    * Close cover
    */
   public closeCover(entityId: string): void {
-    this.controlDevice({
-      entity_id: entityId,
-      service: 'cover.close_cover'
-    });
+    this.callService('cover', 'close_cover', entityId);
   }
 
   /**
    * Control media player
    */
   public playMedia(entityId: string): void {
-    this.controlDevice({
-      entity_id: entityId,
-      service: 'media_player.media_play'
-    });
+    this.callService('media_player', 'media_play', entityId);
   }
 
   public pauseMedia(entityId: string): void {
-    this.controlDevice({
-      entity_id: entityId,
-      service: 'media_player.media_pause'
-    });
+    this.callService('media_player', 'media_pause', entityId);
   }
 
   public setMediaVolume(entityId: string, volumeLevel: number): void {
-    this.controlDevice({
-      entity_id: entityId,
-      service: 'media_player.volume_set',
-      service_data: { volume_level: volumeLevel }
-    });
+    this.callService('media_player', 'volume_set', entityId, { volume_level: volumeLevel });
   }
 
   /**
@@ -375,20 +418,12 @@ export class SocketService {
    */
   public lockDoor(entityId: string, code?: string): void {
     const serviceData = code ? { code } : {};
-    this.controlDevice({
-      entity_id: entityId,
-      service: 'lock.lock',
-      service_data: serviceData
-    });
+    this.callService('lock', 'lock', entityId, serviceData);
   }
 
   public unlockDoor(entityId: string, code?: string): void {
     const serviceData = code ? { code } : {};
-    this.controlDevice({
-      entity_id: entityId,
-      service: 'lock.unlock',
-      service_data: serviceData
-    });
+    this.callService('lock', 'unlock', entityId, serviceData);
   }
 
   /**
@@ -396,18 +431,11 @@ export class SocketService {
    */
   public turnOnFan(entityId: string, percentage?: number): void {
     const serviceData = percentage !== undefined ? { percentage } : {};
-    this.controlDevice({
-      entity_id: entityId,
-      service: 'fan.turn_on',
-      service_data: serviceData
-    });
+    this.callService('fan', 'turn_on', entityId, serviceData);
   }
 
   public turnOffFan(entityId: string): void {
-    this.controlDevice({
-      entity_id: entityId,
-      service: 'fan.turn_off'
-    });
+    this.callService('fan', 'turn_off', entityId);
   }
 
   /**
@@ -415,29 +443,17 @@ export class SocketService {
    */
   public armAlarmHome(entityId: string, code?: string): void {
     const serviceData = code ? { code } : {};
-    this.controlDevice({
-      entity_id: entityId,
-      service: 'alarm_control_panel.alarm_arm_home',
-      service_data: serviceData
-    });
+    this.callService('alarm_control_panel', 'alarm_arm_home', entityId, serviceData);
   }
 
   public armAlarmAway(entityId: string, code?: string): void {
     const serviceData = code ? { code } : {};
-    this.controlDevice({
-      entity_id: entityId,
-      service: 'alarm_control_panel.alarm_arm_away',
-      service_data: serviceData
-    });
+    this.callService('alarm_control_panel', 'alarm_arm_away', entityId, serviceData);
   }
 
   public disarmAlarm(entityId: string, code?: string): void {
     const serviceData = code ? { code } : {};
-    this.controlDevice({
-      entity_id: entityId,
-      service: 'alarm_control_panel.alarm_disarm',
-      service_data: serviceData
-    });
+    this.callService('alarm_control_panel', 'alarm_disarm', entityId, serviceData);
   }
 
   /**
@@ -482,7 +498,7 @@ export class SocketService {
    * Check if connected
    */
   public isConnected(): boolean {
-    return this.socket?.connected || false;
+    return this.ws?.readyState === WebSocket.OPEN || false;
   }
 
   /**
@@ -494,4 +510,4 @@ export class SocketService {
 }
 
 // Export singleton instance
-export const socketService = new SocketService();
+export const socketService = new WebSocketService();
