@@ -17,7 +17,7 @@ export const useDeviceUpdates = (entityId?: string) => {
   useEffect(() => {
     if (!entityId) return;
 
-    // This would be handled by the socket service in a real implementation
+    // This would be handled by the WebSocket service in a real implementation
     // For now, we'll just ensure the device exists in our state
     const currentDevice = getDevice(entityId);
     if (!currentDevice) {
