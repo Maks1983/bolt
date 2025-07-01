@@ -8,10 +8,13 @@ interface AlarmControlProps {
 }
 
 const AlarmControl: React.FC<AlarmControlProps> = ({ device }) => {
-  const { controlAlarm } = useDevices();
+  const { controlAlarm, getDevice } = useDevices();
   const [code, setCode] = useState('');
   const [showCode, setShowCode] = useState(false);
   const [entryDelay, setEntryDelay] = useState(0);
+
+  // Always get the latest device state from context
+  const currentDevice = getDevice(device.entity_id) as AlarmControlPanelDevice || device;
 
   const handleNumberClick = (num: string) => {
     if (code.length < 6) {
@@ -30,16 +33,16 @@ const AlarmControl: React.FC<AlarmControlProps> = ({ device }) => {
   const handleAction = (action: 'arm_home' | 'arm_away' | 'disarm' | 'panic') => {
     if (action === 'panic') {
       // Panic doesn't require code
-      controlAlarm(device.entity_id, 'arm_away', '9999'); // Special panic code
+      controlAlarm(currentDevice.entity_id, 'arm_away', '9999'); // Special panic code
       return;
     }
 
-    if (!code && device.code_format) {
+    if (!code && currentDevice.code_format) {
       alert('Please enter your alarm code');
       return;
     }
 
-    controlAlarm(device.entity_id, action, code);
+    controlAlarm(currentDevice.entity_id, action, code);
     setCode('');
     
     // Simulate entry/exit delay for demo
@@ -58,7 +61,7 @@ const AlarmControl: React.FC<AlarmControlProps> = ({ device }) => {
   };
 
   const getStatusColor = () => {
-    switch (device.state) {
+    switch (currentDevice.state) {
       case 'disarmed':
         return 'bg-green-100 text-green-800 border-green-200';
       case 'armed_home':
@@ -75,7 +78,7 @@ const AlarmControl: React.FC<AlarmControlProps> = ({ device }) => {
   };
 
   const getStatusIcon = () => {
-    switch (device.state) {
+    switch (currentDevice.state) {
       case 'disarmed':
         return <Shield className="w-6 h-6 text-green-600" />;
       case 'armed_home':
@@ -92,7 +95,7 @@ const AlarmControl: React.FC<AlarmControlProps> = ({ device }) => {
   };
 
   const getStatusText = () => {
-    switch (device.state) {
+    switch (currentDevice.state) {
       case 'disarmed':
         return 'System Disarmed';
       case 'armed_home':
@@ -220,9 +223,9 @@ const AlarmControl: React.FC<AlarmControlProps> = ({ device }) => {
 
       {/* Additional Info */}
       <div className="mt-6 text-center text-sm text-gray-600">
-        <p>Last changed by: {device.changed_by || 'System'}</p>
+        <p>Last changed by: {currentDevice.changed_by || 'System'}</p>
         <p className="mt-1">
-          Last updated: {new Date(device.last_updated).toLocaleTimeString()}
+          Last updated: {new Date(currentDevice.last_updated).toLocaleTimeString()}
         </p>
       </div>
     </div>
