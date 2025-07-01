@@ -34,6 +34,107 @@ const initialState: DeviceState = {
   connectionState: 'disconnected'
 };
 
+// Helper function to map Home Assistant attributes to device properties
+function mapAttributesToDevice(deviceType: string, attributes: any): Partial<Device> {
+  const updates: Partial<Device> = {};
+
+  if (!attributes) return updates;
+
+  // Light attributes
+  if (deviceType === 'light') {
+    if (attributes.brightness !== undefined) {
+      (updates as any).brightness = attributes.brightness;
+    }
+    if (attributes.rgb_color) {
+      (updates as any).rgb_color = attributes.rgb_color;
+    }
+    if (attributes.color_temp) {
+      (updates as any).color_temp = attributes.color_temp;
+    }
+    if (attributes.color_mode) {
+      (updates as any).color_mode = attributes.color_mode;
+    }
+    if (attributes.supported_color_modes) {
+      (updates as any).supported_color_modes = attributes.supported_color_modes;
+    }
+  }
+
+  // Cover attributes
+  if (deviceType === 'cover') {
+    if (attributes.current_position !== undefined) {
+      (updates as any).position = attributes.current_position;
+    }
+    if (attributes.tilt_position !== undefined) {
+      (updates as any).tilt_position = attributes.tilt_position;
+    }
+  }
+
+  // Media player attributes
+  if (deviceType === 'media_player') {
+    if (attributes.volume_level !== undefined) {
+      (updates as any).volume_level = attributes.volume_level;
+    }
+    if (attributes.media_title) {
+      (updates as any).media_title = attributes.media_title;
+    }
+    if (attributes.media_artist) {
+      (updates as any).media_artist = attributes.media_artist;
+    }
+    if (attributes.source) {
+      (updates as any).source = attributes.source;
+    }
+    if (attributes.is_volume_muted !== undefined) {
+      (updates as any).is_volume_muted = attributes.is_volume_muted;
+    }
+  }
+
+  // Sensor attributes
+  if (deviceType === 'sensor') {
+    if (attributes.unit_of_measurement) {
+      (updates as any).unit_of_measurement = attributes.unit_of_measurement;
+    }
+    if (attributes.device_class) {
+      (updates as any).device_class = attributes.device_class;
+    }
+  }
+
+  // Binary sensor attributes
+  if (deviceType === 'binary_sensor') {
+    if (attributes.device_class) {
+      (updates as any).device_class = attributes.device_class;
+    }
+  }
+
+  // Fan attributes
+  if (deviceType === 'fan') {
+    if (attributes.percentage !== undefined) {
+      (updates as any).percentage = attributes.percentage;
+    }
+    if (attributes.preset_mode) {
+      (updates as any).preset_mode = attributes.preset_mode;
+    }
+    if (attributes.oscillating !== undefined) {
+      (updates as any).oscillating = attributes.oscillating;
+    }
+  }
+
+  // Lock attributes
+  if (deviceType === 'lock') {
+    if (attributes.changed_by) {
+      (updates as any).changed_by = attributes.changed_by;
+    }
+  }
+
+  // Alarm control panel attributes
+  if (deviceType === 'alarm_control_panel') {
+    if (attributes.changed_by) {
+      (updates as any).changed_by = attributes.changed_by;
+    }
+  }
+
+  return updates;
+}
+
 function deviceReducer(state: DeviceState, action: DeviceAction): DeviceState {
   switch (action.type) {
     case 'SET_DEVICES':
@@ -63,62 +164,36 @@ function deviceReducer(state: DeviceState, action: DeviceAction): DeviceState {
     case 'ENTITY_UPDATE': {
       const { entity_id, state: newState, attributes, last_updated } = action.payload;
       
+      console.log('🔄 Processing entity update:', { entity_id, newState, attributes });
+      
       const updatedDevices = state.devices.map(device => {
         if (device.entity_id === entity_id) {
-          const updates: Partial<Device> = {
+          console.log('✅ Found matching device:', device.friendly_name);
+          
+          // Map attributes to device properties
+          const attributeUpdates = mapAttributesToDevice(device.device_type, attributes);
+          
+          const updatedDevice = {
+            ...device,
             state: newState,
-            last_updated
+            ...attributeUpdates,
+            last_updated: last_updated || new Date().toISOString()
           };
-
-          // Map Home Assistant attributes to device properties
-          if (attributes) {
-            // Light attributes
-            if (device.device_type === 'light' && attributes.brightness !== undefined) {
-              (updates as any).brightness = attributes.brightness;
-            }
-            if (device.device_type === 'light' && attributes.rgb_color) {
-              (updates as any).rgb_color = attributes.rgb_color;
-            }
-            if (device.device_type === 'light' && attributes.color_temp) {
-              (updates as any).color_temp = attributes.color_temp;
-            }
-
-            // Cover attributes
-            if (device.device_type === 'cover' && attributes.current_position !== undefined) {
-              (updates as any).position = attributes.current_position;
-            }
-
-            // Media player attributes
-            if (device.device_type === 'media_player') {
-              if (attributes.volume_level !== undefined) {
-                (updates as any).volume_level = attributes.volume_level;
-              }
-              if (attributes.media_title) {
-                (updates as any).media_title = attributes.media_title;
-              }
-              if (attributes.media_artist) {
-                (updates as any).media_artist = attributes.media_artist;
-              }
-              if (attributes.source) {
-                (updates as any).source = attributes.source;
-              }
-            }
-
-            // Sensor attributes
-            if (device.device_type === 'sensor' && attributes.unit_of_measurement) {
-              (updates as any).unit_of_measurement = attributes.unit_of_measurement;
-            }
-
-            // Fan attributes
-            if (device.device_type === 'fan' && attributes.percentage !== undefined) {
-              (updates as any).percentage = attributes.percentage;
-            }
-          }
-
-          return { ...device, ...updates };
+          
+          console.log('🔄 Updated device:', updatedDevice);
+          return updatedDevice;
         }
         return device;
       });
+
+      const hasChanges = updatedDevices.some((device, index) => 
+        device !== state.devices[index]
+      );
+
+      if (!hasChanges) {
+        console.log('⚠️ No device found for entity_id:', entity_id);
+        return state;
+      }
 
       return {
         ...state,
@@ -215,16 +290,17 @@ export const DeviceProvider: React.FC<DeviceProviderProps> = ({ children }) => {
   useEffect(() => {
     // Setup WebSocket event listeners
     socketService.onConnectionChange((connectionState, error) => {
+      console.log('🔌 Connection state changed:', connectionState, error);
       dispatch({ type: 'SET_CONNECTION_STATE', payload: { state: connectionState, error } });
     });
 
     socketService.onEntityUpdated((update) => {
-      console.log('🔄 Entity updated:', update);
+      console.log('🔄 Entity updated from WebSocket:', update);
       dispatch({ type: 'ENTITY_UPDATE', payload: update });
     });
 
     socketService.onDevicesUpdated((devices) => {
-      console.log('🔄 Devices updated:', devices.length, 'devices');
+      console.log('🔄 Devices updated from WebSocket:', devices.length, 'devices');
       dispatch({ type: 'SET_DEVICES', payload: devices });
     });
 
@@ -311,6 +387,7 @@ export const DeviceProvider: React.FC<DeviceProviderProps> = ({ children }) => {
   }, []);
 
   const updateDevice = (entityId: string, updates: Partial<Device>) => {
+    console.log('🔄 Manual device update:', { entityId, updates });
     dispatch({ type: 'UPDATE_DEVICE', payload: { entityId, updates } });
   };
 
@@ -343,6 +420,8 @@ export const DeviceProvider: React.FC<DeviceProviderProps> = ({ children }) => {
 
   // Device control methods
   const controlLight = (entityId: string, on: boolean, brightness?: number, rgbColor?: [number, number, number]) => {
+    console.log('💡 Controlling light:', { entityId, on, brightness, rgbColor });
+    
     if (on) {
       socketService.turnOnLight(entityId, brightness, rgbColor);
     } else {
@@ -350,14 +429,18 @@ export const DeviceProvider: React.FC<DeviceProviderProps> = ({ children }) => {
     }
     
     // Optimistic update
-    updateDevice(entityId, { 
+    const optimisticUpdates: Partial<Device> = { 
       state: on ? 'on' : 'off',
       ...(brightness !== undefined && { brightness }),
       ...(rgbColor && { rgb_color: rgbColor })
-    });
+    };
+    
+    updateDevice(entityId, optimisticUpdates);
   };
 
   const controlCover = (entityId: string, action: 'open' | 'close' | 'set_position', position?: number) => {
+    console.log('🪟 Controlling cover:', { entityId, action, position });
+    
     switch (action) {
       case 'open':
         socketService.openCover(entityId);
@@ -377,6 +460,8 @@ export const DeviceProvider: React.FC<DeviceProviderProps> = ({ children }) => {
   };
 
   const controlMediaPlayer = (entityId: string, action: 'play' | 'pause' | 'volume', volume?: number) => {
+    console.log('🎵 Controlling media player:', { entityId, action, volume });
+    
     switch (action) {
       case 'play':
         socketService.playMedia(entityId);
@@ -396,6 +481,8 @@ export const DeviceProvider: React.FC<DeviceProviderProps> = ({ children }) => {
   };
 
   const controlFan = (entityId: string, on: boolean, percentage?: number) => {
+    console.log('🌀 Controlling fan:', { entityId, on, percentage });
+    
     if (on) {
       socketService.turnOnFan(entityId, percentage);
       updateDevice(entityId, { 
@@ -409,6 +496,8 @@ export const DeviceProvider: React.FC<DeviceProviderProps> = ({ children }) => {
   };
 
   const controlLock = (entityId: string, action: 'lock' | 'unlock', code?: string) => {
+    console.log('🔒 Controlling lock:', { entityId, action });
+    
     if (action === 'lock') {
       socketService.lockDoor(entityId, code);
       updateDevice(entityId, { state: 'locking' });
@@ -419,6 +508,8 @@ export const DeviceProvider: React.FC<DeviceProviderProps> = ({ children }) => {
   };
 
   const controlAlarm = (entityId: string, action: 'arm_home' | 'arm_away' | 'disarm', code?: string) => {
+    console.log('🚨 Controlling alarm:', { entityId, action });
+    
     switch (action) {
       case 'arm_home':
         socketService.armAlarmHome(entityId, code);
