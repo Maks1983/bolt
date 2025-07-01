@@ -8,22 +8,25 @@ interface FanControlProps {
 }
 
 const FanControl: React.FC<FanControlProps> = ({ device }) => {
-  const { controlFan } = useDevices();
+  const { controlFan, getDevice } = useDevices();
+
+  // Always get the latest device state from context
+  const currentDevice = getDevice(device.entity_id) as FanDevice || device;
 
   const handleToggle = () => {
-    controlFan(device.entity_id, device.state === 'off');
+    controlFan(currentDevice.entity_id, currentDevice.state === 'off');
   };
 
   const handleSpeedChange = (percentage: number) => {
-    controlFan(device.entity_id, percentage > 0, percentage);
+    controlFan(currentDevice.entity_id, percentage > 0, percentage);
   };
 
-  const isOn = device.state === 'on';
+  const isOn = currentDevice.state === 'on';
 
   return (
     <div className="bg-gray-50/80 rounded-2xl p-5 border border-gray-200/50">
       <div className="flex items-center justify-between mb-4">
-        <h4 className="font-semibold text-gray-900">{device.friendly_name}</h4>
+        <h4 className="font-semibold text-gray-900">{currentDevice.friendly_name}</h4>
         <button
           onClick={handleToggle}
           className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
@@ -40,13 +43,13 @@ const FanControl: React.FC<FanControlProps> = ({ device }) => {
         <div>
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-gray-700">Speed</span>
-            <span className="text-sm text-gray-500">{device.percentage || 0}%</span>
+            <span className="text-sm text-gray-500">{currentDevice.percentage || 0}%</span>
           </div>
           <input
             type="range"
             min="0"
             max="100"
-            value={device.percentage || 0}
+            value={currentDevice.percentage || 0}
             onChange={(e) => handleSpeedChange(parseInt(e.target.value))}
             className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
           />

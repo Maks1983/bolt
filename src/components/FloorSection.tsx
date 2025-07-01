@@ -6,11 +6,6 @@ interface FloorSectionProps {
   rooms: Array<{
     name: string;
     floor: string;
-    lights: { on: number; total: number };
-    temperature: number;
-    humidity: number;
-    presence: boolean;
-    windowOpen: boolean;
     backgroundImage: string;
   }>;
 }
@@ -22,7 +17,12 @@ const FloorSection: React.FC<FloorSectionProps> = ({ title, rooms }) => {
       <div className="overflow-x-auto scrollbar-hide">
         <div className="flex space-x-4 px-6 pb-2">
           {rooms.map((room, index) => (
-            <RoomCard key={index} room={room} />
+            <RoomCard 
+              key={index} 
+              roomName={room.name}
+              floor={room.floor}
+              backgroundImage={room.backgroundImage}
+            />
           ))}
         </div>
       </div>

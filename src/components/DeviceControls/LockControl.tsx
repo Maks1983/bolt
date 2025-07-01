@@ -8,23 +8,26 @@ interface LockControlProps {
 }
 
 const LockControl: React.FC<LockControlProps> = ({ device }) => {
-  const { controlLock } = useDevices();
+  const { controlLock, getDevice } = useDevices();
   const [code, setCode] = useState('');
   const [showCodeInput, setShowCodeInput] = useState(false);
 
+  // Always get the latest device state from context
+  const currentDevice = getDevice(device.entity_id) as LockDevice || device;
+
   const handleToggle = () => {
-    if (device.code_format && !code) {
+    if (currentDevice.code_format && !code) {
       setShowCodeInput(true);
       return;
     }
 
-    const action = device.state === 'locked' ? 'unlock' : 'lock';
-    controlLock(device.entity_id, action, code || undefined);
+    const action = currentDevice.state === 'locked' ? 'unlock' : 'lock';
+    controlLock(currentDevice.entity_id, action, code || undefined);
     setCode('');
     setShowCodeInput(false);
   };
 
-  const isLocked = device.state === 'locked';
+  const isLocked = currentDevice.state === 'locked';
 
   return (
     <div className="bg-gray-50/80 rounded-2xl p-5 border border-gray-200/50">
@@ -35,7 +38,7 @@ const LockControl: React.FC<LockControlProps> = ({ device }) => {
             <Unlock className="w-5 h-5 text-green-600" />
           }
           <div>
-            <h4 className="font-semibold text-gray-900">{device.friendly_name}</h4>
+            <h4 className="font-semibold text-gray-900">{currentDevice.friendly_name}</h4>
             <p className="text-sm text-gray-600">
               {isLocked ? 'Locked' : 'Unlocked'}
             </p>

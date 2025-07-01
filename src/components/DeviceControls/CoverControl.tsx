@@ -9,18 +9,21 @@ interface CoverControlProps {
 }
 
 const CoverControl: React.FC<CoverControlProps> = ({ device, type = 'blind' }) => {
-  const { controlCover } = useDevices();
+  const { controlCover, getDevice } = useDevices();
+
+  // Always get the latest device state from context
+  const currentDevice = getDevice(device.entity_id) as BlindDevice || device;
 
   const handlePositionChange = (position: number) => {
-    controlCover(device.entity_id, 'set_position', position);
+    controlCover(currentDevice.entity_id, 'set_position', position);
   };
 
   const handleOpen = () => {
-    controlCover(device.entity_id, 'open');
+    controlCover(currentDevice.entity_id, 'open');
   };
 
   const handleClose = () => {
-    controlCover(device.entity_id, 'close');
+    controlCover(currentDevice.entity_id, 'close');
   };
 
   const getTypeLabel = () => {
@@ -47,7 +50,7 @@ const CoverControl: React.FC<CoverControlProps> = ({ device, type = 'blind' }) =
   return (
     <div className="bg-gray-50/80 rounded-2xl p-5 border border-gray-200/50">
       <div className="flex items-center justify-between mb-4">
-        <h4 className="font-semibold text-gray-900">{device.friendly_name}</h4>
+        <h4 className="font-semibold text-gray-900">{currentDevice.friendly_name}</h4>
         <div className="flex items-center space-x-2">
           <button
             onClick={handleClose}
@@ -67,13 +70,13 @@ const CoverControl: React.FC<CoverControlProps> = ({ device, type = 'blind' }) =
       <div>
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm font-medium text-gray-700">Position</span>
-          <span className="text-sm text-gray-500">{device.position || 0}% open</span>
+          <span className="text-sm text-gray-500">{currentDevice.position || 0}% open</span>
         </div>
         <input
           type="range"
           min="0"
           max="100"
-          value={device.position || 0}
+          value={currentDevice.position || 0}
           onChange={(e) => handlePositionChange(parseInt(e.target.value))}
           className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
         />

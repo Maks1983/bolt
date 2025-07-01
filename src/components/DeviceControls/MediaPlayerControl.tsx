@@ -8,27 +8,30 @@ interface MediaPlayerControlProps {
 }
 
 const MediaPlayerControl: React.FC<MediaPlayerControlProps> = ({ device }) => {
-  const { controlMediaPlayer } = useDevices();
+  const { controlMediaPlayer, getDevice } = useDevices();
+
+  // Always get the latest device state from context
+  const currentDevice = getDevice(device.entity_id) as MediaPlayerDevice || device;
 
   const handlePlayPause = () => {
-    const action = device.state === 'playing' ? 'pause' : 'play';
-    controlMediaPlayer(device.entity_id, action);
+    const action = currentDevice.state === 'playing' ? 'pause' : 'play';
+    controlMediaPlayer(currentDevice.entity_id, action);
   };
 
   const handleVolumeChange = (volume: number) => {
-    controlMediaPlayer(device.entity_id, 'volume', volume / 100);
+    controlMediaPlayer(currentDevice.entity_id, 'volume', volume / 100);
   };
 
-  const isPlaying = device.state === 'playing';
-  const volumePercentage = Math.round((device.volume_level || 0) * 100);
+  const isPlaying = currentDevice.state === 'playing';
+  const volumePercentage = Math.round((currentDevice.volume_level || 0) * 100);
 
   return (
     <div className="bg-gray-50/80 rounded-2xl p-5 border border-gray-200/50">
       <div className="flex items-center justify-between mb-4">
         <div>
           <h4 className="font-semibold text-gray-900">Now Playing</h4>
-          <p className="text-sm text-gray-600">{device.media_title || 'No media'}</p>
-          <p className="text-xs text-gray-500 mt-1">Source: {device.source || 'Unknown'}</p>
+          <p className="text-sm text-gray-600">{currentDevice.media_title || 'No media'}</p>
+          <p className="text-xs text-gray-500 mt-1">Source: {currentDevice.source || 'Unknown'}</p>
         </div>
         <button
           onClick={handlePlayPause}

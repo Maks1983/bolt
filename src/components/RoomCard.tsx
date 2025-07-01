@@ -4,7 +4,6 @@ import {
   Droplets, DoorOpen, DoorClosed, Columns2,
   Waves, Flame, Wind, Shield, AlertTriangle
 } from 'lucide-react';
-import { Device } from '../types/devices';
 import { useDevices } from '../context/DeviceContext';
 import LightControl from './DeviceControls/LightControl';
 import CoverControl from './DeviceControls/CoverControl';
@@ -13,24 +12,32 @@ import FanControl from './DeviceControls/FanControl';
 import LockControl from './DeviceControls/LockControl';
 
 interface RoomCardProps {
-  room: {
-    name: string;
-    floor: string;
-    lights: { on: number; total: number };
-    temperature: number;
-    humidity: number;
-    presence: boolean;
-    windowOpen: boolean;
-    backgroundImage: string;
-    devices?: Device[];
-  };
+  roomName: string;
+  floor: string;
+  backgroundImage: string;
 }
 
-const RoomCard: React.FC<RoomCardProps> = ({ room }) => {
+const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage }) => {
   const [expanded, setExpanded] = useState(false);
   const { getRoomDevices } = useDevices();
 
-  const roomDevices = getRoomDevices(room.name);
+  // Get live device data from context
+  const roomDevices = getRoomDevices(roomName);
+
+  // Calculate live room statistics
+  const temperatureSensor = roomDevices.sensors.find(s => (s as any).sensor_type === 'temperature');
+  const humiditySensor = roomDevices.sensors.find(s => (s as any).sensor_type === 'humidity');
+  const motionSensor = roomDevices.binarySensors.find(s => (s as any).sensor_type === 'motion');
+  const windowSensors = roomDevices.binarySensors.filter(s => (s as any).sensor_type === 'window');
+  const doorSensors = roomDevices.binarySensors.filter(s => (s as any).sensor_type === 'door');
+
+  // Live calculated values
+  const lightsOn = roomDevices.lights.filter(l => l.state === 'on').length;
+  const totalLights = roomDevices.lights.length;
+  const temperature = temperatureSensor ? Number(temperatureSensor.state) : 20;
+  const humidity = humiditySensor ? Number(humiditySensor.state) : 50;
+  const presence = motionSensor ? motionSensor.state === 'on' : false;
+  const windowOpen = windowSensors.some(s => s.state === 'on') || doorSensors.some(s => s.state === 'on');
 
   const lastUpdate = new Date().toLocaleTimeString('en-US', { 
     hour: '2-digit', 
@@ -61,19 +68,19 @@ const RoomCard: React.FC<RoomCardProps> = ({ room }) => {
   };
 
   const getOpenCloseIcon = () => {
-    const roomName = room.name.toLowerCase();
-    if (roomName.includes('entrance')) {
-      return room.windowOpen ? DoorOpen : DoorClosed;
+    const roomNameLower = roomName.toLowerCase();
+    if (roomNameLower.includes('entrance')) {
+      return windowOpen ? DoorOpen : DoorClosed;
     }
     return Columns2;
   };
 
   const getOpenCloseText = () => {
-    const roomName = room.name.toLowerCase();
-    if (roomName.includes('entrance')) {
-      return room.windowOpen ? 'Door Open' : 'Door Closed';
+    const roomNameLower = roomName.toLowerCase();
+    if (roomNameLower.includes('entrance')) {
+      return windowOpen ? 'Door Open' : 'Door Closed';
     }
-    return room.windowOpen ? 'Window Open' : 'Window Closed';
+    return windowOpen ? 'Window Open' : 'Window Closed';
   };
 
   return (
@@ -85,7 +92,7 @@ const RoomCard: React.FC<RoomCardProps> = ({ room }) => {
         {/* Background Image */}
         <div 
           className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${room.backgroundImage})` }}
+          style={{ backgroundImage: `url(${backgroundImage})` }}
         >
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/10 backdrop-blur-[1px]"></div>
         </div>
@@ -95,11 +102,11 @@ const RoomCard: React.FC<RoomCardProps> = ({ room }) => {
           {/* Header */}
           <div className="flex justify-between items-start mb-4">
             <div>
-              <h3 className="text-xl font-bold text-white mb-1">{room.name}</h3>
+              <h3 className="text-xl font-bold text-white mb-1">{roomName}</h3>
             </div>
             <div className="flex items-center space-x-2">
               {/* Presence indicator */}
-              <div className={`p-2 ${room.presence ? 'bg-emerald-500/90' : 'bg-gray-500/90'} rounded-full shadow-lg backdrop-blur-sm`}>
+              <div className={`p-2 ${presence ? 'bg-emerald-500/90' : 'bg-gray-500/90'} rounded-full shadow-lg backdrop-blur-sm`}>
                 <User className="w-4 h-4 text-white" />
               </div>
               {/* Sensor alerts */}
@@ -119,9 +126,9 @@ const RoomCard: React.FC<RoomCardProps> = ({ room }) => {
             {/* Lights */}
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
-                <Lightbulb className={`w-5 h-5 ${room.lights.total > 0 ? 'text-yellow-400' : 'text-gray-400'}`} />
+                <Lightbulb className={`w-5 h-5 ${totalLights > 0 ? 'text-yellow-400' : 'text-gray-400'}`} />
                 <span className="text-white text-sm font-semibold">
-                  {room.lights.total > 0 ? `${room.lights.on}/${room.lights.total} lights on` : 'No lights'}
+                  {totalLights > 0 ? `${lightsOn}/${totalLights} lights on` : 'No lights'}
                 </span>
               </div>
             </div>
@@ -131,16 +138,16 @@ const RoomCard: React.FC<RoomCardProps> = ({ room }) => {
               <div className="flex items-center space-x-6">
                 <div className="flex items-center space-x-2">
                   <Thermometer className="w-5 h-5 text-blue-400" />
-                  <span className="text-white text-sm font-semibold">{room.temperature}°C</span>
+                  <span className="text-white text-sm font-semibold">{temperature}°C</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Droplets className="w-4 h-4 text-blue-300" />
-                  <span className="text-white/90 text-sm font-medium">{room.humidity}%</span>
+                  <span className="text-white/90 text-sm font-medium">{humidity}%</span>
                 </div>
               </div>
               <div className="flex items-center space-x-2 text-white/80">
                 {React.createElement(getOpenCloseIcon(), { 
-                  className: `w-4 h-4 ${room.windowOpen ? 'text-orange-400' : 'text-gray-300'}` 
+                  className: `w-4 h-4 ${windowOpen ? 'text-orange-400' : 'text-gray-300'}` 
                 })}
                 <span className="text-sm font-medium">{getOpenCloseText()}</span>
               </div>
@@ -157,7 +164,7 @@ const RoomCard: React.FC<RoomCardProps> = ({ room }) => {
             <div className="relative h-48 overflow-hidden">
               <div 
                 className="absolute inset-0 bg-cover bg-center scale-110"
-                style={{ backgroundImage: `url(${room.backgroundImage})` }}
+                style={{ backgroundImage: `url(${backgroundImage})` }}
               >
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20 backdrop-blur-sm"></div>
               </div>
@@ -165,9 +172,9 @@ const RoomCard: React.FC<RoomCardProps> = ({ room }) => {
                 <div className="flex justify-between items-start">
                   <div className="flex items-center space-x-4">
                     <div>
-                      <h2 className="text-3xl font-bold text-white mb-1">{room.name}</h2>
+                      <h2 className="text-3xl font-bold text-white mb-1">{roomName}</h2>
                     </div>
-                    <div className={`p-3 ${room.presence ? 'bg-emerald-500/90' : 'bg-gray-500/90'} rounded-full shadow-lg backdrop-blur-sm`}>
+                    <div className={`p-3 ${presence ? 'bg-emerald-500/90' : 'bg-gray-500/90'} rounded-full shadow-lg backdrop-blur-sm`}>
                       <User className="w-5 h-5 text-white" />
                     </div>
                     {getSensorAlerts().map((alert, index) => (
@@ -186,11 +193,11 @@ const RoomCard: React.FC<RoomCardProps> = ({ room }) => {
                 
                 <div className="grid grid-cols-3 gap-6">
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-white">{room.temperature}°C</div>
+                    <div className="text-2xl font-bold text-white">{temperature}°C</div>
                     <div className="text-white/80 text-sm font-medium">Temperature</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-white">{room.humidity}%</div>
+                    <div className="text-2xl font-bold text-white">{humidity}%</div>
                     <div className="text-white/80 text-sm font-medium">Humidity</div>
                   </div>
                   <div className="text-center">

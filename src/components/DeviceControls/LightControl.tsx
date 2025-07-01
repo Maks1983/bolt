@@ -8,14 +8,17 @@ interface LightControlProps {
 }
 
 const LightControl: React.FC<LightControlProps> = ({ device }) => {
-  const { controlLight } = useDevices();
+  const { controlLight, getDevice } = useDevices();
+
+  // Always get the latest device state from context
+  const currentDevice = getDevice(device.entity_id) as LightDevice || device;
 
   const handleToggle = () => {
-    controlLight(device.entity_id, device.state === 'off');
+    controlLight(currentDevice.entity_id, currentDevice.state === 'off');
   };
 
   const handleBrightnessChange = (brightness: number) => {
-    controlLight(device.entity_id, true, brightness);
+    controlLight(currentDevice.entity_id, true, brightness);
   };
 
   const handleColorChange = (color: string) => {
@@ -23,7 +26,7 @@ const LightControl: React.FC<LightControlProps> = ({ device }) => {
     const r = parseInt(color.slice(1, 3), 16);
     const g = parseInt(color.slice(3, 5), 16);
     const b = parseInt(color.slice(5, 7), 16);
-    controlLight(device.entity_id, true, device.brightness, [r, g, b]);
+    controlLight(currentDevice.entity_id, true, currentDevice.brightness, [r, g, b]);
   };
 
   const rgbToHex = (rgb?: [number, number, number]): string => {
@@ -32,8 +35,8 @@ const LightControl: React.FC<LightControlProps> = ({ device }) => {
     return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
   };
 
-  const isOn = device.state === 'on';
-  const hasColorSupport = device.supported_color_modes?.includes('rgb') || device.supported_color_modes?.includes('xy');
+  const isOn = currentDevice.state === 'on';
+  const hasColorSupport = currentDevice.supported_color_modes?.includes('rgb') || currentDevice.supported_color_modes?.includes('xy');
 
   return (
     <div className="bg-gray-50/80 rounded-2xl p-5 border border-gray-200/50">
@@ -41,9 +44,9 @@ const LightControl: React.FC<LightControlProps> = ({ device }) => {
         <div className="flex items-center space-x-3">
           <div 
             className="w-4 h-4 rounded-full border-2 border-gray-300"
-            style={{ backgroundColor: isOn ? (device.rgb_color ? rgbToHex(device.rgb_color) : '#ffffff') : '#e5e7eb' }}
+            style={{ backgroundColor: isOn ? (currentDevice.rgb_color ? rgbToHex(currentDevice.rgb_color) : '#ffffff') : '#e5e7eb' }}
           ></div>
-          <h4 className="font-semibold text-gray-900">{device.friendly_name}</h4>
+          <h4 className="font-semibold text-gray-900">{currentDevice.friendly_name}</h4>
         </div>
         <button
           onClick={handleToggle}
@@ -62,13 +65,13 @@ const LightControl: React.FC<LightControlProps> = ({ device }) => {
           <div>
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-medium text-gray-700">Brightness</span>
-              <span className="text-sm text-gray-500">{Math.round((device.brightness || 0) / 255 * 100)}%</span>
+              <span className="text-sm text-gray-500">{Math.round((currentDevice.brightness || 0) / 255 * 100)}%</span>
             </div>
             <input
               type="range"
               min="0"
               max="255"
-              value={device.brightness || 0}
+              value={currentDevice.brightness || 0}
               onChange={(e) => handleBrightnessChange(parseInt(e.target.value))}
               className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
             />
@@ -80,7 +83,7 @@ const LightControl: React.FC<LightControlProps> = ({ device }) => {
               <div className="flex items-center space-x-2">
                 <input
                   type="color"
-                  value={rgbToHex(device.rgb_color)}
+                  value={rgbToHex(currentDevice.rgb_color)}
                   onChange={(e) => handleColorChange(e.target.value)}
                   className="w-8 h-8 rounded-lg border border-gray-300 cursor-pointer"
                 />
