@@ -2,7 +2,7 @@
  * Device Context for Global State Management
  * 
  * This context provides global state management for all devices and handles
- * real-time updates from the Home Assistant backend via socket.io
+ * real-time updates from the Home Assistant backend via WebSocket
  */
 
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
@@ -196,7 +196,7 @@ export const DeviceProvider: React.FC<DeviceProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(deviceReducer, initialState);
 
   useEffect(() => {
-    // Setup socket event listeners
+    // Setup WebSocket event listeners
     socketService.onConnectionChange((connectionState, error) => {
       dispatch({ type: 'SET_CONNECTION_STATE', payload: { state: connectionState, error } });
     });
