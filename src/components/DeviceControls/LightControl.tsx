@@ -40,8 +40,8 @@ const LightControl: React.FC<LightControlProps> = ({ device }) => {
   const isOn = currentDevice.state === 'on';
   const hasColorSupport = currentDevice.supported_color_modes?.includes('rgb') || currentDevice.supported_color_modes?.includes('xy');
 
-  // Debug logging
-  console.log(`💡 LightControl render: ${currentDevice.entity_id} state=${currentDevice.state} isOn=${isOn}`);
+  // Debug logging - CRITICAL FOR DEBUGGING
+  console.log(`💡 LightControl render: ${currentDevice.entity_id} state=${currentDevice.state} isOn=${isOn} brightness=${currentDevice.brightness}`);
 
   return (
     <div className="bg-gray-50/80 rounded-2xl p-5 border border-gray-200/50">

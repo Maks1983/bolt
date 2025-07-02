@@ -39,7 +39,8 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
     const presence = motionSensor ? motionSensor.state === 'on' : null;
     const windowOpen = windowSensors.some(s => s.state === 'on') || doorSensors.some(s => s.state === 'on');
 
-    console.log(`🏠 RoomCard ${roomName}: lights=${lightsOn}/${totalLights}, temp=${temperature}, humidity=${humidity}, presence=${presence}`);
+    // CRITICAL DEBUG LOG - This should show when lights change
+    console.log(`🏠 RoomCard ${roomName}: lights=${lightsOn}/${totalLights}, temp=${temperature}, humidity=${humidity}, presence=${presence}, devices=${roomDevices.lights.map(l => `${l.entity_id}:${l.state}`).join(',')}`);
 
     return {
       lightsOn,
