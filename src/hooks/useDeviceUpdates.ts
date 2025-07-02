@@ -47,14 +47,14 @@ export const useDeviceUpdates = (entityId?: string) => {
  * This hook directly listens to WebSocket events for a specific device
  */
 export const useRealtimeDevice = (entityId: string) => {
-  const { getDevice } = useDevices();
+  const { getDevice, state } = useDevices();
   const [deviceState, setDeviceState] = useState(() => getDevice(entityId));
 
   useEffect(() => {
     // Update local state when context changes
     const currentDevice = getDevice(entityId);
     setDeviceState(currentDevice);
-  }, [entityId, getDevice]);
+  }, [entityId, getDevice, state.lastUpdate]); // Added state.lastUpdate as dependency
 
   useEffect(() => {
     if (!entityId) return;
@@ -204,7 +204,7 @@ export const useRoomDevices = (roomName: string) => {
   useEffect(() => {
     const currentRoomDevices = getRoomDevices(roomName);
     setRoomDevices(currentRoomDevices);
-  }, [roomName, getRoomDevices, state.lastUpdate]);
+  }, [roomName, getRoomDevices, state.lastUpdate, state.devices]); // Added state.devices as dependency
 
   // Listen for real-time updates to any device in this room
   useEffect(() => {

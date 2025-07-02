@@ -274,15 +274,17 @@ export class WebSocketService {
     this.ws.send(JSON.stringify(subscribeMessage));
     this.subscriptions.add(subscribeMessage.id!);
 
-    // Get initial states for our subscribed entities
-    this.getStates();
+    // Get initial states for our subscribed entities - THIS WAS MISSING!
+    this.getInitialStates();
   }
 
   /**
-   * Get current states for subscribed entities only
+   * Get current states for subscribed entities only - FIXED METHOD NAME
    */
-  private getStates(): void {
+  private getInitialStates(): void {
     if (!this.ws || this.ws.readyState !== WebSocket.OPEN) return;
+
+    console.log('📊 Fetching initial states for subscribed entities...');
 
     const getStatesMessage: HAMessage = {
       id: this.messageId++,
@@ -301,9 +303,13 @@ export class WebSocketService {
         
         // Convert HA states to our device format
         const devices = this.convertHAStatesToDevices(filteredStates);
+        console.log('🔄 Converted devices:', devices.length);
+        
         if (this.onDevicesUpdate) {
           this.onDevicesUpdate(devices);
         }
+      } else {
+        console.error('❌ Failed to get initial states:', response);
       }
     });
 
