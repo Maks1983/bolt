@@ -4,7 +4,7 @@
  * Provides real-time device state updates and control methods
  */
 
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useMemo } from 'react';
 import { useDevices } from '../context/DeviceContext';
 import { Device } from '../types/devices';
 
@@ -43,142 +43,52 @@ export const useDeviceUpdates = (entityId?: string) => {
 
 /**
  * Hook for real-time device state updates
- * This hook directly gets the device from context - no local state!
+ * CRITICAL FIX: Use useMemo to ensure React detects changes properly
  */
 export const useRealtimeDevice = (entityId: string) => {
-  const { getDevice, state } = useDevices();
+  const { state } = useDevices();
 
-  // Always get the device from context - no local state to get out of sync!
-  const deviceState = getDevice(entityId);
-
-  // Log when device state changes for debugging
-  useEffect(() => {
-    if (deviceState) {
-      console.log(`🔄 useRealtimeDevice: ${entityId} state is now:`, deviceState.state, 'updateCounter:', state.updateCounter);
+  // Use useMemo with updateCounter as dependency to force re-renders
+  const deviceState = useMemo(() => {
+    const device = state.devices.find(d => d.entity_id === entityId);
+    if (device) {
+      console.log(`🔄 useRealtimeDevice: ${entityId} state=${device.state} counter=${state.updateCounter}`);
     }
-  }, [entityId, deviceState?.state, deviceState?.last_updated, state.updateCounter]);
+    return device;
+  }, [entityId, state.devices, state.updateCounter]);
 
   return deviceState;
 };
 
-// Helper function to map Home Assistant attributes to device properties
-function mapAttributesToDevice(deviceType: string, attributes: any): Partial<Device> {
-  const updates: Partial<Device> = {};
-
-  if (!attributes) return updates;
-
-  // Light attributes
-  if (deviceType === 'light') {
-    if (attributes.brightness !== undefined) {
-      (updates as any).brightness = attributes.brightness;
-    }
-    if (attributes.rgb_color) {
-      (updates as any).rgb_color = attributes.rgb_color;
-    }
-    if (attributes.color_temp) {
-      (updates as any).color_temp = attributes.color_temp;
-    }
-    if (attributes.color_mode) {
-      (updates as any).color_mode = attributes.color_mode;
-    }
-    if (attributes.supported_color_modes) {
-      (updates as any).supported_color_modes = attributes.supported_color_modes;
-    }
-  }
-
-  // Cover attributes
-  if (deviceType === 'cover') {
-    if (attributes.current_position !== undefined) {
-      (updates as any).position = attributes.current_position;
-    }
-    if (attributes.tilt_position !== undefined) {
-      (updates as any).tilt_position = attributes.tilt_position;
-    }
-  }
-
-  // Media player attributes
-  if (deviceType === 'media_player') {
-    if (attributes.volume_level !== undefined) {
-      (updates as any).volume_level = attributes.volume_level;
-    }
-    if (attributes.media_title) {
-      (updates as any).media_title = attributes.media_title;
-    }
-    if (attributes.media_artist) {
-      (updates as any).media_artist = attributes.media_artist;
-    }
-    if (attributes.source) {
-      (updates as any).source = attributes.source;
-    }
-    if (attributes.is_volume_muted !== undefined) {
-      (updates as any).is_volume_muted = attributes.is_volume_muted;
-    }
-  }
-
-  // Sensor attributes
-  if (deviceType === 'sensor') {
-    if (attributes.unit_of_measurement) {
-      (updates as any).unit_of_measurement = attributes.unit_of_measurement;
-    }
-    if (attributes.device_class) {
-      (updates as any).device_class = attributes.device_class;
-    }
-  }
-
-  // Binary sensor attributes
-  if (deviceType === 'binary_sensor') {
-    if (attributes.device_class) {
-      (updates as any).device_class = attributes.device_class;
-    }
-  }
-
-  // Fan attributes
-  if (deviceType === 'fan') {
-    if (attributes.percentage !== undefined) {
-      (updates as any).percentage = attributes.percentage;
-    }
-    if (attributes.preset_mode) {
-      (updates as any).preset_mode = attributes.preset_mode;
-    }
-    if (attributes.oscillating !== undefined) {
-      (updates as any).oscillating = attributes.oscillating;
-    }
-  }
-
-  // Lock attributes
-  if (deviceType === 'lock') {
-    if (attributes.changed_by) {
-      (updates as any).changed_by = attributes.changed_by;
-    }
-  }
-
-  // Alarm control panel attributes
-  if (deviceType === 'alarm_control_panel') {
-    if (attributes.changed_by) {
-      (updates as any).changed_by = attributes.changed_by;
-    }
-  }
-
-  return updates;
-}
-
 /**
  * Hook for room-specific device management with real-time updates
+ * CRITICAL FIX: Use useMemo to ensure React detects changes properly
  */
 export const useRoomDevices = (roomName: string) => {
-  const { getRoomDevices, state } = useDevices();
+  const { state } = useDevices();
 
-  // Always get room devices from context - no local state!
-  const roomDevices = getRoomDevices(roomName);
-
-  // Log when room devices change for debugging
-  useEffect(() => {
-    const totalDevices = Object.values(roomDevices).flat().length;
-    console.log(`🏠 useRoomDevices: ${roomName} has ${totalDevices} devices, updateCounter: ${state.updateCounter}`);
-  }, [roomName, roomDevices, state.updateCounter]);
+  // Use useMemo with updateCounter as dependency to force re-renders
+  const roomDevices = useMemo(() => {
+    const roomDevices = state.devices.filter(device => device.room === roomName);
+    
+    const result = {
+      lights: roomDevices.filter(d => d.device_type === 'light'),
+      covers: roomDevices.filter(d => d.device_type === 'cover'),
+      mediaPlayers: roomDevices.filter(d => d.device_type === 'media_player'),
+      sensors: roomDevices.filter(d => d.device_type === 'sensor'),
+      binarySensors: roomDevices.filter(d => d.device_type === 'binary_sensor'),
+      fans: roomDevices.filter(d => d.device_type === 'fan'),
+      locks: roomDevices.filter(d => d.device_type === 'lock'),
+      cameras: roomDevices.filter(d => d.device_type === 'camera')
+    };
+    
+    console.log(`🏠 useRoomDevices: ${roomName} lights=${result.lights.length} counter=${state.updateCounter}`);
+    
+    return result;
+  }, [roomName, state.devices, state.updateCounter]);
 
   // Calculate room statistics
-  const roomStats = {
+  const roomStats = useMemo(() => ({
     totalDevices: Object.values(roomDevices).flat().length,
     onlineDevices: Object.values(roomDevices).flat().filter(d => d.available).length,
     lightsOn: roomDevices.lights.filter(l => l.state === 'on').length,
@@ -187,7 +97,7 @@ export const useRoomDevices = (roomName: string) => {
       ((s as any).sensor_type === 'smoke' || (s as any).sensor_type === 'flood') && 
       s.state === 'on'
     )
-  };
+  }), [roomDevices]);
 
   return {
     ...roomDevices,

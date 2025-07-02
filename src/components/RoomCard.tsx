@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
   Lightbulb, Thermometer, User, X, Clock, 
   Droplets, DoorOpen, DoorClosed, Columns2,
@@ -23,29 +23,44 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
   // Use real-time room devices hook
   const roomDevices = useRoomDevices(roomName);
 
-  // Calculate live room statistics from ONLY configured entities
-  const temperatureSensor = roomDevices.sensors.find(s => (s as any).sensor_type === 'temperature');
-  const humiditySensor = roomDevices.sensors.find(s => (s as any).sensor_type === 'humidity');
-  const motionSensor = roomDevices.binarySensors.find(s => (s as any).sensor_type === 'motion');
-  const windowSensors = roomDevices.binarySensors.filter(s => (s as any).sensor_type === 'window');
-  const doorSensors = roomDevices.binarySensors.filter(s => (s as any).sensor_type === 'door');
+  // Calculate live room statistics from ONLY configured entities using useMemo
+  const roomStats = useMemo(() => {
+    const temperatureSensor = roomDevices.sensors.find(s => (s as any).sensor_type === 'temperature');
+    const humiditySensor = roomDevices.sensors.find(s => (s as any).sensor_type === 'humidity');
+    const motionSensor = roomDevices.binarySensors.find(s => (s as any).sensor_type === 'motion');
+    const windowSensors = roomDevices.binarySensors.filter(s => (s as any).sensor_type === 'window');
+    const doorSensors = roomDevices.binarySensors.filter(s => (s as any).sensor_type === 'door');
 
-  // Live calculated values - use defaults only if no sensors are configured
-  const lightsOn = roomDevices.lights.filter(l => l.state === 'on').length;
-  const totalLights = roomDevices.lights.length;
-  const temperature = temperatureSensor ? Number(temperatureSensor.state) : null;
-  const humidity = humiditySensor ? Number(humiditySensor.state) : null;
-  const presence = motionSensor ? motionSensor.state === 'on' : null;
-  const windowOpen = windowSensors.some(s => s.state === 'on') || doorSensors.some(s => s.state === 'on');
+    // Live calculated values - use defaults only if no sensors are configured
+    const lightsOn = roomDevices.lights.filter(l => l.state === 'on').length;
+    const totalLights = roomDevices.lights.length;
+    const temperature = temperatureSensor ? Number(temperatureSensor.state) : null;
+    const humidity = humiditySensor ? Number(humiditySensor.state) : null;
+    const presence = motionSensor ? motionSensor.state === 'on' : null;
+    const windowOpen = windowSensors.some(s => s.state === 'on') || doorSensors.some(s => s.state === 'on');
+
+    console.log(`🏠 RoomCard ${roomName}: lights=${lightsOn}/${totalLights}, temp=${temperature}, humidity=${humidity}, presence=${presence}`);
+
+    return {
+      lightsOn,
+      totalLights,
+      temperature,
+      humidity,
+      presence,
+      windowOpen,
+      temperatureSensor,
+      humiditySensor,
+      motionSensor,
+      windowSensors,
+      doorSensors
+    };
+  }, [roomName, roomDevices]);
 
   const lastUpdate = new Date().toLocaleTimeString('en-US', { 
     hour: '2-digit', 
     minute: '2-digit',
     hour12: false 
   });
-
-  // Debug logging for room card state
-  console.log(`🏠 RoomCard ${roomName}: lights=${lightsOn}/${totalLights}, temp=${temperature}, humidity=${humidity}, presence=${presence}`);
 
   const getSensorAlerts = () => {
     const alerts = [];
@@ -72,7 +87,7 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
   const getOpenCloseIcon = () => {
     const roomNameLower = roomName.toLowerCase();
     if (roomNameLower.includes('entrance')) {
-      return windowOpen ? DoorOpen : DoorClosed;
+      return roomStats.windowOpen ? DoorOpen : DoorClosed;
     }
     return Columns2;
   };
@@ -80,9 +95,9 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
   const getOpenCloseText = () => {
     const roomNameLower = roomName.toLowerCase();
     if (roomNameLower.includes('entrance')) {
-      return windowOpen ? 'Door Open' : 'Door Closed';
+      return roomStats.windowOpen ? 'Door Open' : 'Door Closed';
     }
-    return windowOpen ? 'Window Open' : 'Window Closed';
+    return roomStats.windowOpen ? 'Window Open' : 'Window Closed';
   };
 
   // Don't render room card if no devices are configured for this room
@@ -115,8 +130,8 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
             </div>
             <div className="flex items-center space-x-2">
               {/* Presence indicator - only show if motion sensor is configured */}
-              {motionSensor && (
-                <div className={`p-2 ${presence ? 'bg-emerald-500/90' : 'bg-gray-500/90'} rounded-full shadow-lg backdrop-blur-sm`}>
+              {roomStats.motionSensor && (
+                <div className={`p-2 ${roomStats.presence ? 'bg-emerald-500/90' : 'bg-gray-500/90'} rounded-full shadow-lg backdrop-blur-sm`}>
                   <User className="w-4 h-4 text-white" />
                 </div>
               )}
@@ -135,12 +150,12 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
           {/* Information */}
           <div className="space-y-3">
             {/* Lights - only show if lights are configured */}
-            {totalLights > 0 && (
+            {roomStats.totalLights > 0 && (
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
-                  <Lightbulb className={`w-5 h-5 ${lightsOn > 0 ? 'text-yellow-400' : 'text-gray-400'}`} />
+                  <Lightbulb className={`w-5 h-5 ${roomStats.lightsOn > 0 ? 'text-yellow-400' : 'text-gray-400'}`} />
                   <span className="text-white text-sm font-semibold">
-                    {lightsOn}/{totalLights} lights on
+                    {roomStats.lightsOn}/{roomStats.totalLights} lights on
                   </span>
                 </div>
               </div>
@@ -150,25 +165,25 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-6">
                 {/* Temperature - only show if sensor is configured */}
-                {temperature !== null && (
+                {roomStats.temperature !== null && (
                   <div className="flex items-center space-x-2">
                     <Thermometer className="w-5 h-5 text-blue-400" />
-                    <span className="text-white text-sm font-semibold">{temperature}°C</span>
+                    <span className="text-white text-sm font-semibold">{roomStats.temperature}°C</span>
                   </div>
                 )}
                 {/* Humidity - only show if sensor is configured */}
-                {humidity !== null && (
+                {roomStats.humidity !== null && (
                   <div className="flex items-center space-x-2">
                     <Droplets className="w-4 h-4 text-blue-300" />
-                    <span className="text-white/90 text-sm font-medium">{humidity}%</span>
+                    <span className="text-white/90 text-sm font-medium">{roomStats.humidity}%</span>
                   </div>
                 )}
               </div>
               {/* Window/Door status - only show if sensors are configured */}
-              {(windowSensors.length > 0 || doorSensors.length > 0) && (
+              {(roomStats.windowSensors.length > 0 || roomStats.doorSensors.length > 0) && (
                 <div className="flex items-center space-x-2 text-white/80">
                   {React.createElement(getOpenCloseIcon(), { 
-                    className: `w-4 h-4 ${windowOpen ? 'text-orange-400' : 'text-gray-300'}` 
+                    className: `w-4 h-4 ${roomStats.windowOpen ? 'text-orange-400' : 'text-gray-300'}` 
                   })}
                   <span className="text-sm font-medium">{getOpenCloseText()}</span>
                 </div>
@@ -196,8 +211,8 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
                     <div>
                       <h2 className="text-3xl font-bold text-white mb-1">{roomName}</h2>
                     </div>
-                    {motionSensor && (
-                      <div className={`p-3 ${presence ? 'bg-emerald-500/90' : 'bg-gray-500/90'} rounded-full shadow-lg backdrop-blur-sm`}>
+                    {roomStats.motionSensor && (
+                      <div className={`p-3 ${roomStats.presence ? 'bg-emerald-500/90' : 'bg-gray-500/90'} rounded-full shadow-lg backdrop-blur-sm`}>
                         <User className="w-5 h-5 text-white" />
                       </div>
                     )}
@@ -217,21 +232,21 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
                 
                 <div className="grid grid-cols-3 gap-6">
                   {/* Temperature - only show if configured */}
-                  {temperature !== null && (
+                  {roomStats.temperature !== null && (
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-white">{temperature}°C</div>
+                      <div className="text-2xl font-bold text-white">{roomStats.temperature}°C</div>
                       <div className="text-white/80 text-sm font-medium">Temperature</div>
                     </div>
                   )}
                   {/* Humidity - only show if configured */}
-                  {humidity !== null && (
+                  {roomStats.humidity !== null && (
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-white">{humidity}%</div>
+                      <div className="text-2xl font-bold text-white">{roomStats.humidity}%</div>
                       <div className="text-white/80 text-sm font-medium">Humidity</div>
                     </div>
                   )}
                   {/* Window/Door status - only show if configured */}
-                  {(windowSensors.length > 0 || doorSensors.length > 0) && (
+                  {(roomStats.windowSensors.length > 0 || roomStats.doorSensors.length > 0) && (
                     <div className="text-center">
                       <div className="text-lg font-bold text-white">{getOpenCloseText()}</div>
                       <div className="text-white/80 text-sm font-medium">Status</div>

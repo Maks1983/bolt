@@ -26,7 +26,7 @@ interface DeviceState {
   connectionState: ConnectionState;
   connectionError?: string;
   lastUpdate?: Date;
-  // Add a counter to force re-renders
+  // Add a counter to force re-renders - CRITICAL FOR REACT UPDATES
   updateCounter: number;
 }
 
@@ -419,7 +419,7 @@ export const DeviceProvider: React.FC<DeviceProviderProps> = ({ children }) => {
 
   const getDevice = (entityId: string): Device | undefined => {
     const device = state.devices.find(device => device.entity_id === entityId);
-    // Log for debugging
+    // Log for debugging - but only when device state actually changes
     if (device) {
       console.log(`🔍 getDevice(${entityId}): Found device with state:`, device.state);
     }
