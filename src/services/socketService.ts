@@ -289,57 +289,26 @@ export class WebSocketService {
     
     const devices = states
       .filter(state => {
-        // Filter out unavailable entities and system entities, but keep all device types
-        const isSystemEntity = state.entity_id.startsWith('sun.') ||
-                              state.entity_id.startsWith('zone.') ||
-                              state.entity_id.startsWith('person.') ||
-                              state.entity_id.startsWith('automation.') ||
-                              state.entity_id.startsWith('script.') ||
-                              state.entity_id.startsWith('input_') ||
-                              state.entity_id.startsWith('timer.') ||
-                              state.entity_id.startsWith('counter.') ||
-                              state.entity_id.startsWith('weather.');
-        
-        // Keep all non-system entities, even if unavailable (they might come back online)
-        return !isSystemEntity;
+        // Filter out unavailable entities and system entities
+        return state.state !== 'unavailable' && 
+               !state.entity_id.startsWith('sun.') &&
+               !state.entity_id.startsWith('zone.') &&
+               !state.entity_id.startsWith('person.');
       })
       .map(state => {
         const deviceType = state.entity_id.split('.')[0];
         
-        // Enhanced sensor type mapping
+        // Map sensor types
         let sensorType = undefined;
         if (deviceType === 'sensor') {
           if (state.attributes?.device_class === 'temperature') sensorType = 'temperature';
           else if (state.attributes?.device_class === 'humidity') sensorType = 'humidity';
-          else if (state.attributes?.device_class === 'battery') sensorType = 'battery';
-          else if (state.attributes?.device_class === 'illuminance') sensorType = 'illuminance';
-          else if (state.attributes?.device_class === 'pressure') sensorType = 'pressure';
         } else if (deviceType === 'binary_sensor') {
-          // Enhanced binary sensor mapping with fallbacks
-          if (state.attributes?.device_class === 'motion') {
-            sensorType = 'motion';
-          } else if (state.attributes?.device_class === 'door') {
-            sensorType = 'door';
-          } else if (state.attributes?.device_class === 'window') {
-            sensorType = 'window';
-          } else if (state.attributes?.device_class === 'opening') {
-            // Generic opening sensor - could be door or window
-            sensorType = state.entity_id.includes('door') ? 'door' : 'window';
-          } else if (state.attributes?.device_class === 'smoke') {
-            sensorType = 'smoke';
-          } else if (state.attributes?.device_class === 'moisture') {
-            sensorType = 'flood';
-          } else if (state.attributes?.device_class === 'occupancy') {
-            sensorType = 'motion'; // Occupancy is similar to motion
-          } else {
-            // Fallback: try to infer from entity name
-            const entityName = state.entity_id.toLowerCase();
-            if (entityName.includes('door')) sensorType = 'door';
-            else if (entityName.includes('window')) sensorType = 'window';
-            else if (entityName.includes('motion') || entityName.includes('pir')) sensorType = 'motion';
-            else if (entityName.includes('smoke')) sensorType = 'smoke';
-            else if (entityName.includes('flood') || entityName.includes('water') || entityName.includes('leak')) sensorType = 'flood';
-          }
+          if (state.attributes?.device_class === 'motion') sensorType = 'motion';
+          else if (state.attributes?.device_class === 'door') sensorType = 'door';
+          else if (state.attributes?.device_class === 'window') sensorType = 'window';
+          else if (state.attributes?.device_class === 'smoke') sensorType = 'smoke';
+          else if (state.attributes?.device_class === 'moisture') sensorType = 'flood';
         }
 
         const device: Device = {
@@ -365,29 +334,6 @@ export class WebSocketService {
     }, {} as Record<string, number>);
     console.table(devicesByType);
 
-    // Log binary sensors specifically to debug door/window sensors
-    const binarySensors = devices.filter(d => d.device_type === 'binary_sensor');
-    console.log('🚪 Binary sensors found:', binarySensors.length);
-    console.log('🚪 Binary sensors by type:');
-    const binarySensorsByType = binarySensors.reduce((acc, sensor) => {
-      const type = (sensor as any).sensor_type || 'unknown';
-      acc[type] = (acc[type] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-    console.table(binarySensorsByType);
-
-    // Log some example binary sensors for debugging
-    const doorWindowSensors = binarySensors.filter(s => 
-      (s as any).sensor_type === 'door' || (s as any).sensor_type === 'window'
-    );
-    console.log('🚪 Door/Window sensors found:', doorWindowSensors.length);
-    if (doorWindowSensors.length > 0) {
-      console.log('🚪 Example door/window sensors:');
-      doorWindowSensors.slice(0, 5).forEach(sensor => {
-        console.log(`   - ${sensor.entity_id}: ${sensor.friendly_name} (${(sensor as any).sensor_type})`);
-      });
-    }
-
     return devices;
   }
 
@@ -398,20 +344,16 @@ export class WebSocketService {
     const parts = entityId.split('.');
     if (parts.length < 2) return null;
     
-    const name = parts[1].toLowerCase();
+    const name = parts[1];
     
     // Common room patterns
-    if (name.includes('living_room') || name.includes('livingroom') || name.includes('living')) return 'Living Room';
+    if (name.includes('living_room') || name.includes('livingroom')) return 'Living Room';
     if (name.includes('kitchen')) return 'Kitchen';
-    if (name.includes('master_bedroom') || name.includes('masterbedroom')) return 'Master Bedroom';
-    if (name.includes('bedroom')) return 'Bedroom';
-    if (name.includes('bathroom') || name.includes('bath')) return 'Bathroom';
-    if (name.includes('office') || name.includes('study')) return 'Office';
+    if (name.includes('bedroom')) return name.includes('master') ? 'Master Bedroom' : 'Bedroom';
+    if (name.includes('bathroom')) return 'Bathroom';
+    if (name.includes('office')) return 'Office';
     if (name.includes('laundry')) return 'Laundry';
-    if (name.includes('entrance') || name.includes('entry') || name.includes('front_door') || name.includes('frontdoor')) return 'Entrance';
-    if (name.includes('garage')) return 'Garage';
-    if (name.includes('basement')) return 'Basement';
-    if (name.includes('attic')) return 'Attic';
+    if (name.includes('entrance') || name.includes('entry')) return 'Entrance';
     
     return null;
   }
