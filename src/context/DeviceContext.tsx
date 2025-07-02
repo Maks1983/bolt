@@ -261,6 +261,7 @@ function deviceReducer(state: DeviceState, action: DeviceAction): DeviceState {
       };
 
     case 'FORCE_UPDATE':
+      console.log('🔄 Force update triggered, incrementing counter');
       return {
         ...state,
         updateCounter: state.updateCounter + 1
@@ -411,6 +412,11 @@ export const DeviceProvider: React.FC<DeviceProviderProps> = ({ children }) => {
       socketService.disconnect();
     };
   }, []);
+
+  // CRITICAL: Log every time the context state changes
+  useEffect(() => {
+    console.log('🔄 DeviceContext state changed, updateCounter:', state.updateCounter);
+  }, [state.updateCounter]);
 
   const updateDevice = (entityId: string, updates: Partial<Device>) => {
     console.log('🔄 Manual device update:', { entityId, updates });
