@@ -2,18 +2,19 @@ import React, { useState } from 'react';
 import { Lock, Unlock } from 'lucide-react';
 import { LockDevice } from '../../types/devices';
 import { useDevices } from '../../context/DeviceContext';
+import { useRealtimeDevice } from '../../hooks/useDeviceUpdates';
 
 interface LockControlProps {
   device: LockDevice;
 }
 
 const LockControl: React.FC<LockControlProps> = ({ device }) => {
-  const { controlLock, getDevice } = useDevices();
+  const { controlLock } = useDevices();
   const [code, setCode] = useState('');
   const [showCodeInput, setShowCodeInput] = useState(false);
 
-  // Always get the latest device state from context
-  const currentDevice = getDevice(device.entity_id) as LockDevice || device;
+  // Use real-time device state instead of prop
+  const currentDevice = useRealtimeDevice(device.entity_id) as LockDevice || device;
 
   const handleToggle = () => {
     if (currentDevice.code_format && !code) {

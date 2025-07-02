@@ -2,16 +2,17 @@ import React from 'react';
 import { Play, Pause, Volume2 } from 'lucide-react';
 import { MediaPlayerDevice } from '../../types/devices';
 import { useDevices } from '../../context/DeviceContext';
+import { useRealtimeDevice } from '../../hooks/useDeviceUpdates';
 
 interface MediaPlayerControlProps {
   device: MediaPlayerDevice;
 }
 
 const MediaPlayerControl: React.FC<MediaPlayerControlProps> = ({ device }) => {
-  const { controlMediaPlayer, getDevice } = useDevices();
+  const { controlMediaPlayer } = useDevices();
 
-  // Always get the latest device state from context
-  const currentDevice = getDevice(device.entity_id) as MediaPlayerDevice || device;
+  // Use real-time device state instead of prop
+  const currentDevice = useRealtimeDevice(device.entity_id) as MediaPlayerDevice || device;
 
   const handlePlayPause = () => {
     const action = currentDevice.state === 'playing' ? 'pause' : 'play';

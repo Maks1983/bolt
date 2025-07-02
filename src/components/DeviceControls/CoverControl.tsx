@@ -2,6 +2,7 @@ import React from 'react';
 import { ChevronUp } from 'lucide-react';
 import { BlindDevice } from '../../types/devices';
 import { useDevices } from '../../context/DeviceContext';
+import { useRealtimeDevice } from '../../hooks/useDeviceUpdates';
 
 interface CoverControlProps {
   device: BlindDevice;
@@ -9,10 +10,10 @@ interface CoverControlProps {
 }
 
 const CoverControl: React.FC<CoverControlProps> = ({ device, type = 'blind' }) => {
-  const { controlCover, getDevice } = useDevices();
+  const { controlCover } = useDevices();
 
-  // Always get the latest device state from context
-  const currentDevice = getDevice(device.entity_id) as BlindDevice || device;
+  // Use real-time device state instead of prop
+  const currentDevice = useRealtimeDevice(device.entity_id) as BlindDevice || device;
 
   const handlePositionChange = (position: number) => {
     controlCover(currentDevice.entity_id, 'set_position', position);

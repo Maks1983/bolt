@@ -4,7 +4,7 @@ import {
   Droplets, DoorOpen, DoorClosed, Columns2,
   Waves, Flame, Wind, Shield, AlertTriangle
 } from 'lucide-react';
-import { useDevices } from '../context/DeviceContext';
+import { useRoomDevices } from '../hooks/useDeviceUpdates';
 import LightControl from './DeviceControls/LightControl';
 import CoverControl from './DeviceControls/CoverControl';
 import MediaPlayerControl from './DeviceControls/MediaPlayerControl';
@@ -19,12 +19,11 @@ interface RoomCardProps {
 
 const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage }) => {
   const [expanded, setExpanded] = useState(false);
-  const { getRoomDevices } = useDevices();
+  
+  // Use real-time room devices hook
+  const roomDevices = useRoomDevices(roomName);
 
-  // Get live device data from context
-  const roomDevices = getRoomDevices(roomName);
-
-  // Calculate live room statistics
+  // Calculate live room statistics from real-time data
   const temperatureSensor = roomDevices.sensors.find(s => (s as any).sensor_type === 'temperature');
   const humiditySensor = roomDevices.sensors.find(s => (s as any).sensor_type === 'humidity');
   const motionSensor = roomDevices.binarySensors.find(s => (s as any).sensor_type === 'motion');

@@ -2,16 +2,17 @@ import React from 'react';
 import { Fan } from 'lucide-react';
 import { FanDevice } from '../../types/devices';
 import { useDevices } from '../../context/DeviceContext';
+import { useRealtimeDevice } from '../../hooks/useDeviceUpdates';
 
 interface FanControlProps {
   device: FanDevice;
 }
 
 const FanControl: React.FC<FanControlProps> = ({ device }) => {
-  const { controlFan, getDevice } = useDevices();
+  const { controlFan } = useDevices();
 
-  // Always get the latest device state from context
-  const currentDevice = getDevice(device.entity_id) as FanDevice || device;
+  // Use real-time device state instead of prop
+  const currentDevice = useRealtimeDevice(device.entity_id) as FanDevice || device;
 
   const handleToggle = () => {
     controlFan(currentDevice.entity_id, currentDevice.state === 'off');

@@ -34,10 +34,10 @@ export class WebSocketService {
   private pendingMessages = new Map<number, (response: any) => void>();
   private subscriptions = new Set<number>();
   
-  // Event callbacks
-  private onConnectionStateChange: ((state: ConnectionState, error?: string) => void) | null = null;
-  private onEntityUpdate: ((update: EntityUpdateEvent) => void) | null = null;
-  private onDevicesUpdate: ((devices: Device[]) => void) | null = null;
+  // Event callbacks - support multiple listeners
+  private connectionStateListeners = new Set<(state: ConnectionState, error?: string) => void>();
+  private entityUpdateListeners = new Set<(update: EntityUpdateEvent) => void>();
+  private devicesUpdateListeners = new Set<(devices: Device[]) => void>();
 
   constructor() {
     if (!DEV_MODE) {
@@ -193,9 +193,14 @@ export class WebSocketService {
               last_updated: eventData.new_state.last_updated || new Date().toISOString()
             };
             
-            if (this.onEntityUpdate) {
-              this.onEntityUpdate(update);
-            }
+            console.log('🔄 Broadcasting entity update to', this.entityUpdateListeners.size, 'listeners');
+            this.entityUpdateListeners.forEach(listener => {
+              try {
+                listener(update);
+              } catch (error) {
+                console.error('❌ Error in entity update listener:', error);
+              }
+            });
           }
         }
         break;
@@ -254,9 +259,13 @@ export class WebSocketService {
       if (response.success && response.result) {
         // Convert HA states to our device format
         const devices = this.convertHAStatesToDevices(response.result);
-        if (this.onDevicesUpdate) {
-          this.onDevicesUpdate(devices);
-        }
+        this.devicesUpdateListeners.forEach(listener => {
+          try {
+            listener(devices);
+          } catch (error) {
+            console.error('❌ Error in devices update listener:', error);
+          }
+        });
       }
     });
 
@@ -311,9 +320,13 @@ export class WebSocketService {
    */
   private setConnectionState(state: ConnectionState, error?: string): void {
     this.connectionState = state;
-    if (this.onConnectionStateChange) {
-      this.onConnectionStateChange(state, error);
-    }
+    this.connectionStateListeners.forEach(listener => {
+      try {
+        listener(state, error);
+      } catch (error) {
+        console.error('❌ Error in connection state listener:', error);
+      }
+    });
   }
 
   /**
@@ -473,18 +486,30 @@ export class WebSocketService {
   }
 
   /**
-   * Event listener setters
+   * Event listener management - support multiple listeners
    */
   public onConnectionChange(callback: (state: ConnectionState, error?: string) => void): void {
-    this.onConnectionStateChange = callback;
+    this.connectionStateListeners.add(callback);
+  }
+
+  public offConnectionChange(callback: (state: ConnectionState, error?: string) => void): void {
+    this.connectionStateListeners.delete(callback);
   }
 
   public onEntityUpdated(callback: (update: EntityUpdateEvent) => void): void {
-    this.onEntityUpdate = callback;
+    this.entityUpdateListeners.add(callback);
+  }
+
+  public offEntityUpdated(callback: (update: EntityUpdateEvent) => void): void {
+    this.entityUpdateListeners.delete(callback);
   }
 
   public onDevicesUpdated(callback: (devices: Device[]) => void): void {
-    this.onDevicesUpdate = callback;
+    this.devicesUpdateListeners.add(callback);
+  }
+
+  public offDevicesUpdated(callback: (devices: Device[]) => void): void {
+    this.devicesUpdateListeners.delete(callback);
   }
 
   /**

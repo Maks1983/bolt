@@ -2,19 +2,20 @@ import React, { useState } from 'react';
 import { Shield, Lock, Home, Plane, AlertTriangle, Clock } from 'lucide-react';
 import { AlarmControlPanelDevice } from '../../types/devices';
 import { useDevices } from '../../context/DeviceContext';
+import { useRealtimeDevice } from '../../hooks/useDeviceUpdates';
 
 interface AlarmControlProps {
   device: AlarmControlPanelDevice;
 }
 
 const AlarmControl: React.FC<AlarmControlProps> = ({ device }) => {
-  const { controlAlarm, getDevice } = useDevices();
+  const { controlAlarm } = useDevices();
   const [code, setCode] = useState('');
   const [showCode, setShowCode] = useState(false);
   const [entryDelay, setEntryDelay] = useState(0);
 
-  // Always get the latest device state from context
-  const currentDevice = getDevice(device.entity_id) as AlarmControlPanelDevice || device;
+  // Use real-time device state instead of prop
+  const currentDevice = useRealtimeDevice(device.entity_id) as AlarmControlPanelDevice || device;
 
   const handleNumberClick = (num: string) => {
     if (code.length < 6) {

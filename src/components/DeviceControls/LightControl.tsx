@@ -2,16 +2,17 @@ import React from 'react';
 import { Lightbulb, Sun } from 'lucide-react';
 import { LightDevice } from '../../types/devices';
 import { useDevices } from '../../context/DeviceContext';
+import { useRealtimeDevice } from '../../hooks/useDeviceUpdates';
 
 interface LightControlProps {
   device: LightDevice;
 }
 
 const LightControl: React.FC<LightControlProps> = ({ device }) => {
-  const { controlLight, getDevice } = useDevices();
-
-  // Always get the latest device state from context
-  const currentDevice = getDevice(device.entity_id) as LightDevice || device;
+  const { controlLight } = useDevices();
+  
+  // Use real-time device state instead of prop
+  const currentDevice = useRealtimeDevice(device.entity_id) as LightDevice || device;
 
   const handleToggle = () => {
     controlLight(currentDevice.entity_id, currentDevice.state === 'off');
