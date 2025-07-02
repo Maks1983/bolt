@@ -147,6 +147,7 @@ function mapAttributesToDevice(deviceType: string, attributes: any): Partial<Dev
 function deviceReducer(state: DeviceState, action: DeviceAction): DeviceState {
   switch (action.type) {
     case 'SET_DEVICES':
+      console.log('🔄 Setting devices from Home Assistant:', action.payload.length);
       return {
         ...state,
         devices: action.payload,
@@ -248,10 +249,14 @@ function deviceReducer(state: DeviceState, action: DeviceAction): DeviceState {
 
 // Helper functions to update nested structures
 function updateRoomsWithDevices(rooms: Room[], devices: Device[]): Room[] {
-  return rooms.map(room => ({
-    ...room,
-    devices: devices.filter(device => device.room === room.name)
-  }));
+  return rooms.map(room => {
+    const roomDevices = devices.filter(device => device.room === room.name);
+    console.log(`🏠 Room ${room.name}: ${roomDevices.length} devices`);
+    return {
+      ...room,
+      devices: roomDevices
+    };
+  });
 }
 
 function updateFloorsWithRooms(floors: Floor[], rooms: Room[]): Floor[] {
@@ -298,6 +303,8 @@ export const DeviceProvider: React.FC<DeviceProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(deviceReducer, initialState);
 
   useEffect(() => {
+    console.log('🏠 DeviceProvider initialized with', subscribedEntities.length, 'subscribed entities');
+    
     // Setup WebSocket event listeners
     socketService.onConnectionChange((connectionState, error) => {
       console.log('🔌 Connection state changed:', connectionState, error);
@@ -319,71 +326,54 @@ export const DeviceProvider: React.FC<DeviceProviderProps> = ({ children }) => {
       console.log('🔧 Starting development simulation...');
       
       const simulateUpdates = () => {
+        // Only simulate updates for entities that are actually configured
+        const configuredEntityIds = subscribedEntities.map(e => e.entity_id);
+        
         // Simulate motion sensor changes
         setTimeout(() => {
-          console.log('🎭 Simulating motion sensor change');
-          dispatch({ 
-            type: 'SIMULATE_STATE_CHANGE', 
-            payload: { 
-              entityId: 'binary_sensor.living_room_motion', 
-              newState: 'off' 
-            } 
-          });
+          const motionEntity = configuredEntityIds.find(id => id.includes('motion'));
+          if (motionEntity) {
+            console.log('🎭 Simulating motion sensor change');
+            dispatch({ 
+              type: 'SIMULATE_STATE_CHANGE', 
+              payload: { 
+                entityId: motionEntity, 
+                newState: 'off' 
+              } 
+            });
+          }
         }, 5000);
 
         // Simulate temperature changes
         setTimeout(() => {
-          console.log('🎭 Simulating temperature change');
-          dispatch({ 
-            type: 'SIMULATE_STATE_CHANGE', 
-            payload: { 
-              entityId: 'sensor.kitchen_temperature', 
-              newState: 24 
-            } 
-          });
+          const tempEntity = configuredEntityIds.find(id => id.includes('temperature'));
+          if (tempEntity) {
+            console.log('🎭 Simulating temperature change');
+            dispatch({ 
+              type: 'SIMULATE_STATE_CHANGE', 
+              payload: { 
+                entityId: tempEntity, 
+                newState: 24 
+              } 
+            });
+          }
         }, 8000);
 
         // Simulate light state change
         setTimeout(() => {
-          console.log('🎭 Simulating light state change');
-          dispatch({ 
-            type: 'SIMULATE_STATE_CHANGE', 
-            payload: { 
-              entityId: 'light.kitchen_led_strip', 
-              newState: 'on',
-              attributes: { brightness: 200, rgb_color: [255, 100, 100] }
-            } 
-          });
+          const lightEntity = configuredEntityIds.find(id => id.includes('light'));
+          if (lightEntity) {
+            console.log('🎭 Simulating light state change');
+            dispatch({ 
+              type: 'SIMULATE_STATE_CHANGE', 
+              payload: { 
+                entityId: lightEntity, 
+                newState: 'on',
+                attributes: { brightness: 200, rgb_color: [255, 100, 100] }
+              } 
+            });
+          }
         }, 12000);
-
-        // Simulate cover position change
-        setTimeout(() => {
-          console.log('🎭 Simulating cover position change');
-          dispatch({ 
-            type: 'SIMULATE_STATE_CHANGE', 
-            payload: { 
-              entityId: 'cover.living_room_curtain', 
-              newState: 'open',
-              attributes: { current_position: 85 }
-            } 
-          });
-        }, 15000);
-
-        // Simulate media player change
-        setTimeout(() => {
-          console.log('🎭 Simulating media player change');
-          dispatch({ 
-            type: 'SIMULATE_STATE_CHANGE', 
-            payload: { 
-              entityId: 'media_player.living_room_speaker', 
-              newState: 'paused',
-              attributes: { 
-                volume_level: 0.3,
-                media_title: 'New Song Playing'
-              }
-            } 
-          });
-        }, 18000);
       };
 
       // Start simulation
@@ -416,7 +406,7 @@ export const DeviceProvider: React.FC<DeviceProviderProps> = ({ children }) => {
   const getRoomDevices = (roomName: string) => {
     const roomDevices = getDevicesByRoom(roomName);
     
-    return {
+    const result = {
       lights: roomDevices.filter(d => d.device_type === 'light'),
       covers: roomDevices.filter(d => d.device_type === 'cover'),
       mediaPlayers: roomDevices.filter(d => d.device_type === 'media_player'),
@@ -426,6 +416,15 @@ export const DeviceProvider: React.FC<DeviceProviderProps> = ({ children }) => {
       locks: roomDevices.filter(d => d.device_type === 'lock'),
       cameras: roomDevices.filter(d => d.device_type === 'camera')
     };
+    
+    console.log(`🏠 Room ${roomName} devices:`, {
+      lights: result.lights.length,
+      sensors: result.sensors.length,
+      binarySensors: result.binarySensors.length,
+      total: roomDevices.length
+    });
+    
+    return result;
   };
 
   // Device control methods
