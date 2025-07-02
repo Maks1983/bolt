@@ -1,5 +1,5 @@
 import React from 'react';
-import { DeviceProvider } from './context/DeviceContext';
+import { DeviceProvider, useDevices } from './context/DeviceContext';
 import Header from './components/Header';
 import InfoRow from './components/InfoRow';
 import FloorSection from './components/FloorSection';
@@ -29,52 +29,25 @@ const cameras = [
 ];
 
 const AppContent: React.FC = () => {
-  // Static room configuration with background images
-  const upperFloorRooms = [
-    {
-      name: 'Master Bedroom',
-      floor: 'Upper Floor',
-      backgroundImage: 'https://images.pexels.com/photos/164595/pexels-photo-164595.jpeg?auto=compress&cs=tinysrgb&w=800'
-    },
-    {
-      name: 'Bedroom',
-      floor: 'Upper Floor',
-      backgroundImage: 'https://images.pexels.com/photos/1643383/pexels-photo-1643383.jpeg?auto=compress&cs=tinysrgb&w=800'
-    },
-    {
-      name: 'Bathroom',
-      floor: 'Upper Floor',
-      backgroundImage: 'https://images.pexels.com/photos/342800/pexels-photo-342800.jpeg?auto=compress&cs=tinysrgb&w=800'
-    },
-    {
-      name: 'Kitchen',
-      floor: 'Upper Floor',
-      backgroundImage: 'https://images.pexels.com/photos/279648/pexels-photo-279648.jpeg?auto=compress&cs=tinysrgb&w=800'
-    },
-    {
-      name: 'Living Room',
-      floor: 'Upper Floor',
-      backgroundImage: 'https://images.pexels.com/photos/276724/pexels-photo-276724.jpeg?auto=compress&cs=tinysrgb&w=800'
-    }
-  ];
-
-  const lowerFloorRooms = [
-    {
-      name: 'Entrance',
-      floor: 'Lower Floor',
-      backgroundImage: 'https://images.pexels.com/photos/1428348/pexels-photo-1428348.jpeg?auto=compress&cs=tinysrgb&w=800'
-    },
-    {
-      name: 'Office',
-      floor: 'Lower Floor',
-      backgroundImage: 'https://images.pexels.com/photos/667838/pexels-photo-667838.jpeg?auto=compress&cs=tinysrgb&w=800'
-    },
-    {
-      name: 'Laundry',
-      floor: 'Lower Floor',
-      backgroundImage: 'https://images.pexels.com/photos/4107123/pexels-photo-4107123.jpeg?auto=compress&cs=tinysrgb&w=800'
-    }
-  ];
+  // Use dynamic room data from DeviceContext instead of hardcoded arrays
+  const { state } = useDevices();
+  
+  // Get floors and their rooms from the context
+  const upperFloor = state.floors.find(floor => floor.name === 'Upper Floor');
+  const lowerFloor = state.floors.find(floor => floor.name === 'Lower Floor');
+  
+  // Convert rooms to the format expected by FloorSection
+  const upperFloorRooms = upperFloor ? upperFloor.rooms.map(room => ({
+    name: room.name,
+    floor: room.floor,
+    backgroundImage: room.background_image || 'https://images.pexels.com/photos/164595/pexels-photo-164595.jpeg?auto=compress&cs=tinysrgb&w=800'
+  })) : [];
+  
+  const lowerFloorRooms = lowerFloor ? lowerFloor.rooms.map(room => ({
+    name: room.name,
+    floor: room.floor,
+    backgroundImage: room.background_image || 'https://images.pexels.com/photos/1428348/pexels-photo-1428348.jpeg?auto=compress&cs=tinysrgb&w=800'
+  })) : [];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
@@ -82,8 +55,12 @@ const AppContent: React.FC = () => {
       <InfoRow cameras={cameras} />
       
       <main className="py-4 space-y-6 pb-8">
-        <FloorSection title="Upper Floor" rooms={upperFloorRooms} />
-        <FloorSection title="Lower Floor" rooms={lowerFloorRooms} />
+        {upperFloorRooms.length > 0 && (
+          <FloorSection title="Upper Floor" rooms={upperFloorRooms} />
+        )}
+        {lowerFloorRooms.length > 0 && (
+          <FloorSection title="Lower Floor" rooms={lowerFloorRooms} />
+        )}
       </main>
     </div>
   );
