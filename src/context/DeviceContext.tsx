@@ -1,15 +1,23 @@
 /**
  * Device Context for Global State Management
  * 
- * This context provides global state management for devices defined in entities.ts
- * and handles real-time updates from Home Assistant via WebSocket
+ * This context provides global state management for all devices and handles
+ * real-time updates from the Home Assistant backend via WebSocket
  */
 
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
 import { Device, Room, Floor, ConnectionState, EntityUpdateEvent } from '../types/devices';
-import { subscribedEntities, getEntityConfig } from '../config/entities';
+import { subscribedEntities } from '../config/entities';
 import { roomConfigs, floorConfigs } from '../config/devices';
 import { socketService } from '../services/socketService';
+
+// Convert subscribed entities to initial devices
+const initialDevices: Device[] = subscribedEntities.map(entity => ({
+  ...entity,
+  state: 'unknown',
+  last_updated: new Date().toISOString(),
+  available: false
+}));
 
 interface DeviceState {
   devices: Device[];
@@ -25,20 +33,8 @@ type DeviceAction =
   | { type: 'UPDATE_DEVICE'; payload: { entityId: string; updates: Partial<Device> } }
   | { type: 'SET_CONNECTION_STATE'; payload: { state: ConnectionState; error?: string } }
   | { type: 'ENTITY_UPDATE'; payload: EntityUpdateEvent }
-  | { type: 'SET_LAST_UPDATE'; payload: Date };
-
-// Initialize with devices from entities.ts configuration
-const initialDevices: Device[] = subscribedEntities.map(entity => ({
-  entity_id: entity.entity_id,
-  friendly_name: entity.friendly_name,
-  device_type: entity.device_type,
-  room: entity.room,
-  floor: entity.floor,
-  state: 'unknown',
-  last_updated: new Date().toISOString(),
-  available: false, // Will be updated when HA responds
-  ...(entity.sensor_type && { sensor_type: entity.sensor_type })
-})) as Device[];
+  | { type: 'SET_LAST_UPDATE'; payload: Date }
+  | { type: 'SIMULATE_STATE_CHANGE'; payload: { entityId: string; newState: any; attributes?: any } };
 
 const initialState: DeviceState = {
   devices: initialDevices,
@@ -150,21 +146,13 @@ function mapAttributesToDevice(deviceType: string, attributes: any): Partial<Dev
 
 function deviceReducer(state: DeviceState, action: DeviceAction): DeviceState {
   switch (action.type) {
-    case 'SET_DEVICES': {
-      console.log('🔄 Setting devices from Home Assistant:', action.payload.length, 'devices');
-      
-      // Merge HA data with our entity configuration
-      const mergedDevices = mergeHADataWithConfig(action.payload, state.devices);
-      
-      console.log('✅ Merged devices:', mergedDevices.length);
-      
+    case 'SET_DEVICES':
       return {
         ...state,
-        devices: mergedDevices,
-        rooms: updateRoomsWithDevices(state.rooms, mergedDevices),
-        floors: updateFloorsWithRooms(state.floors, updateRoomsWithDevices(state.rooms, mergedDevices))
+        devices: action.payload,
+        rooms: updateRoomsWithDevices(state.rooms, action.payload),
+        floors: updateFloorsWithRooms(state.floors, updateRoomsWithDevices(state.rooms, action.payload))
       };
-    }
 
     case 'UPDATE_DEVICE': {
       const updatedDevices = state.devices.map(device =>
@@ -185,19 +173,24 @@ function deviceReducer(state: DeviceState, action: DeviceAction): DeviceState {
     case 'ENTITY_UPDATE': {
       const { entity_id, state: newState, attributes, last_updated } = action.payload;
       
+      console.log('🔄 Processing entity update:', { entity_id, newState, attributes });
+      
       const updatedDevices = state.devices.map(device => {
         if (device.entity_id === entity_id) {
+          console.log('✅ Found matching device:', device.friendly_name);
+          
           // Map attributes to device properties
           const attributeUpdates = mapAttributesToDevice(device.device_type, attributes);
           
           const updatedDevice = {
             ...device,
             state: newState,
+            available: true,
             ...attributeUpdates,
-            available: true, // If we're getting updates, it's available
             last_updated: last_updated || new Date().toISOString()
           };
           
+          console.log('🔄 Updated device:', updatedDevice);
           return updatedDevice;
         }
         return device;
@@ -208,6 +201,7 @@ function deviceReducer(state: DeviceState, action: DeviceAction): DeviceState {
       );
 
       if (!hasChanges) {
+        console.log('⚠️ No device found for entity_id:', entity_id);
         return state;
       }
 
@@ -218,6 +212,20 @@ function deviceReducer(state: DeviceState, action: DeviceAction): DeviceState {
         floors: updateFloorsWithRooms(state.floors, updateRoomsWithDevices(state.rooms, updatedDevices)),
         lastUpdate: new Date()
       };
+    }
+
+    case 'SIMULATE_STATE_CHANGE': {
+      // For development - simulate a Home Assistant state_changed event
+      const { entityId, newState, attributes } = action.payload;
+      return deviceReducer(state, {
+        type: 'ENTITY_UPDATE',
+        payload: {
+          entity_id: entityId,
+          state: newState,
+          attributes: attributes || {},
+          last_updated: new Date().toISOString()
+        }
+      });
     }
 
     case 'SET_CONNECTION_STATE':
@@ -238,58 +246,12 @@ function deviceReducer(state: DeviceState, action: DeviceAction): DeviceState {
   }
 }
 
-// Helper function to merge HA data with our entity configuration
-function mergeHADataWithConfig(haDevices: Device[], configDevices: Device[]): Device[] {
-  const mergedDevices: Device[] = [];
-  
-  // Create a map of config devices for quick lookup
-  const configMap = new Map(configDevices.map(device => [device.entity_id, device]));
-  
-  // Process HA devices and merge with config
-  for (const haDevice of haDevices) {
-    const configDevice = configMap.get(haDevice.entity_id);
-    
-    if (configDevice) {
-      // Merge HA data with config, prioritizing HA state and attributes
-      const mergedDevice = {
-        ...configDevice, // Start with config (room, floor, friendly_name, etc.)
-        ...haDevice, // Override with HA data (state, attributes, etc.)
-        room: configDevice.room, // Always use config room
-        floor: configDevice.floor, // Always use config floor
-        friendly_name: configDevice.friendly_name, // Use config friendly name
-        sensor_type: configDevice.sensor_type || (haDevice as any).sensor_type, // Prefer config sensor type
-        available: haDevice.available
-      };
-      mergedDevices.push(mergedDevice);
-    }
-  }
-  
-  // Add any config devices that weren't found in HA (might be offline)
-  for (const configDevice of configDevices) {
-    const foundInHA = haDevices.some(haDevice => haDevice.entity_id === configDevice.entity_id);
-    if (!foundInHA) {
-      console.log('⚠️ Config device not found in HA (might be offline):', configDevice.entity_id);
-      mergedDevices.push({
-        ...configDevice,
-        available: false,
-        state: 'unavailable'
-      });
-    }
-  }
-  
-  return mergedDevices;
-}
-
 // Helper functions to update nested structures
 function updateRoomsWithDevices(rooms: Room[], devices: Device[]): Room[] {
-  return rooms.map(room => {
-    const roomDevices = devices.filter(device => device.room === room.name);
-    
-    return {
-      ...room,
-      devices: roomDevices
-    };
-  });
+  return rooms.map(room => ({
+    ...room,
+    devices: devices.filter(device => device.room === room.name)
+  }));
 }
 
 function updateFloorsWithRooms(floors: Floor[], rooms: Room[]): Floor[] {
@@ -322,6 +284,8 @@ interface DeviceContextType {
   controlFan: (entityId: string, on: boolean, percentage?: number) => void;
   controlLock: (entityId: string, action: 'lock' | 'unlock', code?: string) => void;
   controlAlarm: (entityId: string, action: 'arm_home' | 'arm_away' | 'disarm', code?: string) => void;
+  // Development simulation method
+  simulateStateChange: (entityId: string, newState: any, attributes?: any) => void;
 }
 
 const DeviceContext = createContext<DeviceContextType | undefined>(undefined);
@@ -334,8 +298,6 @@ export const DeviceProvider: React.FC<DeviceProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(deviceReducer, initialState);
 
   useEffect(() => {
-    console.log('🔧 Setting up WebSocket event listeners...');
-    
     // Setup WebSocket event listeners
     socketService.onConnectionChange((connectionState, error) => {
       console.log('🔌 Connection state changed:', connectionState, error);
@@ -343,6 +305,7 @@ export const DeviceProvider: React.FC<DeviceProviderProps> = ({ children }) => {
     });
 
     socketService.onEntityUpdated((update) => {
+      console.log('🔄 Entity updated from WebSocket:', update);
       dispatch({ type: 'ENTITY_UPDATE', payload: update });
     });
 
@@ -350,6 +313,82 @@ export const DeviceProvider: React.FC<DeviceProviderProps> = ({ children }) => {
       console.log('🔄 Devices updated from WebSocket:', devices.length, 'devices');
       dispatch({ type: 'SET_DEVICES', payload: devices });
     });
+
+    // Development simulation - only run if in dev mode
+    if (socketService.isDevMode()) {
+      console.log('🔧 Starting development simulation...');
+      
+      const simulateUpdates = () => {
+        // Simulate motion sensor changes
+        setTimeout(() => {
+          console.log('🎭 Simulating motion sensor change');
+          dispatch({ 
+            type: 'SIMULATE_STATE_CHANGE', 
+            payload: { 
+              entityId: 'binary_sensor.living_room_motion', 
+              newState: 'off' 
+            } 
+          });
+        }, 5000);
+
+        // Simulate temperature changes
+        setTimeout(() => {
+          console.log('🎭 Simulating temperature change');
+          dispatch({ 
+            type: 'SIMULATE_STATE_CHANGE', 
+            payload: { 
+              entityId: 'sensor.kitchen_temperature', 
+              newState: 24 
+            } 
+          });
+        }, 8000);
+
+        // Simulate light state change
+        setTimeout(() => {
+          console.log('🎭 Simulating light state change');
+          dispatch({ 
+            type: 'SIMULATE_STATE_CHANGE', 
+            payload: { 
+              entityId: 'light.kitchen_led_strip', 
+              newState: 'on',
+              attributes: { brightness: 200, rgb_color: [255, 100, 100] }
+            } 
+          });
+        }, 12000);
+
+        // Simulate cover position change
+        setTimeout(() => {
+          console.log('🎭 Simulating cover position change');
+          dispatch({ 
+            type: 'SIMULATE_STATE_CHANGE', 
+            payload: { 
+              entityId: 'cover.living_room_curtain', 
+              newState: 'open',
+              attributes: { current_position: 85 }
+            } 
+          });
+        }, 15000);
+
+        // Simulate media player change
+        setTimeout(() => {
+          console.log('🎭 Simulating media player change');
+          dispatch({ 
+            type: 'SIMULATE_STATE_CHANGE', 
+            payload: { 
+              entityId: 'media_player.living_room_speaker', 
+              newState: 'paused',
+              attributes: { 
+                volume_level: 0.3,
+                media_title: 'New Song Playing'
+              }
+            } 
+          });
+        }, 18000);
+      };
+
+      // Start simulation
+      simulateUpdates();
+    }
 
     // Cleanup on unmount
     return () => {
@@ -367,8 +406,7 @@ export const DeviceProvider: React.FC<DeviceProviderProps> = ({ children }) => {
   };
 
   const getDevicesByRoom = (roomName: string): Device[] => {
-    const devices = state.devices.filter(device => device.room === roomName);
-    return devices;
+    return state.devices.filter(device => device.room === roomName);
   };
 
   const getDevicesByType = (deviceType: string): Device[] => {
@@ -378,7 +416,7 @@ export const DeviceProvider: React.FC<DeviceProviderProps> = ({ children }) => {
   const getRoomDevices = (roomName: string) => {
     const roomDevices = getDevicesByRoom(roomName);
     
-    const result = {
+    return {
       lights: roomDevices.filter(d => d.device_type === 'light'),
       covers: roomDevices.filter(d => d.device_type === 'cover'),
       mediaPlayers: roomDevices.filter(d => d.device_type === 'media_player'),
@@ -388,8 +426,6 @@ export const DeviceProvider: React.FC<DeviceProviderProps> = ({ children }) => {
       locks: roomDevices.filter(d => d.device_type === 'lock'),
       cameras: roomDevices.filter(d => d.device_type === 'camera')
     };
-    
-    return result;
   };
 
   // Device control methods
@@ -500,6 +536,14 @@ export const DeviceProvider: React.FC<DeviceProviderProps> = ({ children }) => {
     }
   };
 
+  const simulateStateChange = (entityId: string, newState: any, attributes?: any) => {
+    console.log('🎭 Manual simulation:', { entityId, newState, attributes });
+    dispatch({ 
+      type: 'SIMULATE_STATE_CHANGE', 
+      payload: { entityId, newState, attributes } 
+    });
+  };
+
   const contextValue: DeviceContextType = {
     state,
     updateDevice,
@@ -512,7 +556,8 @@ export const DeviceProvider: React.FC<DeviceProviderProps> = ({ children }) => {
     controlMediaPlayer,
     controlFan,
     controlLock,
-    controlAlarm
+    controlAlarm,
+    simulateStateChange
   };
 
   return (
