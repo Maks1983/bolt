@@ -7,9 +7,11 @@
  * 1. Update VITE_HA_WEBSOCKET_URL to your Home Assistant WebSocket endpoint
  * 2. Replace VITE_HA_ACCESS_TOKEN with your actual Home Assistant long-lived access token
  * 3. Set VITE_DEV_MODE=false when ready to connect to real Home Assistant
+ * 4. Configure which devices to subscribe to in src/config/devices.ts
  */
 
 import { Device, EntityUpdateEvent, DeviceControlCommand, ConnectionState } from '../types/devices';
+import { subscribedDevices } from '../config/devices';
 
 // Configuration - Update these for your Home Assistant setup
 const WEBSOCKET_URL = import.meta.env.VITE_HA_WEBSOCKET_URL || 'ws://localhost:8123/api/websocket';
@@ -45,6 +47,7 @@ export class WebSocketService {
     console.log('   DEV_MODE:', DEV_MODE);
     console.log('   WEBSOCKET_URL:', WEBSOCKET_URL);
     console.log('   ACCESS_TOKEN configured:', ACCESS_TOKEN !== 'your-home-assistant-long-lived-access-token');
+    console.log('   Subscribed devices:', subscribedDevices.length);
     
     if (!DEV_MODE) {
       this.connect();
@@ -196,7 +199,7 @@ export class WebSocketService {
         // Handle state change events
         if (message.event?.event_type === 'state_changed') {
           const eventData = message.event.data;
-          if (eventData?.new_state) {
+          if (eventData?.new_state && this.isSubscribedEntity(eventData.entity_id)) {
             const update: EntityUpdateEvent = {
               entity_id: eventData.entity_id,
               state: eventData.new_state.state,
@@ -204,10 +207,7 @@ export class WebSocketService {
               last_updated: eventData.new_state.last_updated || new Date().toISOString()
             };
             
-            // Only log updates for entities we care about
-            if (this.isRelevantEntity(eventData.entity_id)) {
-              console.log('🔄 Entity update:', eventData.entity_id, '→', eventData.new_state.state);
-            }
+            console.log('🔄 Subscribed entity update:', eventData.entity_id, '→', eventData.new_state.state);
             
             this.entityUpdateListeners.forEach(listener => {
               try {
@@ -226,7 +226,14 @@ export class WebSocketService {
   }
 
   /**
-   * Check if an entity is relevant for our dashboard
+   * Check if an entity is in our subscription list
+   */
+  private isSubscribedEntity(entityId: string): boolean {
+    return subscribedDevices.includes(entityId);
+  }
+
+  /**
+   * Check if an entity is relevant for our dashboard (for initial state filtering)
    */
   private isRelevantEntity(entityId: string): boolean {
     const domain = entityId.split('.')[0];
@@ -254,7 +261,9 @@ export class WebSocketService {
   private subscribeToUpdates(): void {
     if (!this.ws || this.ws.readyState !== WebSocket.OPEN) return;
 
-    // Subscribe to state_changed events
+    // Subscribe to state_changed events for specific entities only
+    console.log('📡 Subscribing to state changes for', subscribedDevices.length, 'devices...');
+    
     const subscribeMessage: HAMessage = {
       id: this.messageId++,
       type: 'subscribe_events',
@@ -264,44 +273,54 @@ export class WebSocketService {
     this.ws.send(JSON.stringify(subscribeMessage));
     this.subscriptions.add(subscribeMessage.id!);
 
-    // Get initial states ONLY ONCE
+    // Get initial states ONLY ONCE for subscribed devices
     if (!this.hasInitialStates) {
-      console.log('📊 Getting initial states from Home Assistant...');
-      this.getStates();
+      console.log('📊 Getting initial states for subscribed devices...');
+      this.getSubscribedStates();
     }
   }
 
   /**
-   * Get all current states (called only once on connection)
+   * Get current states for subscribed devices only
    */
-  private getStates(): void {
+  private getSubscribedStates(): void {
     if (!this.ws || this.ws.readyState !== WebSocket.OPEN) return;
 
-    const getStatesMessage: HAMessage = {
-      id: this.messageId++,
-      type: 'get_states'
-    };
+    // Get states for each subscribed device individually
+    subscribedDevices.forEach(entityId => {
+      const getStateMessage: HAMessage = {
+        id: this.messageId++,
+        type: 'get_states'
+      };
 
-    this.pendingMessages.set(getStatesMessage.id!, (response) => {
-      if (response.success && response.result) {
-        console.log('📊 Received', response.result.length, 'entities from Home Assistant');
-        this.hasInitialStates = true; // Mark that we have initial states
-        
-        // Convert HA states to our device format
-        const devices = this.convertHAStatesToDevices(response.result);
-        console.log('🔄 Converted to', devices.length, 'devices');
-        
-        this.devicesUpdateListeners.forEach(listener => {
-          try {
-            listener(devices);
-          } catch (error) {
-            console.error('❌ Error in devices update listener:', error);
+      this.pendingMessages.set(getStateMessage.id!, (response) => {
+        if (response.success && response.result) {
+          // Filter to only our subscribed devices
+          const subscribedStates = response.result.filter((state: any) => 
+            subscribedDevices.includes(state.entity_id)
+          );
+          
+          if (subscribedStates.length > 0) {
+            console.log('📊 Received states for', subscribedStates.length, 'subscribed devices');
+            this.hasInitialStates = true;
+            
+            // Convert HA states to our device format
+            const devices = this.convertHAStatesToDevices(subscribedStates);
+            console.log('🔄 Converted to', devices.length, 'devices');
+            
+            this.devicesUpdateListeners.forEach(listener => {
+              try {
+                listener(devices);
+              } catch (error) {
+                console.error('❌ Error in devices update listener:', error);
+              }
+            });
           }
-        });
-      }
-    });
+        }
+      });
 
-    this.ws.send(JSON.stringify(getStatesMessage));
+      this.ws.send(JSON.stringify(getStateMessage));
+    });
   }
 
   /**
@@ -312,19 +331,9 @@ export class WebSocketService {
     
     const devices = states
       .filter(state => {
-        // Filter out unavailable entities and system entities
-        const domain = state.entity_id.split('.')[0];
-        const relevantDomains = ['light', 'cover', 'media_player', 'sensor', 'binary_sensor', 'fan', 'lock', 'camera', 'alarm_control_panel'];
-        
-        return relevantDomains.includes(domain) &&
-               state.state !== 'unavailable' && 
-               !state.entity_id.startsWith('sun.') &&
-               !state.entity_id.startsWith('zone.') &&
-               !state.entity_id.startsWith('person.') &&
-               !state.entity_id.startsWith('automation.') &&
-               !state.entity_id.startsWith('script.') &&
-               !state.entity_id.startsWith('input_') &&
-               !state.entity_id.startsWith('device_tracker.');
+        // Only process subscribed devices that are available
+        return subscribedDevices.includes(state.entity_id) &&
+               state.state !== 'unavailable';
       })
       .map(state => {
         const deviceType = state.entity_id.split('.')[0];
@@ -376,7 +385,7 @@ export class WebSocketService {
         return device;
       });
 
-    console.log('✅ Converted devices by type:');
+    console.log('✅ Converted subscribed devices by type:');
     const devicesByType = devices.reduce((acc, device) => {
       acc[device.device_type] = (acc[device.device_type] || 0) + 1;
       return acc;
@@ -385,7 +394,7 @@ export class WebSocketService {
 
     // Log binary sensors specifically for debugging
     const binarySensors = devices.filter(d => d.device_type === 'binary_sensor');
-    console.log('🔍 Binary sensors found:', binarySensors.length);
+    console.log('🔍 Subscribed binary sensors found:', binarySensors.length);
     binarySensors.forEach(sensor => {
       console.log(`   ${sensor.entity_id} -> ${(sensor as any).sensor_type || 'unknown'} (${sensor.friendly_name})`);
     });
@@ -395,7 +404,8 @@ export class WebSocketService {
     if (yourSensor) {
       console.log('✅ Found your door sensor:', yourSensor);
     } else {
-      console.log('❌ Your door sensor not found in HA entities');
+      console.log('❌ Your door sensor not found in subscribed devices');
+      console.log('💡 Make sure to add it to subscribedDevices array in src/config/devices.ts');
     }
 
     return devices;
@@ -702,6 +712,34 @@ export class WebSocketService {
 
   public manualDisconnect(): void {
     this.disconnect();
+  }
+
+  /**
+   * Get list of subscribed devices
+   */
+  public getSubscribedDevices(): string[] {
+    return [...subscribedDevices];
+  }
+
+  /**
+   * Add device to subscription list (runtime)
+   */
+  public addSubscription(entityId: string): void {
+    if (!subscribedDevices.includes(entityId)) {
+      subscribedDevices.push(entityId);
+      console.log('➕ Added device to subscription:', entityId);
+    }
+  }
+
+  /**
+   * Remove device from subscription list (runtime)
+   */
+  public removeSubscription(entityId: string): void {
+    const index = subscribedDevices.indexOf(entityId);
+    if (index > -1) {
+      subscribedDevices.splice(index, 1);
+      console.log('➖ Removed device from subscription:', entityId);
+    }
   }
 
   /**

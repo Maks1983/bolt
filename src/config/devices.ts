@@ -1,16 +1,117 @@
 /**
  * Device Configuration
  * 
- * This file contains placeholder device data structured to match Home Assistant entities.
- * Replace these with actual entity_ids and data from your Home Assistant instance.
+ * This file contains device configurations that define:
+ * 1. Which devices to subscribe to from Home Assistant
+ * 2. Room and floor assignments for each device
+ * 3. Device-specific settings and overrides
  * 
- * To integrate with your backend:
- * 1. Replace entity_ids with your actual Home Assistant entity IDs
- * 2. Update room/area mappings to match your setup
- * 3. Adjust device capabilities based on your actual devices
+ * To add a new device:
+ * 1. Add its entity_id to the subscribedDevices array
+ * 2. Add its configuration to deviceConfigs with room/floor assignment
+ * 3. The system will automatically subscribe to updates for that device
  */
 
 import { Device, Room, Floor } from '../types/devices';
+
+/**
+ * IMPORTANT: Only devices listed here will be subscribed to from Home Assistant
+ * This prevents unnecessary WebSocket traffic and improves performance
+ */
+export const subscribedDevices = [
+  // Lights
+  'light.master_bedroom_main',
+  'light.kitchen_main',
+  'light.kitchen_counter',
+  'light.kitchen_led_strip',
+  'light.living_room_main',
+  'light.living_room_led_strip',
+  'light.living_room_balcony',
+  'light.bathroom_main',
+  'light.laundry_main',
+  'light.lightswitch_laundry_switch',
+
+  // Covers/Blinds
+  'cover.master_bedroom_blind',
+  'cover.bedroom_blind',
+  'cover.kitchen_blind_1',
+  'cover.kitchen_blind_2',
+  'cover.kitchen_blind_3',
+  'cover.kitchen_blind_4',
+  'cover.living_room_curtain',
+
+  // Media Players
+  'media_player.master_bedroom_speaker',
+  'media_player.bedroom_speaker',
+  'media_player.bathroom_speaker',
+  'media_player.living_room_speaker',
+  'media_player.office_speaker',
+
+  // Temperature Sensors
+  'sensor.master_bedroom_temperature',
+  'sensor.bedroom_temperature',
+  'sensor.bathroom_temperature',
+  'sensor.kitchen_temperature',
+  'sensor.living_room_temperature',
+  'sensor.entrance_temperature',
+  'sensor.office_temperature',
+  'sensor.laundry_temperature',
+
+  // Humidity Sensors
+  'sensor.master_bedroom_humidity',
+  'sensor.bedroom_humidity',
+  'sensor.bathroom_humidity',
+  'sensor.kitchen_humidity',
+  'sensor.living_room_humidity',
+  'sensor.entrance_humidity',
+  'sensor.office_humidity',
+  'sensor.laundry_humidity',
+
+  // Binary Sensors (Windows, Doors, Motion, etc.)
+  'binary_sensor.master_bedroom_window',
+  'binary_sensor.bedroom_window',
+  'binary_sensor.kitchen_window_1',
+  'binary_sensor.kitchen_window_2',
+  'binary_sensor.kitchen_window_3',
+  'binary_sensor.kitchen_window_4',
+  'binary_sensor.living_room_window',
+  'binary_sensor.entrance_door',
+  'binary_sensor.office_window',
+  'binary_sensor.lumi_lumi_sensor_magnet_aq2_opening', // Your actual door sensor
+
+  // Motion Sensors
+  'binary_sensor.master_bedroom_motion',
+  'binary_sensor.bedroom_motion',
+  'binary_sensor.bathroom_motion',
+  'binary_sensor.kitchen_motion',
+  'binary_sensor.living_room_motion',
+  'binary_sensor.entrance_motion',
+  'binary_sensor.office_motion',
+  'binary_sensor.laundry_motion',
+
+  // Safety Sensors
+  'binary_sensor.bathroom_flood',
+  'binary_sensor.kitchen_flood',
+  'binary_sensor.laundry_flood_1',
+  'binary_sensor.laundry_flood_2',
+  'binary_sensor.kitchen_smoke',
+  'binary_sensor.living_room_smoke',
+  'binary_sensor.entrance_smoke',
+
+  // Fans
+  'fan.bathroom_exhaust',
+
+  // Locks
+  'lock.entrance_door',
+
+  // Cameras
+  'camera.front_yard',
+  'camera.backyard',
+  'camera.entrance_doorbell',
+
+  // Alarm System
+  'alarm_control_panel.home_security'
+];
 
 // Example device configurations - replace with your actual Home Assistant entities
 export const deviceConfigs: Device[] = [
