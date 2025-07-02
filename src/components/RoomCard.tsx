@@ -96,9 +96,9 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
   const getOpenCloseText = () => {
     const roomNameLower = roomName.toLowerCase();
     if (roomNameLower.includes('entrance')) {
-      return roomStats.windowOpen ? 'Door Open' : 'Door Closed';
+      return roomStats.windowOpen ? 'Open' : 'Closed';
     }
-    return roomStats.windowOpen ? 'Window Open' : 'Window Closed';
+    return roomStats.windowOpen ? 'Open' : 'Closed';
   };
 
   // Don't render room card if no devices are configured for this room
@@ -151,14 +151,23 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
           {/* Information */}
           <div className="space-y-3">
             {/* Lights - only show if lights are configured */}
-            {roomStats.totalLights > 0 && (
+            {(roomStats.totalLights > 0 && (
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
-                  <Lightbulb className={`w-5 h-5 ${roomStats.lightsOn > 0 ? 'text-yellow-400' : 'text-gray-400'}`} />
+                  <Lightbulb
+                    className={`w-5 h-5 ${
+                      roomStats.lightsOn > 0 ? 'text-yellow-400' : 'text-gray-400'
+                    }`}
+                  />
                   <span className="text-white text-sm font-semibold">
                     {roomStats.lightsOn}/{roomStats.totalLights} lights on
                   </span>
                 </div>
+              </div>
+            )) || (
+              <div className="flex items-center space-x-2">
+                <Lightbulb className="w-5 h-5 text-gray-400" />
+                <span className="text-white text-sm font-semibold">No lights</span>
               </div>
             )}
             
