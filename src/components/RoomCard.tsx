@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { 
   Lightbulb, Thermometer, User, X, Clock, 
   Droplets, DoorOpen, DoorClosed, Columns2,
-  Waves, Flame, Wind, Shield, AlertTriangle
+  Waves, Flame, Wind, Shield, AlertTriangle, Fan
 } from 'lucide-react';
 import { useRoomDevices } from '../hooks/useDeviceUpdates';
 import LightControl from './DeviceControls/LightControl';
@@ -30,30 +30,42 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
     const motionSensor = roomDevices.binarySensors.find(s => (s as any).sensor_type === 'motion');
     const windowSensors = roomDevices.binarySensors.filter(s => (s as any).sensor_type === 'window');
     const doorSensors = roomDevices.binarySensors.filter(s => (s as any).sensor_type === 'door');
+    const floodSensors = roomDevices.binarySensors.filter(s => (s as any).sensor_type === 'flood');
+    const smokeSensors = roomDevices.binarySensors.filter(s => (s as any).sensor_type === 'smoke');
 
     // Live calculated values - use defaults only if no sensors are configured
     const lightsOn = roomDevices.lights.filter(l => l.state === 'on').length;
     const totalLights = roomDevices.lights.length;
+    const fansOn = roomDevices.fans.filter(f => f.state === 'on').length;
+    const totalFans = roomDevices.fans.length;
     const temperature = temperatureSensor ? Number(temperatureSensor.state) : null;
     const humidity = humiditySensor ? Number(humiditySensor.state) : null;
     const presence = motionSensor ? motionSensor.state === 'on' : null;
     const windowOpen = windowSensors.some(s => s.state === 'on') || doorSensors.some(s => s.state === 'on');
+    const floodAlert = floodSensors.some(s => s.state === 'on');
+    const smokeAlert = smokeSensors.some(s => s.state === 'on');
 
     // CRITICAL DEBUG LOG - This should show when lights change
-    console.log(`🏠 RoomCard ${roomName}: lights=${lightsOn}/${totalLights}, temp=${temperature}, humidity=${humidity}, presence=${presence}, devices=${roomDevices.lights.map(l => `${l.entity_id}:${l.state}`).join(',')}`);
+    console.log(`🏠 RoomCard ${roomName}: lights=${lightsOn}/${totalLights}, fans=${fansOn}/${totalFans}, temp=${temperature}, humidity=${humidity}, presence=${presence}, flood=${floodAlert}, smoke=${smokeAlert}, devices=${roomDevices.lights.map(l => `${l.entity_id}:${l.state}`).join(',')}`);
 
     return {
       lightsOn,
       totalLights,
+      fansOn,
+      totalFans,
       temperature,
       humidity,
       presence,
       windowOpen,
+      floodAlert,
+      smokeAlert,
       temperatureSensor,
       humiditySensor,
       motionSensor,
       windowSensors,
-      doorSensors
+      doorSensors,
+      floodSensors,
+      smokeSensors
     };
   }, [roomName, roomDevices]);
 
@@ -67,18 +79,12 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
     const alerts = [];
     
     // Check for flood sensors
-    const floodSensors = roomDevices.binarySensors.filter(s => 
-      (s as any).sensor_type === 'flood' && s.state === 'on'
-    );
-    if (floodSensors.length > 0) {
+    if (roomStats.floodAlert) {
       alerts.push({ type: 'flood', icon: Waves, color: 'text-blue-600', bg: 'bg-blue-100' });
     }
     
     // Check for smoke sensors
-    const smokeSensors = roomDevices.binarySensors.filter(s => 
-      (s as any).sensor_type === 'smoke' && s.state === 'on'
-    );
-    if (smokeSensors.length > 0) {
+    if (roomStats.smokeAlert) {
       alerts.push({ type: 'smoke', icon: Flame, color: 'text-red-600', bg: 'bg-red-100' });
     }
     
@@ -150,26 +156,38 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
           
           {/* Information */}
           <div className="space-y-3">
-            {/* Lights - only show if lights are configured */}
-            {(roomStats.totalLights > 0 && (
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <Lightbulb
-                    className={`w-5 h-5 ${
-                      roomStats.lightsOn > 0 ? 'text-yellow-400' : 'text-gray-400'
-                    }`}
-                  />
-                  <span className="text-white text-sm font-semibold">
-                    {roomStats.lightsOn}/{roomStats.totalLights} lights on
-                  </span>
-                </div>
+            {/* Lights and Fans Row */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-6">
+                {/* Lights - only show if lights are configured */}
+                {roomStats.totalLights > 0 && (
+                  <div className="flex items-center space-x-2">
+                    <Lightbulb
+                      className={`w-5 h-5 ${
+                        roomStats.lightsOn > 0 ? 'text-yellow-400' : 'text-gray-400'
+                      }`}
+                    />
+                    <span className="text-white text-sm font-semibold">
+                      {roomStats.lightsOn}/{roomStats.totalLights} lights
+                    </span>
+                  </div>
+                )}
+                
+                {/* Fans - only show if fans are configured */}
+                {roomStats.totalFans > 0 && (
+                  <div className="flex items-center space-x-2">
+                    <Fan
+                      className={`w-5 h-5 ${
+                        roomStats.fansOn > 0 ? 'text-cyan-400' : 'text-gray-400'
+                      }`}
+                    />
+                    <span className="text-white text-sm font-semibold">
+                      {roomStats.fansOn}/{roomStats.totalFans} fans
+                    </span>
+                  </div>
+                )}
               </div>
-            )) || (
-              <div className="flex items-center space-x-2">
-                <Lightbulb className="w-5 h-5 text-gray-400" />
-                <span className="text-white text-sm font-semibold">No lights</span>
-              </div>
-            )}
+            </div>
             
             {/* Temperature, humidity, and window/door status */}
             <div className="flex items-center justify-between">
@@ -240,7 +258,7 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
                   </button>
                 </div>
                 
-                <div className="grid grid-cols-3 gap-6">
+                <div className="grid grid-cols-4 gap-6">
                   {/* Temperature - only show if configured */}
                   {roomStats.temperature !== null && (
                     <div className="text-center">
@@ -262,6 +280,11 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
                       <div className="text-white/80 text-sm font-medium">Status</div>
                     </div>
                   )}
+                  {/* Device Count */}
+                  <div className="text-center">
+                    <div className="text-lg font-bold text-white">{totalDevices}</div>
+                    <div className="text-white/80 text-sm font-medium">Devices</div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -431,6 +454,36 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
                               <h4 className="font-semibold text-gray-900">{sensor.friendly_name}</h4>
                               <p className={`text-lg font-bold ${sensor.state === 'on' ? 'text-orange-600' : 'text-green-600'}`}>
                                 {sensor.state === 'on' ? 'Open' : 'Closed'}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+
+                      {/* Flood Sensors */}
+                      {roomDevices.binarySensors.filter(s => (s as any).sensor_type === 'flood').map((sensor) => (
+                        <div key={sensor.entity_id} className={`bg-gray-50/80 rounded-2xl p-4 border ${sensor.state === 'on' ? 'border-red-300 bg-red-50' : 'border-gray-200/50'}`}>
+                          <div className="flex items-center space-x-3">
+                            <Waves className={`w-5 h-5 ${sensor.state === 'on' ? 'text-red-600' : 'text-blue-600'}`} />
+                            <div>
+                              <h4 className="font-semibold text-gray-900">{sensor.friendly_name}</h4>
+                              <p className={`text-lg font-bold ${sensor.state === 'on' ? 'text-red-600' : 'text-green-600'}`}>
+                                {sensor.state === 'on' ? 'FLOOD DETECTED' : 'Normal'}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+
+                      {/* Smoke Sensors */}
+                      {roomDevices.binarySensors.filter(s => (s as any).sensor_type === 'smoke').map((sensor) => (
+                        <div key={sensor.entity_id} className={`bg-gray-50/80 rounded-2xl p-4 border ${sensor.state === 'on' ? 'border-red-300 bg-red-50' : 'border-gray-200/50'}`}>
+                          <div className="flex items-center space-x-3">
+                            <Flame className={`w-5 h-5 ${sensor.state === 'on' ? 'text-red-600' : 'text-gray-600'}`} />
+                            <div>
+                              <h4 className="font-semibold text-gray-900">{sensor.friendly_name}</h4>
+                              <p className={`text-lg font-bold ${sensor.state === 'on' ? 'text-red-600' : 'text-green-600'}`}>
+                                {sensor.state === 'on' ? 'SMOKE DETECTED' : 'Normal'}
                               </p>
                             </div>
                           </div>
