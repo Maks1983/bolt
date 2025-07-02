@@ -40,6 +40,11 @@ export class WebSocketService {
   private devicesUpdateListeners = new Set<(devices: Device[]) => void>();
 
   constructor() {
+    console.log('🔧 WebSocket Service Configuration:');
+    console.log('   DEV_MODE:', DEV_MODE);
+    console.log('   WEBSOCKET_URL:', WEBSOCKET_URL);
+    console.log('   ACCESS_TOKEN configured:', ACCESS_TOKEN !== 'your-home-assistant-long-lived-access-token');
+    
     if (!DEV_MODE) {
       this.connect();
     } else {
@@ -257,8 +262,12 @@ export class WebSocketService {
 
     this.pendingMessages.set(getStatesMessage.id!, (response) => {
       if (response.success && response.result) {
+        console.log('📊 Received', response.result.length, 'entities from Home Assistant');
+        
         // Convert HA states to our device format
         const devices = this.convertHAStatesToDevices(response.result);
+        console.log('🔄 Converted to', devices.length, 'devices');
+        
         this.devicesUpdateListeners.forEach(listener => {
           try {
             listener(devices);
@@ -276,17 +285,77 @@ export class WebSocketService {
    * Convert Home Assistant states to our device format
    */
   private convertHAStatesToDevices(states: any[]): Device[] {
-    return states.map(state => ({
-      entity_id: state.entity_id,
-      friendly_name: state.attributes?.friendly_name || state.entity_id,
-      device_type: state.entity_id.split('.')[0],
-      room: state.attributes?.area_id || 'Unknown',
-      floor: 'Unknown',
-      state: state.state,
-      last_updated: state.last_updated,
-      available: state.state !== 'unavailable',
-      ...state.attributes
-    }));
+    console.log('🔄 Converting HA states to devices...');
+    
+    const devices = states
+      .filter(state => {
+        // Filter out unavailable entities and system entities
+        return state.state !== 'unavailable' && 
+               !state.entity_id.startsWith('sun.') &&
+               !state.entity_id.startsWith('zone.') &&
+               !state.entity_id.startsWith('person.');
+      })
+      .map(state => {
+        const deviceType = state.entity_id.split('.')[0];
+        
+        // Map sensor types
+        let sensorType = undefined;
+        if (deviceType === 'sensor') {
+          if (state.attributes?.device_class === 'temperature') sensorType = 'temperature';
+          else if (state.attributes?.device_class === 'humidity') sensorType = 'humidity';
+        } else if (deviceType === 'binary_sensor') {
+          if (state.attributes?.device_class === 'motion') sensorType = 'motion';
+          else if (state.attributes?.device_class === 'door') sensorType = 'door';
+          else if (state.attributes?.device_class === 'window') sensorType = 'window';
+          else if (state.attributes?.device_class === 'smoke') sensorType = 'smoke';
+          else if (state.attributes?.device_class === 'moisture') sensorType = 'flood';
+        }
+
+        const device: Device = {
+          entity_id: state.entity_id,
+          friendly_name: state.attributes?.friendly_name || state.entity_id,
+          device_type: deviceType,
+          room: state.attributes?.area_id || this.inferRoomFromEntityId(state.entity_id) || 'Unknown',
+          floor: 'Unknown',
+          state: state.state,
+          last_updated: state.last_updated,
+          available: state.state !== 'unavailable',
+          ...(sensorType && { sensor_type: sensorType }),
+          ...state.attributes
+        } as Device;
+
+        return device;
+      });
+
+    console.log('✅ Converted devices by type:');
+    const devicesByType = devices.reduce((acc, device) => {
+      acc[device.device_type] = (acc[device.device_type] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+    console.table(devicesByType);
+
+    return devices;
+  }
+
+  /**
+   * Try to infer room from entity ID
+   */
+  private inferRoomFromEntityId(entityId: string): string | null {
+    const parts = entityId.split('.');
+    if (parts.length < 2) return null;
+    
+    const name = parts[1];
+    
+    // Common room patterns
+    if (name.includes('living_room') || name.includes('livingroom')) return 'Living Room';
+    if (name.includes('kitchen')) return 'Kitchen';
+    if (name.includes('bedroom')) return name.includes('master') ? 'Master Bedroom' : 'Bedroom';
+    if (name.includes('bathroom')) return 'Bathroom';
+    if (name.includes('office')) return 'Office';
+    if (name.includes('laundry')) return 'Laundry';
+    if (name.includes('entrance') || name.includes('entry')) return 'Entrance';
+    
+    return null;
   }
 
   /**
