@@ -134,6 +134,19 @@ export const deviceConfigs: Device[] = [
     last_updated: new Date().toISOString(),
     available: true
   },
+  {
+    entity_id: 'light.lightswitch_laundry_switch',
+    friendly_name: 'Laundry Light Switch',
+    device_type: 'light',
+    room: 'Laundry',
+    floor: 'Lower Floor',
+    state: 'on',
+    brightness: 255,
+    color_mode: 'brightness',
+    supported_color_modes: ['brightness'],
+    last_updated: new Date().toISOString(),
+    available: true
+  },
 
   // Blinds/Covers
   {
@@ -611,6 +624,20 @@ export const deviceConfigs: Device[] = [
     state: 'on',
     device_class: 'window',
     sensor_type: 'window',
+    last_updated: new Date().toISOString(),
+    available: true
+  },
+
+  // Example of your actual door sensor
+  {
+    entity_id: 'binary_sensor.lumi_lumi_sensor_magnet_aq2_opening',
+    friendly_name: 'Door Sensor',
+    device_type: 'binary_sensor',
+    room: 'Entrance', // Adjust room as needed
+    floor: 'Lower Floor',
+    state: 'off',
+    device_class: 'opening',
+    sensor_type: 'door', // Will be auto-detected by the service
     last_updated: new Date().toISOString(),
     available: true
   },

@@ -293,27 +293,49 @@ export class WebSocketService {
         return state.state !== 'unavailable' && 
                !state.entity_id.startsWith('sun.') &&
                !state.entity_id.startsWith('zone.') &&
-               !state.entity_id.startsWith('person.');
+               !state.entity_id.startsWith('person.') &&
+               !state.entity_id.startsWith('automation.') &&
+               !state.entity_id.startsWith('script.') &&
+               !state.entity_id.startsWith('input_') &&
+               !state.entity_id.startsWith('device_tracker.');
       })
       .map(state => {
         const deviceType = state.entity_id.split('.')[0];
         
-        // Map sensor types
+        // Enhanced sensor type detection
         let sensorType = undefined;
         if (deviceType === 'sensor') {
           if (state.attributes?.device_class === 'temperature') sensorType = 'temperature';
           else if (state.attributes?.device_class === 'humidity') sensorType = 'humidity';
+          else if (state.attributes?.device_class === 'battery') sensorType = 'battery';
+          else if (state.attributes?.device_class === 'illuminance') sensorType = 'illuminance';
+          else if (state.attributes?.device_class === 'pressure') sensorType = 'pressure';
         } else if (deviceType === 'binary_sensor') {
-          if (state.attributes?.device_class === 'motion') sensorType = 'motion';
-          else if (state.attributes?.device_class === 'door') sensorType = 'door';
-          else if (state.attributes?.device_class === 'window') sensorType = 'window';
-          else if (state.attributes?.device_class === 'smoke') sensorType = 'smoke';
-          else if (state.attributes?.device_class === 'moisture') sensorType = 'flood';
+          // Enhanced binary sensor detection with better pattern matching
+          if (state.attributes?.device_class === 'motion') {
+            sensorType = 'motion';
+          } else if (state.attributes?.device_class === 'door') {
+            sensorType = 'door';
+          } else if (state.attributes?.device_class === 'window') {
+            sensorType = 'window';
+          } else if (state.attributes?.device_class === 'opening') {
+            // Handle generic opening sensors - could be door or window
+            sensorType = this.inferOpeningSensorType(state.entity_id, state.attributes?.friendly_name);
+          } else if (state.attributes?.device_class === 'smoke') {
+            sensorType = 'smoke';
+          } else if (state.attributes?.device_class === 'moisture') {
+            sensorType = 'flood';
+          } else if (state.attributes?.device_class === 'occupancy') {
+            sensorType = 'motion'; // Occupancy is similar to motion
+          } else {
+            // Try to infer from entity ID or friendly name for sensors without device_class
+            sensorType = this.inferBinarySensorType(state.entity_id, state.attributes?.friendly_name);
+          }
         }
 
         const device: Device = {
           entity_id: state.entity_id,
-          friendly_name: state.attributes?.friendly_name || state.entity_id,
+          friendly_name: state.attributes?.friendly_name || this.formatEntityName(state.entity_id),
           device_type: deviceType,
           room: state.attributes?.area_id || this.inferRoomFromEntityId(state.entity_id) || 'Unknown',
           floor: 'Unknown',
@@ -334,7 +356,96 @@ export class WebSocketService {
     }, {} as Record<string, number>);
     console.table(devicesByType);
 
+    // Log binary sensors specifically for debugging
+    const binarySensors = devices.filter(d => d.device_type === 'binary_sensor');
+    console.log('🔍 Binary sensors found:');
+    binarySensors.forEach(sensor => {
+      console.log(`   ${sensor.entity_id} -> ${(sensor as any).sensor_type || 'unknown'} (${sensor.friendly_name})`);
+    });
+
     return devices;
+  }
+
+  /**
+   * Infer binary sensor type from entity ID and friendly name
+   */
+  private inferBinarySensorType(entityId: string, friendlyName?: string): string | undefined {
+    const name = (friendlyName || entityId).toLowerCase();
+    
+    // Motion/occupancy patterns
+    if (name.includes('motion') || name.includes('occupancy') || name.includes('presence')) {
+      return 'motion';
+    }
+    
+    // Door patterns
+    if (name.includes('door') || name.includes('entrance') || name.includes('entry')) {
+      return 'door';
+    }
+    
+    // Window patterns
+    if (name.includes('window') || name.includes('casement')) {
+      return 'window';
+    }
+    
+    // Opening patterns - try to determine if door or window
+    if (name.includes('opening') || name.includes('magnet') || name.includes('contact')) {
+      return this.inferOpeningSensorType(entityId, friendlyName);
+    }
+    
+    // Smoke patterns
+    if (name.includes('smoke') || name.includes('fire')) {
+      return 'smoke';
+    }
+    
+    // Flood/moisture patterns
+    if (name.includes('flood') || name.includes('water') || name.includes('leak') || name.includes('moisture')) {
+      return 'flood';
+    }
+    
+    return undefined;
+  }
+
+  /**
+   * Infer if an opening sensor is a door or window based on context
+   */
+  private inferOpeningSensorType(entityId: string, friendlyName?: string): string {
+    const name = (friendlyName || entityId).toLowerCase();
+    
+    // Check for door indicators
+    if (name.includes('door') || name.includes('entrance') || name.includes('entry') || name.includes('front') || name.includes('back')) {
+      return 'door';
+    }
+    
+    // Check for window indicators
+    if (name.includes('window') || name.includes('casement')) {
+      return 'window';
+    }
+    
+    // Check room context - some rooms are more likely to have doors vs windows
+    if (name.includes('entrance') || name.includes('garage') || name.includes('basement')) {
+      return 'door';
+    }
+    
+    // Default to window for opening sensors in living spaces
+    if (name.includes('living') || name.includes('bedroom') || name.includes('kitchen') || name.includes('bathroom')) {
+      return 'window';
+    }
+    
+    // Default to door if we can't determine
+    return 'door';
+  }
+
+  /**
+   * Format entity name for display
+   */
+  private formatEntityName(entityId: string): string {
+    const parts = entityId.split('.');
+    if (parts.length < 2) return entityId;
+    
+    return parts[1]
+      .split('_')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
   }
 
   /**
@@ -344,16 +455,20 @@ export class WebSocketService {
     const parts = entityId.split('.');
     if (parts.length < 2) return null;
     
-    const name = parts[1];
+    const name = parts[1].toLowerCase();
     
     // Common room patterns
-    if (name.includes('living_room') || name.includes('livingroom')) return 'Living Room';
+    if (name.includes('living_room') || name.includes('livingroom') || name.includes('living')) return 'Living Room';
     if (name.includes('kitchen')) return 'Kitchen';
-    if (name.includes('bedroom')) return name.includes('master') ? 'Master Bedroom' : 'Bedroom';
+    if (name.includes('master_bedroom') || name.includes('masterbedroom')) return 'Master Bedroom';
+    if (name.includes('bedroom')) return 'Bedroom';
     if (name.includes('bathroom')) return 'Bathroom';
     if (name.includes('office')) return 'Office';
     if (name.includes('laundry')) return 'Laundry';
-    if (name.includes('entrance') || name.includes('entry')) return 'Entrance';
+    if (name.includes('entrance') || name.includes('entry') || name.includes('front_door')) return 'Entrance';
+    if (name.includes('garage')) return 'Garage';
+    if (name.includes('basement')) return 'Basement';
+    if (name.includes('attic')) return 'Attic';
     
     return null;
   }
