@@ -11,10 +11,11 @@ interface LightControlProps {
 const LightControl: React.FC<LightControlProps> = ({ device }) => {
   const { controlLight } = useDevices();
   
-  // Use real-time device state instead of prop
+  // Use real-time device state instead of prop - THIS IS CRITICAL!
   const currentDevice = useRealtimeDevice(device.entity_id) as LightDevice || device;
 
   const handleToggle = () => {
+    console.log('💡 Light toggle clicked:', currentDevice.entity_id, 'Current state:', currentDevice.state);
     controlLight(currentDevice.entity_id, currentDevice.state === 'off');
   };
 
@@ -38,6 +39,9 @@ const LightControl: React.FC<LightControlProps> = ({ device }) => {
 
   const isOn = currentDevice.state === 'on';
   const hasColorSupport = currentDevice.supported_color_modes?.includes('rgb') || currentDevice.supported_color_modes?.includes('xy');
+
+  // Debug logging
+  console.log(`💡 LightControl render: ${currentDevice.entity_id} state=${currentDevice.state} isOn=${isOn}`);
 
   return (
     <div className="bg-gray-50/80 rounded-2xl p-5 border border-gray-200/50">

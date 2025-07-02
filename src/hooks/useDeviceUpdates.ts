@@ -4,10 +4,9 @@
  * Provides real-time device state updates and control methods
  */
 
-import { useEffect, useCallback, useState } from 'react';
+import { useEffect, useCallback } from 'react';
 import { useDevices } from '../context/DeviceContext';
-import { Device, EntityUpdateEvent } from '../types/devices';
-import { socketService } from '../services/socketService';
+import { Device } from '../types/devices';
 
 export const useDeviceUpdates = (entityId?: string) => {
   const { state, getDevice, updateDevice } = useDevices();
@@ -55,9 +54,9 @@ export const useRealtimeDevice = (entityId: string) => {
   // Log when device state changes for debugging
   useEffect(() => {
     if (deviceState) {
-      console.log(`🔄 useRealtimeDevice: ${entityId} state is now:`, deviceState.state);
+      console.log(`🔄 useRealtimeDevice: ${entityId} state is now:`, deviceState.state, 'updateCounter:', state.updateCounter);
     }
-  }, [entityId, deviceState?.state, deviceState?.last_updated]);
+  }, [entityId, deviceState?.state, deviceState?.last_updated, state.updateCounter]);
 
   return deviceState;
 };
@@ -175,8 +174,8 @@ export const useRoomDevices = (roomName: string) => {
   // Log when room devices change for debugging
   useEffect(() => {
     const totalDevices = Object.values(roomDevices).flat().length;
-    console.log(`🏠 useRoomDevices: ${roomName} has ${totalDevices} devices`);
-  }, [roomName, roomDevices]);
+    console.log(`🏠 useRoomDevices: ${roomName} has ${totalDevices} devices, updateCounter: ${state.updateCounter}`);
+  }, [roomName, roomDevices, state.updateCounter]);
 
   // Calculate room statistics
   const roomStats = {

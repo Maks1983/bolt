@@ -44,6 +44,9 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
     hour12: false 
   });
 
+  // Debug logging for room card state
+  console.log(`🏠 RoomCard ${roomName}: lights=${lightsOn}/${totalLights}, temp=${temperature}, humidity=${humidity}, presence=${presence}`);
+
   const getSensorAlerts = () => {
     const alerts = [];
     
