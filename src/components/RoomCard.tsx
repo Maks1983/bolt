@@ -75,22 +75,6 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
     hour12: false 
   });
 
-  const getSensorAlerts = () => {
-    const alerts = [];
-    
-    // Check for flood sensors
-    if (roomStats.floodAlert) {
-      alerts.push({ type: 'flood', icon: Waves, color: 'text-blue-600', bg: 'bg-blue-100' });
-    }
-    
-    // Check for smoke sensors
-    if (roomStats.smokeAlert) {
-      alerts.push({ type: 'smoke', icon: Flame, color: 'text-red-600', bg: 'bg-red-100' });
-    }
-    
-    return alerts;
-  };
-
   const getOpenCloseIcon = () => {
     const roomNameLower = roomName.toLowerCase();
     if (roomNameLower.includes('entrance')) {
@@ -135,19 +119,28 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
             <div>
               <h3 className="text-xl font-bold text-white mb-1">{roomName}</h3>
             </div>
-            <div className="flex items-center space-x-2">
-              {/* Presence indicator - only show if motion sensor is configured */}
+            {/* Sensor Icons - Always visible in top right corner */}
+            <div className="flex flex-col space-y-2">
+              {/* Presence sensor - only show if configured */}
               {roomStats.motionSensor && (
-                <div className={`p-2 ${roomStats.presence ? 'bg-emerald-500/90' : 'bg-gray-500/90'} rounded-full shadow-lg backdrop-blur-sm`}>
+                <div className={`p-2 ${roomStats.presence ? 'bg-red-500/90' : 'bg-gray-500/90'} rounded-full shadow-lg backdrop-blur-sm`}>
                   <User className="w-4 h-4 text-white" />
                 </div>
               )}
-              {/* Sensor alerts */}
-              {getSensorAlerts().map((alert, index) => (
-                <div key={index} className={`p-2 ${alert.bg}/90 rounded-full shadow-lg backdrop-blur-sm`}>
-                  <alert.icon className={`w-4 h-4 ${alert.color}`} />
+              
+              {/* Flood sensor - only show if configured */}
+              {roomStats.floodSensors.length > 0 && (
+                <div className={`p-2 ${roomStats.floodAlert ? 'bg-red-500/90' : 'bg-gray-500/90'} rounded-full shadow-lg backdrop-blur-sm`}>
+                  <Waves className="w-4 h-4 text-white" />
                 </div>
-              ))}
+              )}
+              
+              {/* Smoke sensor - only show if configured */}
+              {roomStats.smokeSensors.length > 0 && (
+                <div className={`p-2 ${roomStats.smokeAlert ? 'bg-red-500/90' : 'bg-gray-500/90'} rounded-full shadow-lg backdrop-blur-sm`}>
+                  <Flame className="w-4 h-4 text-white" />
+                </div>
+              )}
             </div>
           </div>
           
@@ -239,16 +232,24 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
                     <div>
                       <h2 className="text-3xl font-bold text-white mb-1">{roomName}</h2>
                     </div>
-                    {roomStats.motionSensor && (
-                      <div className={`p-3 ${roomStats.presence ? 'bg-emerald-500/90' : 'bg-gray-500/90'} rounded-full shadow-lg backdrop-blur-sm`}>
-                        <User className="w-5 h-5 text-white" />
-                      </div>
-                    )}
-                    {getSensorAlerts().map((alert, index) => (
-                      <div key={index} className={`p-3 ${alert.bg}/90 rounded-full shadow-lg backdrop-blur-sm`}>
-                        <alert.icon className={`w-5 h-5 ${alert.color}`} />
-                      </div>
-                    ))}
+                    {/* Sensor Icons in Modal - Same layout as card */}
+                    <div className="flex items-center space-x-3">
+                      {roomStats.motionSensor && (
+                        <div className={`p-3 ${roomStats.presence ? 'bg-red-500/90' : 'bg-gray-500/90'} rounded-full shadow-lg backdrop-blur-sm`}>
+                          <User className="w-5 h-5 text-white" />
+                        </div>
+                      )}
+                      {roomStats.floodSensors.length > 0 && (
+                        <div className={`p-3 ${roomStats.floodAlert ? 'bg-red-500/90' : 'bg-gray-500/90'} rounded-full shadow-lg backdrop-blur-sm`}>
+                          <Waves className="w-5 h-5 text-white" />
+                        </div>
+                      )}
+                      {roomStats.smokeSensors.length > 0 && (
+                        <div className={`p-3 ${roomStats.smokeAlert ? 'bg-red-500/90' : 'bg-gray-500/90'} rounded-full shadow-lg backdrop-blur-sm`}>
+                          <Flame className="w-5 h-5 text-white" />
+                        </div>
+                      )}
+                    </div>
                   </div>
                   <button 
                     onClick={() => setExpanded(false)}
