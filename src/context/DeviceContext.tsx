@@ -26,6 +26,8 @@ interface DeviceState {
   connectionState: ConnectionState;
   connectionError?: string;
   lastUpdate?: Date;
+  // Add a counter to force re-renders
+  updateCounter: number;
 }
 
 type DeviceAction =
@@ -34,13 +36,15 @@ type DeviceAction =
   | { type: 'SET_CONNECTION_STATE'; payload: { state: ConnectionState; error?: string } }
   | { type: 'ENTITY_UPDATE'; payload: EntityUpdateEvent }
   | { type: 'SET_LAST_UPDATE'; payload: Date }
-  | { type: 'SIMULATE_STATE_CHANGE'; payload: { entityId: string; newState: any; attributes?: any } };
+  | { type: 'SIMULATE_STATE_CHANGE'; payload: { entityId: string; newState: any; attributes?: any } }
+  | { type: 'FORCE_UPDATE' };
 
 const initialState: DeviceState = {
   devices: initialDevices,
   rooms: updateRoomsWithDevices(roomConfigs, initialDevices),
   floors: updateFloorsWithRooms(floorConfigs, updateRoomsWithDevices(roomConfigs, initialDevices)),
-  connectionState: 'disconnected'
+  connectionState: 'disconnected',
+  updateCounter: 0
 };
 
 // Helper function to map Home Assistant attributes to device properties
@@ -148,12 +152,16 @@ function deviceReducer(state: DeviceState, action: DeviceAction): DeviceState {
   switch (action.type) {
     case 'SET_DEVICES':
       console.log('🔄 Setting devices from Home Assistant:', action.payload.length);
-      return {
+      const newState = {
         ...state,
         devices: action.payload,
         rooms: updateRoomsWithDevices(state.rooms, action.payload),
-        floors: updateFloorsWithRooms(state.floors, updateRoomsWithDevices(state.rooms, action.payload))
+        floors: updateFloorsWithRooms(state.floors, updateRoomsWithDevices(state.rooms, action.payload)),
+        updateCounter: state.updateCounter + 1,
+        lastUpdate: new Date()
       };
+      console.log('✅ State updated with new devices, updateCounter:', newState.updateCounter);
+      return newState;
 
     case 'UPDATE_DEVICE': {
       const updatedDevices = state.devices.map(device =>
@@ -162,13 +170,17 @@ function deviceReducer(state: DeviceState, action: DeviceAction): DeviceState {
           : device
       );
       
-      return {
+      const newState = {
         ...state,
         devices: updatedDevices,
         rooms: updateRoomsWithDevices(state.rooms, updatedDevices),
         floors: updateFloorsWithRooms(state.floors, updateRoomsWithDevices(state.rooms, updatedDevices)),
-        lastUpdate: new Date()
+        lastUpdate: new Date(),
+        updateCounter: state.updateCounter + 1
       };
+      
+      console.log('✅ Device updated, updateCounter:', newState.updateCounter);
+      return newState;
     }
 
     case 'ENTITY_UPDATE': {
@@ -206,13 +218,17 @@ function deviceReducer(state: DeviceState, action: DeviceAction): DeviceState {
         return state;
       }
 
-      return {
+      const newStateObj = {
         ...state,
         devices: updatedDevices,
         rooms: updateRoomsWithDevices(state.rooms, updatedDevices),
         floors: updateFloorsWithRooms(state.floors, updateRoomsWithDevices(state.rooms, updatedDevices)),
-        lastUpdate: new Date()
+        lastUpdate: new Date(),
+        updateCounter: state.updateCounter + 1
       };
+
+      console.log('✅ Entity update processed, updateCounter:', newStateObj.updateCounter);
+      return newStateObj;
     }
 
     case 'SIMULATE_STATE_CHANGE': {
@@ -233,13 +249,21 @@ function deviceReducer(state: DeviceState, action: DeviceAction): DeviceState {
       return {
         ...state,
         connectionState: action.payload.state,
-        connectionError: action.payload.error
+        connectionError: action.payload.error,
+        updateCounter: state.updateCounter + 1
       };
 
     case 'SET_LAST_UPDATE':
       return {
         ...state,
-        lastUpdate: action.payload
+        lastUpdate: action.payload,
+        updateCounter: state.updateCounter + 1
+      };
+
+    case 'FORCE_UPDATE':
+      return {
+        ...state,
+        updateCounter: state.updateCounter + 1
       };
 
     default:
@@ -291,6 +315,8 @@ interface DeviceContextType {
   controlAlarm: (entityId: string, action: 'arm_home' | 'arm_away' | 'disarm', code?: string) => void;
   // Development simulation method
   simulateStateChange: (entityId: string, newState: any, attributes?: any) => void;
+  // Force update method for debugging
+  forceUpdate: () => void;
 }
 
 const DeviceContext = createContext<DeviceContextType | undefined>(undefined);
@@ -392,7 +418,12 @@ export const DeviceProvider: React.FC<DeviceProviderProps> = ({ children }) => {
   };
 
   const getDevice = (entityId: string): Device | undefined => {
-    return state.devices.find(device => device.entity_id === entityId);
+    const device = state.devices.find(device => device.entity_id === entityId);
+    // Log for debugging
+    if (device) {
+      console.log(`🔍 getDevice(${entityId}): Found device with state:`, device.state);
+    }
+    return device;
   };
 
   const getDevicesByRoom = (roomName: string): Device[] => {
@@ -543,6 +574,11 @@ export const DeviceProvider: React.FC<DeviceProviderProps> = ({ children }) => {
     });
   };
 
+  const forceUpdate = () => {
+    console.log('🔄 Force updating UI...');
+    dispatch({ type: 'FORCE_UPDATE' });
+  };
+
   const contextValue: DeviceContextType = {
     state,
     updateDevice,
@@ -556,7 +592,8 @@ export const DeviceProvider: React.FC<DeviceProviderProps> = ({ children }) => {
     controlFan,
     controlLock,
     controlAlarm,
-    simulateStateChange
+    simulateStateChange,
+    forceUpdate
   };
 
   return (

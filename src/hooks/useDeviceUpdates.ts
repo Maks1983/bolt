@@ -44,50 +44,20 @@ export const useDeviceUpdates = (entityId?: string) => {
 
 /**
  * Hook for real-time device state updates
- * This hook directly listens to WebSocket events for a specific device
+ * This hook directly gets the device from context - no local state!
  */
 export const useRealtimeDevice = (entityId: string) => {
   const { getDevice, state } = useDevices();
-  const [deviceState, setDeviceState] = useState(() => getDevice(entityId));
 
+  // Always get the device from context - no local state to get out of sync!
+  const deviceState = getDevice(entityId);
+
+  // Log when device state changes for debugging
   useEffect(() => {
-    // Update local state when context changes
-    const currentDevice = getDevice(entityId);
-    setDeviceState(currentDevice);
-  }, [entityId, getDevice, state.lastUpdate]); // Added state.lastUpdate as dependency
-
-  useEffect(() => {
-    if (!entityId) return;
-
-    const handleEntityUpdate = (update: EntityUpdateEvent) => {
-      if (update.entity_id === entityId) {
-        console.log(`🔄 Real-time update for ${entityId}:`, update);
-        
-        // Update local state immediately
-        setDeviceState(prevDevice => {
-          if (!prevDevice) return prevDevice;
-          
-          // Map attributes to device properties based on device type
-          const attributeUpdates = mapAttributesToDevice(prevDevice.device_type, update.attributes);
-          
-          return {
-            ...prevDevice,
-            state: update.state,
-            ...attributeUpdates,
-            last_updated: update.last_updated || new Date().toISOString()
-          };
-        });
-      }
-    };
-
-    // Listen directly to WebSocket events
-    socketService.onEntityUpdated(handleEntityUpdate);
-
-    return () => {
-      // Note: In a real implementation, we'd need a way to remove specific listeners
-      // For now, this is handled by the service's internal cleanup
-    };
-  }, [entityId]);
+    if (deviceState) {
+      console.log(`🔄 useRealtimeDevice: ${entityId} state is now:`, deviceState.state);
+    }
+  }, [entityId, deviceState?.state, deviceState?.last_updated]);
 
   return deviceState;
 };
@@ -198,36 +168,15 @@ function mapAttributesToDevice(deviceType: string, attributes: any): Partial<Dev
  */
 export const useRoomDevices = (roomName: string) => {
   const { getRoomDevices, state } = useDevices();
-  const [roomDevices, setRoomDevices] = useState(() => getRoomDevices(roomName));
 
-  // Update room devices when context changes
+  // Always get room devices from context - no local state!
+  const roomDevices = getRoomDevices(roomName);
+
+  // Log when room devices change for debugging
   useEffect(() => {
-    const currentRoomDevices = getRoomDevices(roomName);
-    setRoomDevices(currentRoomDevices);
-  }, [roomName, getRoomDevices, state.lastUpdate, state.devices]); // Added state.devices as dependency
-
-  // Listen for real-time updates to any device in this room
-  useEffect(() => {
-    const handleEntityUpdate = (update: EntityUpdateEvent) => {
-      // Check if this update affects any device in this room
-      const currentRoomDevices = getRoomDevices(roomName);
-      const affectedDevice = Object.values(currentRoomDevices)
-        .flat()
-        .find(device => device.entity_id === update.entity_id);
-
-      if (affectedDevice) {
-        console.log(`🏠 Room ${roomName} device update:`, update);
-        // Trigger re-calculation of room devices
-        setRoomDevices(getRoomDevices(roomName));
-      }
-    };
-
-    socketService.onEntityUpdated(handleEntityUpdate);
-
-    return () => {
-      // Cleanup handled by service
-    };
-  }, [roomName, getRoomDevices]);
+    const totalDevices = Object.values(roomDevices).flat().length;
+    console.log(`🏠 useRoomDevices: ${roomName} has ${totalDevices} devices`);
+  }, [roomName, roomDevices]);
 
   // Calculate room statistics
   const roomStats = {
