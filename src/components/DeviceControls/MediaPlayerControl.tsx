@@ -26,6 +26,9 @@ const MediaPlayerControl: React.FC<MediaPlayerControlProps> = ({ device }) => {
   const isPlaying = currentDevice.state === 'playing';
   const volumePercentage = Math.round((currentDevice.volume_level || 0) * 100);
 
+  // Debug logging
+  console.log(`🎵 MediaPlayerControl render: ${currentDevice.entity_id} state=${currentDevice.state} isPlaying=${isPlaying}`);
+
   return (
     <div className="bg-gray-50/80 rounded-2xl p-5 border border-gray-200/50">
       <div className="flex items-center justify-between mb-4">

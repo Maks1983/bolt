@@ -30,6 +30,9 @@ const LockControl: React.FC<LockControlProps> = ({ device }) => {
 
   const isLocked = currentDevice.state === 'locked';
 
+  // Debug logging
+  console.log(`🔒 LockControl render: ${currentDevice.entity_id} state=${currentDevice.state} isLocked=${isLocked}`);
+
   return (
     <div className="bg-gray-50/80 rounded-2xl p-5 border border-gray-200/50">
       <div className="flex items-center justify-between mb-4">

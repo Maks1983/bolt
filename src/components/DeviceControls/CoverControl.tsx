@@ -48,6 +48,9 @@ const CoverControl: React.FC<CoverControlProps> = ({ device, type = 'blind' }) =
 
   const colors = colorClasses[getColorScheme()];
 
+  // Debug logging
+  console.log(`🪟 CoverControl render: ${currentDevice.entity_id} state=${currentDevice.state} position=${currentDevice.position}`);
+
   return (
     <div className="bg-gray-50/80 rounded-2xl p-5 border border-gray-200/50">
       <div className="flex items-center justify-between mb-4">

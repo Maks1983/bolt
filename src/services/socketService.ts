@@ -274,7 +274,7 @@ export class WebSocketService {
     this.ws.send(JSON.stringify(subscribeMessage));
     this.subscriptions.add(subscribeMessage.id!);
 
-    // Get initial states for our subscribed entities - THIS WAS MISSING!
+    // Get initial states for our subscribed entities - THIS IS CRITICAL!
     this.getInitialStates();
   }
 
