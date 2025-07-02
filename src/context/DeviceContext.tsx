@@ -140,12 +140,12 @@ function deviceReducer(state: DeviceState, action: DeviceAction): DeviceState {
     case 'SET_DEVICES': {
       console.log('🔄 Setting devices from Home Assistant:', action.payload.length, 'devices');
       
-      // Merge HA devices with our configured devices, prioritizing HA data
-      const mergedDevices = mergeDevicesWithConfig(action.payload, deviceConfigs);
+      // Use HA devices as the primary source, but keep room/floor info from config
+      const enhancedDevices = enhanceDevicesWithConfig(action.payload, deviceConfigs);
       
-      console.log('✅ Merged devices:', mergedDevices.length);
+      console.log('✅ Enhanced devices:', enhancedDevices.length);
       console.log('📊 Devices by room:');
-      const devicesByRoom = mergedDevices.reduce((acc, device) => {
+      const devicesByRoom = enhancedDevices.reduce((acc, device) => {
         acc[device.room || 'Unknown'] = (acc[device.room || 'Unknown'] || 0) + 1;
         return acc;
       }, {} as Record<string, number>);
@@ -153,9 +153,9 @@ function deviceReducer(state: DeviceState, action: DeviceAction): DeviceState {
       
       return {
         ...state,
-        devices: mergedDevices,
-        rooms: updateRoomsWithDevices(state.rooms, mergedDevices),
-        floors: updateFloorsWithRooms(state.floors, updateRoomsWithDevices(state.rooms, mergedDevices))
+        devices: enhancedDevices,
+        rooms: updateRoomsWithDevices(state.rooms, enhancedDevices),
+        floors: updateFloorsWithRooms(state.floors, updateRoomsWithDevices(state.rooms, enhancedDevices))
       };
     }
 
@@ -178,12 +178,8 @@ function deviceReducer(state: DeviceState, action: DeviceAction): DeviceState {
     case 'ENTITY_UPDATE': {
       const { entity_id, state: newState, attributes, last_updated } = action.payload;
       
-      console.log('🔄 Processing entity update:', { entity_id, newState, attributes });
-      
       const updatedDevices = state.devices.map(device => {
         if (device.entity_id === entity_id) {
-          console.log('✅ Found matching device:', device.friendly_name);
-          
           // Map attributes to device properties
           const attributeUpdates = mapAttributesToDevice(device.device_type, attributes);
           
@@ -194,7 +190,6 @@ function deviceReducer(state: DeviceState, action: DeviceAction): DeviceState {
             last_updated: last_updated || new Date().toISOString()
           };
           
-          console.log('🔄 Updated device:', updatedDevice);
           return updatedDevice;
         }
         return device;
@@ -205,7 +200,6 @@ function deviceReducer(state: DeviceState, action: DeviceAction): DeviceState {
       );
 
       if (!hasChanges) {
-        console.log('⚠️ No device found for entity_id:', entity_id);
         return state;
       }
 
@@ -250,54 +244,52 @@ function deviceReducer(state: DeviceState, action: DeviceAction): DeviceState {
   }
 }
 
-// Helper function to merge HA devices with our configuration
-function mergeDevicesWithConfig(haDevices: Device[], configDevices: Device[]): Device[] {
-  const mergedDevices: Device[] = [];
+// Helper function to enhance HA devices with our configuration
+function enhanceDevicesWithConfig(haDevices: Device[], configDevices: Device[]): Device[] {
+  const enhancedDevices: Device[] = [];
   
   // Create a map of configured devices for quick lookup
   const configMap = new Map(configDevices.map(device => [device.entity_id, device]));
   
-  // Process HA devices
+  // Process HA devices and enhance them with config data
   for (const haDevice of haDevices) {
     const configDevice = configMap.get(haDevice.entity_id);
     
     if (configDevice) {
-      // Merge HA data with config, prioritizing HA state and attributes
-      const mergedDevice = {
-        ...configDevice,
-        ...haDevice,
-        // Keep room and floor from config if they exist
-        room: configDevice.room || haDevice.room,
-        floor: configDevice.floor || haDevice.floor,
-        // Keep friendly name from config if it's more descriptive
-        friendly_name: configDevice.friendly_name || haDevice.friendly_name
+      // Merge HA data with config, prioritizing HA state and attributes but keeping config room/floor
+      const enhancedDevice = {
+        ...haDevice, // Start with HA data
+        room: configDevice.room || haDevice.room, // Prefer config room
+        floor: configDevice.floor || haDevice.floor, // Prefer config floor
+        friendly_name: configDevice.friendly_name || haDevice.friendly_name, // Prefer config friendly name if more descriptive
+        sensor_type: (configDevice as any).sensor_type || (haDevice as any).sensor_type // Keep sensor type from config
       };
-      mergedDevices.push(mergedDevice);
-      configMap.delete(haDevice.entity_id); // Remove from config map
+      enhancedDevices.push(enhancedDevice);
     } else {
-      // Add HA device that's not in our config
-      mergedDevices.push(haDevice);
+      // Add HA device that's not in our config (auto-discovered)
+      enhancedDevices.push(haDevice);
     }
   }
   
-  // Add any remaining config devices that weren't found in HA
-  // (these might be offline or not yet discovered)
-  for (const configDevice of configMap.values()) {
-    console.log('⚠️ Config device not found in HA:', configDevice.entity_id);
-    mergedDevices.push({
-      ...configDevice,
-      available: false // Mark as unavailable since it's not in HA
-    });
+  // Add any config devices that weren't found in HA (might be offline)
+  for (const configDevice of configDevices) {
+    const foundInHA = haDevices.some(haDevice => haDevice.entity_id === configDevice.entity_id);
+    if (!foundInHA) {
+      console.log('⚠️ Config device not found in HA (might be offline):', configDevice.entity_id);
+      enhancedDevices.push({
+        ...configDevice,
+        available: false // Mark as unavailable since it's not in HA
+      });
+    }
   }
   
-  return mergedDevices;
+  return enhancedDevices;
 }
 
 // Helper functions to update nested structures
 function updateRoomsWithDevices(rooms: Room[], devices: Device[]): Room[] {
   return rooms.map(room => {
     const roomDevices = devices.filter(device => device.room === room.name);
-    console.log(`🏠 Room "${room.name}" has ${roomDevices.length} devices`);
     
     return {
       ...room,
@@ -357,7 +349,6 @@ export const DeviceProvider: React.FC<DeviceProviderProps> = ({ children }) => {
     });
 
     socketService.onEntityUpdated((update) => {
-      console.log('🔄 Entity updated from WebSocket:', update);
       dispatch({ type: 'ENTITY_UPDATE', payload: update });
     });
 
@@ -459,7 +450,6 @@ export const DeviceProvider: React.FC<DeviceProviderProps> = ({ children }) => {
 
   const getDevicesByRoom = (roomName: string): Device[] => {
     const devices = state.devices.filter(device => device.room === roomName);
-    console.log(`🏠 Getting devices for room "${roomName}":`, devices.length, 'devices');
     return devices;
   };
 
@@ -480,17 +470,6 @@ export const DeviceProvider: React.FC<DeviceProviderProps> = ({ children }) => {
       locks: roomDevices.filter(d => d.device_type === 'lock'),
       cameras: roomDevices.filter(d => d.device_type === 'camera')
     };
-    
-    console.log(`🏠 Room "${roomName}" device breakdown:`, {
-      lights: result.lights.length,
-      covers: result.covers.length,
-      mediaPlayers: result.mediaPlayers.length,
-      sensors: result.sensors.length,
-      binarySensors: result.binarySensors.length,
-      fans: result.fans.length,
-      locks: result.locks.length,
-      cameras: result.cameras.length
-    });
     
     return result;
   };

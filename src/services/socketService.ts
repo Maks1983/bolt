@@ -33,6 +33,7 @@ export class WebSocketService {
   private messageId = 1;
   private pendingMessages = new Map<number, (response: any) => void>();
   private subscriptions = new Set<number>();
+  private hasInitialStates = false; // Track if we've gotten initial states
   
   // Event callbacks - support multiple listeners
   private connectionStateListeners = new Set<(state: ConnectionState, error?: string) => void>();
@@ -109,6 +110,7 @@ export class WebSocketService {
     this.reconnectAttempts = 0;
     this.pendingMessages.clear();
     this.subscriptions.clear();
+    this.hasInitialStates = false;
   }
 
   /**
@@ -138,6 +140,7 @@ export class WebSocketService {
       // Clear pending messages and subscriptions
       this.pendingMessages.clear();
       this.subscriptions.clear();
+      this.hasInitialStates = false;
       
       // Auto-reconnect unless manually disconnected
       if (!this.isManuallyDisconnected) {
@@ -155,7 +158,10 @@ export class WebSocketService {
    * Handle incoming WebSocket messages
    */
   private handleMessage(message: HAMessage): void {
-    console.log('📡 Received message:', message);
+    // Only log non-event messages to reduce noise
+    if (message.type !== 'event') {
+      console.log('📡 Received message:', message.type, message.id ? `(id: ${message.id})` : '');
+    }
 
     switch (message.type) {
       case 'auth_required':
@@ -198,7 +204,11 @@ export class WebSocketService {
               last_updated: eventData.new_state.last_updated || new Date().toISOString()
             };
             
-            console.log('🔄 Broadcasting entity update to', this.entityUpdateListeners.size, 'listeners');
+            // Only log updates for entities we care about
+            if (this.isRelevantEntity(eventData.entity_id)) {
+              console.log('🔄 Entity update:', eventData.entity_id, '→', eventData.new_state.state);
+            }
+            
             this.entityUpdateListeners.forEach(listener => {
               try {
                 listener(update);
@@ -213,6 +223,15 @@ export class WebSocketService {
       default:
         console.log('📡 Unhandled message type:', message.type);
     }
+  }
+
+  /**
+   * Check if an entity is relevant for our dashboard
+   */
+  private isRelevantEntity(entityId: string): boolean {
+    const domain = entityId.split('.')[0];
+    const relevantDomains = ['light', 'cover', 'media_player', 'sensor', 'binary_sensor', 'fan', 'lock', 'camera', 'alarm_control_panel'];
+    return relevantDomains.includes(domain);
   }
 
   /**
@@ -245,12 +264,15 @@ export class WebSocketService {
     this.ws.send(JSON.stringify(subscribeMessage));
     this.subscriptions.add(subscribeMessage.id!);
 
-    // Get initial states
-    this.getStates();
+    // Get initial states ONLY ONCE
+    if (!this.hasInitialStates) {
+      console.log('📊 Getting initial states from Home Assistant...');
+      this.getStates();
+    }
   }
 
   /**
-   * Get all current states
+   * Get all current states (called only once on connection)
    */
   private getStates(): void {
     if (!this.ws || this.ws.readyState !== WebSocket.OPEN) return;
@@ -263,6 +285,7 @@ export class WebSocketService {
     this.pendingMessages.set(getStatesMessage.id!, (response) => {
       if (response.success && response.result) {
         console.log('📊 Received', response.result.length, 'entities from Home Assistant');
+        this.hasInitialStates = true; // Mark that we have initial states
         
         // Convert HA states to our device format
         const devices = this.convertHAStatesToDevices(response.result);
@@ -290,7 +313,11 @@ export class WebSocketService {
     const devices = states
       .filter(state => {
         // Filter out unavailable entities and system entities
-        return state.state !== 'unavailable' && 
+        const domain = state.entity_id.split('.')[0];
+        const relevantDomains = ['light', 'cover', 'media_player', 'sensor', 'binary_sensor', 'fan', 'lock', 'camera', 'alarm_control_panel'];
+        
+        return relevantDomains.includes(domain) &&
+               state.state !== 'unavailable' && 
                !state.entity_id.startsWith('sun.') &&
                !state.entity_id.startsWith('zone.') &&
                !state.entity_id.startsWith('person.') &&
@@ -358,10 +385,18 @@ export class WebSocketService {
 
     // Log binary sensors specifically for debugging
     const binarySensors = devices.filter(d => d.device_type === 'binary_sensor');
-    console.log('🔍 Binary sensors found:');
+    console.log('🔍 Binary sensors found:', binarySensors.length);
     binarySensors.forEach(sensor => {
       console.log(`   ${sensor.entity_id} -> ${(sensor as any).sensor_type || 'unknown'} (${sensor.friendly_name})`);
     });
+
+    // Log your specific sensor
+    const yourSensor = devices.find(d => d.entity_id.includes('lumi_lumi_sensor_magnet_aq2_opening'));
+    if (yourSensor) {
+      console.log('✅ Found your door sensor:', yourSensor);
+    } else {
+      console.log('❌ Your door sensor not found in HA entities');
+    }
 
     return devices;
   }
