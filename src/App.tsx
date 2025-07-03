@@ -35,6 +35,7 @@ const AppContent: React.FC = () => {
   // Get floors and their rooms from the context
   const upperFloor = state.floors.find(floor => floor.name === 'Upper Floor');
   const lowerFloor = state.floors.find(floor => floor.name === 'Lower Floor');
+  const apartment = state.floors.find(floor => floor.name === 'Apartment');
   
   // Convert rooms to the format expected by FloorSection
   const upperFloorRooms = upperFloor ? upperFloor.rooms.map(room => ({
@@ -44,6 +45,12 @@ const AppContent: React.FC = () => {
   })) : [];
   
   const lowerFloorRooms = lowerFloor ? lowerFloor.rooms.map(room => ({
+    name: room.name,
+    floor: room.floor,
+    backgroundImage: room.background_image || 'https://images.pexels.com/photos/1428348/pexels-photo-1428348.jpeg?auto=compress&cs=tinysrgb&w=800'
+  })) : [];
+
+  const apartmentRooms = apartment ? apartment.rooms.map(room => ({
     name: room.name,
     floor: room.floor,
     backgroundImage: room.background_image || 'https://images.pexels.com/photos/1428348/pexels-photo-1428348.jpeg?auto=compress&cs=tinysrgb&w=800'
@@ -60,6 +67,9 @@ const AppContent: React.FC = () => {
         )}
         {lowerFloorRooms.length > 0 && (
           <FloorSection title="Lower Floor" rooms={lowerFloorRooms} />
+        )}
+        {apartmentRooms.length > 0 && (
+          <FloorSection title="Apartment" rooms={apartmentRooms} />
         )}
       </main>
     </div>
