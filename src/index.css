@@ -1,9 +1,10 @@
+/* Leaflet CSS - Required for OpenStreetMap */
+@import 'leaflet/dist/leaflet.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Leaflet CSS - Required for OpenStreetMap */
-@import 'leaflet/dist/leaflet.css';
 
 /* Custom slider styles */
 .slider::-webkit-slider-thumb {
