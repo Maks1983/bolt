@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { MapPin, X, Navigation, Clock, Battery, Wifi } from 'lucide-react';
+import { MapPin, X, Navigation, Clock, Battery, Wifi, Car, Home } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 
@@ -10,6 +10,13 @@ L.Icon.Default.mergeOptions({
   iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
+
+// Static home coordinates - replace with your actual home location
+const HOME_COORDINATES = {
+  latitude: 40.7128,
+  longitude: -74.0060,
+  name: 'Home'
+};
 
 // Custom marker icon
 const createCustomIcon = (color: string) => {
@@ -38,6 +45,34 @@ const createCustomIcon = (color: string) => {
   });
 };
 
+// Home marker icon
+const createHomeIcon = () => {
+  return L.divIcon({
+    className: 'home-marker',
+    html: `<div style="
+      width: 32px;
+      height: 32px;
+      background: #10b981;
+      border: 3px solid white;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    ">
+      <div style="
+        width: 16px;
+        height: 16px;
+        background: white;
+        mask: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z\"/></svg>') no-repeat center;
+        mask-size: contain;
+      "></div>
+    </div>`,
+    iconSize: [32, 32],
+    iconAnchor: [16, 16],
+  });
+};
+
 // Component to handle map centering
 const MapController: React.FC<{ center: [number, number] }> = ({ center }) => {
   const map = useMap();
@@ -51,6 +86,40 @@ const MapController: React.FC<{ center: [number, number] }> = ({ center }) => {
   }, [center, map]);
   
   return null;
+};
+
+// Calculate driving distance and time using Haversine formula (approximate)
+const calculateDrivingTime = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+  const R = 6371; // Earth's radius in kilometers
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = 
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+    Math.sin(dLon/2) * Math.sin(dLon/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  const distance = R * c; // Distance in kilometers
+  
+  // Estimate driving time (assuming average speed of 50 km/h in city)
+  const averageSpeed = 50; // km/h
+  const timeInHours = distance / averageSpeed;
+  const timeInMinutes = Math.round(timeInHours * 60);
+  
+  return {
+    distance: Math.round(distance * 10) / 10, // Round to 1 decimal
+    timeMinutes: timeInMinutes
+  };
+};
+
+// Format time for display
+const formatTravelTime = (minutes: number): string => {
+  if (minutes < 60) {
+    return `${minutes} min`;
+  } else {
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+    return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}m` : `${hours}h`;
+  }
 };
 
 interface LocationModalProps {
@@ -79,15 +148,20 @@ const LocationModal: React.FC<LocationModalProps> = ({ user, onClose }) => {
     
     // Fallback to mock coordinates if no GPS data
     return {
-      latitude: user.status === 'home' ? 40.7128 : 40.7589,
-      longitude: user.status === 'home' ? -74.0060 : -73.9851,
-      address: user.status === 'home' ? 'Home' : 'Away Location',
+      latitude: user.status === 'home' ? HOME_COORDINATES.latitude + 0.001 : 40.7589,
+      longitude: user.status === 'home' ? HOME_COORDINATES.longitude + 0.001 : -73.9851,
+      address: user.status === 'home' ? 'Near Home' : 'Away Location',
       isReal: false
     };
   };
 
   const location = getRealLocation();
   const mapCenter: [number, number] = [location.latitude, location.longitude];
+  const homeLocation: [number, number] = [HOME_COORDINATES.latitude, HOME_COORDINATES.longitude];
+
+  // Calculate travel times
+  const travelToHome = calculateDrivingTime(location.latitude, location.longitude, HOME_COORDINATES.latitude, HOME_COORDINATES.longitude);
+  const travelFromHome = calculateDrivingTime(HOME_COORDINATES.latitude, HOME_COORDINATES.longitude, location.latitude, location.longitude);
 
   // Get marker color based on status
   const getMarkerColor = () => {
@@ -151,12 +225,25 @@ const LocationModal: React.FC<LocationModalProps> = ({ user, onClose }) => {
                 </div>
               </div>
             </div>
-            <button 
-              onClick={onClose}
-              className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
-            >
-              <X className="w-6 h-6 text-gray-600" />
-            </button>
+            
+            {/* Last Update moved to header */}
+            <div className="flex items-center space-x-4">
+              {deviceInfo.last_updated && (
+                <div className="text-right">
+                  <div className="text-sm font-medium text-gray-900">Last Update</div>
+                  <div className="text-xs text-gray-500">
+                    {new Date(deviceInfo.last_updated).toLocaleDateString()} {new Date(deviceInfo.last_updated).toLocaleTimeString()}
+                  </div>
+                </div>
+              )}
+              
+              <button 
+                onClick={onClose}
+                className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
+              >
+                <X className="w-6 h-6 text-gray-600" />
+              </button>
+            </div>
           </div>
         </div>
 
@@ -165,7 +252,7 @@ const LocationModal: React.FC<LocationModalProps> = ({ user, onClose }) => {
           <div className="bg-gray-100 rounded-2xl h-96 overflow-hidden relative">
             <MapContainer
               center={mapCenter}
-              zoom={15}
+              zoom={13}
               style={{ 
                 height: '100%', 
                 width: '100%',
@@ -185,6 +272,7 @@ const LocationModal: React.FC<LocationModalProps> = ({ user, onClose }) => {
                 crossOrigin={true}
               />
               
+              {/* User location marker */}
               <Marker 
                 position={mapCenter}
                 icon={createCustomIcon(getMarkerColor())}
@@ -205,6 +293,21 @@ const LocationModal: React.FC<LocationModalProps> = ({ user, onClose }) => {
                 </Popup>
               </Marker>
               
+              {/* Home location marker */}
+              <Marker 
+                position={homeLocation}
+                icon={createHomeIcon()}
+              >
+                <Popup>
+                  <div className="text-center">
+                    <div className="font-semibold text-gray-900">🏠 {HOME_COORDINATES.name}</div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      {HOME_COORDINATES.latitude.toFixed(6)}, {HOME_COORDINATES.longitude.toFixed(6)}
+                    </div>
+                  </div>
+                </Popup>
+              </Marker>
+              
               {mapReady && <MapController center={mapCenter} />}
             </MapContainer>
 
@@ -220,7 +323,7 @@ const LocationModal: React.FC<LocationModalProps> = ({ user, onClose }) => {
           </div>
 
           {/* Location Details */}
-          <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Device Info */}
             <div className="bg-gray-50 rounded-xl p-4">
               <h3 className="font-semibold text-gray-900 mb-3 flex items-center">
@@ -275,56 +378,59 @@ const LocationModal: React.FC<LocationModalProps> = ({ user, onClose }) => {
                 )}
               </div>
             </div>
-
-            {/* Last Update */}
-            <div className="bg-gray-50 rounded-xl p-4">
-              <h3 className="font-semibold text-gray-900 mb-3 flex items-center">
-                <Clock className="w-4 h-4 mr-2" />
-                Last Update
-              </h3>
-              <div className="space-y-2 text-sm">
-                {deviceInfo.last_updated ? (
-                  <>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Date:</span>
-                      <span>{new Date(deviceInfo.last_updated).toLocaleDateString()}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Time:</span>
-                      <span>{new Date(deviceInfo.last_updated).toLocaleTimeString()}</span>
-                    </div>
-                  </>
-                ) : (
-                  <div className="text-gray-500">No update information</div>
-                )}
-              </div>
-            </div>
           </div>
 
-          {/* Map Controls */}
+          {/* Map Controls and Travel Times */}
           <div className="mt-6 flex items-center justify-between">
             <div className="flex items-center space-x-2 text-sm text-gray-600">
               <Navigation className="w-4 h-4" />
               <span>Powered by OpenStreetMap</span>
             </div>
             
-            <div className="flex space-x-2">
-              <button
-                onClick={() => {
-                  if (mapReady && location.latitude && location.longitude) {
-                    window.open(`https://www.openstreetmap.org/?mlat=${location.latitude}&mlon=${location.longitude}&zoom=15`, '_blank');
-                  }
-                }}
-                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm"
-              >
-                View on OSM
-              </button>
-              <button 
-                onClick={onClose}
-                className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
-              >
-                Close
-              </button>
+            {/* Travel Times - Bottom Right */}
+            <div className="flex items-center space-x-6">
+              {/* Travel time to home */}
+              <div className="text-right">
+                <div className="flex items-center space-x-2 text-sm font-medium text-gray-900">
+                  <Car className="w-4 h-4 text-blue-600" />
+                  <Home className="w-4 h-4 text-green-600" />
+                  <span>To Home</span>
+                </div>
+                <div className="text-xs text-gray-600">
+                  {formatTravelTime(travelToHome.timeMinutes)} ({travelToHome.distance} km)
+                </div>
+              </div>
+              
+              {/* Travel time from home */}
+              <div className="text-right">
+                <div className="flex items-center space-x-2 text-sm font-medium text-gray-900">
+                  <Home className="w-4 h-4 text-green-600" />
+                  <Car className="w-4 h-4 text-blue-600" />
+                  <span>From Home</span>
+                </div>
+                <div className="text-xs text-gray-600">
+                  {formatTravelTime(travelFromHome.timeMinutes)} ({travelFromHome.distance} km)
+                </div>
+              </div>
+              
+              <div className="flex space-x-2">
+                <button
+                  onClick={() => {
+                    if (mapReady && location.latitude && location.longitude) {
+                      window.open(`https://www.openstreetmap.org/?mlat=${location.latitude}&mlon=${location.longitude}&zoom=15`, '_blank');
+                    }
+                  }}
+                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm"
+                >
+                  View on OSM
+                </button>
+                <button 
+                  onClick={onClose}
+                  className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
 
@@ -338,6 +444,7 @@ const LocationModal: React.FC<LocationModalProps> = ({ user, onClose }) => {
                 <li>Ensure your device trackers have GPS coordinates in their attributes</li>
                 <li>The map will automatically use real coordinates when available</li>
                 <li>GPS accuracy and battery level will be displayed when provided</li>
+                <li>Update HOME_COORDINATES in LocationModal.tsx with your actual home location</li>
               </ul>
             </div>
           )}
