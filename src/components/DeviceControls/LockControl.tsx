@@ -5,7 +5,7 @@ import { useDevices } from '../../context/DeviceContext';
 import { useRealtimeDevice } from '../../hooks/useDeviceUpdates';
 
 interface LockControlProps {
-  device: LockDevice;
+  device: LockDevice; 
 }
 
 const LockControl: React.FC<LockControlProps> = ({ device }) => {
