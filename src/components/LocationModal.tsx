@@ -3,7 +3,7 @@ import { MapPin, X, Navigation, Clock, Battery, Wifi } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 
-// Fix for default markers in react-leaflet
+// Fix for default markers in react-leaflet - CRITICAL FIX
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
@@ -44,6 +44,10 @@ const MapController: React.FC<{ center: [number, number] }> = ({ center }) => {
   
   useEffect(() => {
     map.setView(center, map.getZoom());
+    // Force map to invalidate size and redraw tiles
+    setTimeout(() => {
+      map.invalidateSize();
+    }, 100);
   }, [center, map]);
   
   return null;
@@ -110,6 +114,15 @@ const LocationModal: React.FC<LocationModalProps> = ({ user, onClose }) => {
 
   const deviceInfo = getDeviceInfo();
 
+  // Handle map ready event
+  const handleMapReady = () => {
+    setMapReady(true);
+    // Additional delay to ensure tiles load properly
+    setTimeout(() => {
+      console.log('🗺️ Map fully initialized');
+    }, 500);
+  };
+
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl border border-gray-200">
@@ -153,12 +166,23 @@ const LocationModal: React.FC<LocationModalProps> = ({ user, onClose }) => {
             <MapContainer
               center={mapCenter}
               zoom={15}
-              style={{ height: '100%', width: '100%' }}
-              whenReady={() => setMapReady(true)}
+              style={{ 
+                height: '100%', 
+                width: '100%',
+                borderRadius: '1rem'
+              }}
+              whenReady={handleMapReady}
+              scrollWheelZoom={true}
+              zoomControl={true}
+              attributionControl={true}
             >
               <TileLayer
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                maxZoom={19}
+                tileSize={256}
+                zoomOffset={0}
+                crossOrigin={true}
               />
               
               <Marker 
@@ -186,8 +210,11 @@ const LocationModal: React.FC<LocationModalProps> = ({ user, onClose }) => {
 
             {/* Loading overlay */}
             {!mapReady && (
-              <div className="absolute inset-0 bg-gray-100 flex items-center justify-center">
-                <div className="text-gray-500">Loading map...</div>
+              <div className="absolute inset-0 bg-gray-100 flex items-center justify-center rounded-2xl">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
+                  <div className="text-gray-500">Loading map...</div>
+                </div>
               </div>
             )}
           </div>
@@ -285,7 +312,6 @@ const LocationModal: React.FC<LocationModalProps> = ({ user, onClose }) => {
               <button
                 onClick={() => {
                   if (mapReady && location.latitude && location.longitude) {
-                    // You can add functionality to center map or refresh location here
                     window.open(`https://www.openstreetmap.org/?mlat=${location.latitude}&mlon=${location.longitude}&zoom=15`, '_blank');
                   }
                 }}
