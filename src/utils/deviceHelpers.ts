@@ -7,6 +7,22 @@
 import { Device, Room, LightDevice, SensorDevice, BinarySensorDevice } from '../types/devices';
 
 /**
+ * Format temperature value to always show one decimal place in Celsius
+ */
+export const formatTemperature = (value: number | string): string => {
+  const temp = typeof value === 'string' ? parseFloat(value) : value;
+  return `${temp.toFixed(1)}°C`;
+};
+
+/**
+ * Format humidity value to show integer percentage
+ */
+export const formatHumidity = (value: number | string): string => {
+  const humidity = typeof value === 'string' ? parseFloat(value) : value;
+  return `${Math.round(humidity)}%`;
+};
+
+/**
  * Calculate room statistics from devices
  */
 export const calculateRoomStats = (devices: Device[]) => {
@@ -65,6 +81,12 @@ export const formatDeviceState = (device: Device): string => {
   switch (device.device_type) {
     case 'sensor':
       const sensor = device as SensorDevice;
+      if (sensor.sensor_type === 'temperature') {
+        return formatTemperature(sensor.state);
+      }
+      if (sensor.sensor_type === 'humidity') {
+        return formatHumidity(sensor.state);
+      }
       return `${sensor.state}${sensor.unit_of_measurement || ''}`;
     case 'binary_sensor':
       return device.state === 'on' ? 'Active' : 'Inactive';

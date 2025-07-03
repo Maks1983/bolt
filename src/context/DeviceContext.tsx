@@ -145,6 +145,25 @@ function mapAttributesToDevice(deviceType: string, attributes: any): Partial<Dev
     }
   }
 
+  // Device tracker attributes
+  if (deviceType === 'device_tracker') {
+    if (attributes.latitude !== undefined) {
+      (updates as any).latitude = attributes.latitude;
+    }
+    if (attributes.longitude !== undefined) {
+      (updates as any).longitude = attributes.longitude;
+    }
+    if (attributes.gps_accuracy !== undefined) {
+      (updates as any).gps_accuracy = attributes.gps_accuracy;
+    }
+    if (attributes.battery !== undefined) {
+      (updates as any).battery = attributes.battery;
+    }
+    if (attributes.source_type) {
+      (updates as any).source_type = attributes.source_type;
+    }
+  }
+
   return updates;
 }
 
@@ -380,7 +399,7 @@ export const DeviceProvider: React.FC<DeviceProviderProps> = ({ children }) => {
               type: 'SIMULATE_STATE_CHANGE', 
               payload: { 
                 entityId: tempEntity, 
-                newState: 24 
+                newState: 24.8 
               } 
             });
           }

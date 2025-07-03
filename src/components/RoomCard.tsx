@@ -5,6 +5,7 @@ import {
   Waves, Flame, Wind, Shield, AlertTriangle, Fan, Lock, Unlock
 } from 'lucide-react';
 import { useRoomDevices } from '../hooks/useDeviceUpdates';
+import { formatTemperature, formatHumidity } from '../utils/deviceHelpers';
 import LightControl from './DeviceControls/LightControl';
 import CoverControl from './DeviceControls/CoverControl';
 import MediaPlayerControl from './DeviceControls/MediaPlayerControl';
@@ -206,14 +207,14 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
                 {roomStats.temperature !== null && (
                   <div className="flex items-center space-x-2">
                     <Thermometer className="w-5 h-5 text-blue-400" />
-                    <span className="text-white text-sm font-semibold">{roomStats.temperature}°C</span>
+                    <span className="text-white text-sm font-semibold">{formatTemperature(roomStats.temperature)}</span>
                   </div>
                 )}
                 {/* Humidity - only show if sensor is configured */}
                 {roomStats.humidity !== null && (
                   <div className="flex items-center space-x-2">
                     <Droplets className="w-4 h-4 text-blue-300" />
-                    <span className="text-white/90 text-sm font-medium">{roomStats.humidity}%</span>
+                    <span className="text-white/90 text-sm font-medium">{formatHumidity(roomStats.humidity)}</span>
                   </div>
                 )}
               </div>
@@ -286,13 +287,13 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
                 <div className="grid grid-cols-3 gap-6">
                   {roomStats.temperature !== null && (
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-white">{roomStats.temperature}°C</div>
+                    <div className="text-2xl font-bold text-white">{formatTemperature(roomStats.temperature)}</div>
                     <div className="text-white/80 text-sm font-medium">Temperature</div>
                   </div>
                   )}
                   {roomStats.humidity !== null && (
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-white">{roomStats.humidity}%</div>
+                      <div className="text-2xl font-bold text-white">{formatHumidity(roomStats.humidity)}</div>
                       <div className="text-white/80 text-sm font-medium">Humidity</div>
                     </div>
                   )}
@@ -383,6 +384,112 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
                     <div className="space-y-4">
                       {roomDevices.mediaPlayers.map((player) => (
                         <MediaPlayerControl key={player.entity_id} device={player as any} />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Sensors Information */}
+                {(roomDevices.sensors.length > 0 || roomDevices.binarySensors.length > 0) && (
+                  <div>
+                    <div className="flex items-center space-x-3 mb-6">
+                      <div className="p-2 bg-green-100 rounded-xl">
+                        <Thermometer className="w-5 h-5 text-green-600" />
+                      </div>
+                      <h3 className="text-xl font-bold text-gray-900">Sensors</h3>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {/* Temperature Sensors */}
+                      {roomDevices.sensors.filter(s => (s as any).sensor_type === 'temperature').map((sensor) => (
+                        <div key={sensor.entity_id} className="bg-gray-50/80 rounded-2xl p-4 border border-gray-200/50">
+                          <div className="flex items-center space-x-3">
+                            <Thermometer className="w-5 h-5 text-blue-600" />
+                            <div>
+                              <h4 className="font-semibold text-gray-900">{sensor.friendly_name}</h4>
+                              <p className="text-lg font-bold text-blue-600">{formatTemperature(sensor.state)}</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                      
+                      {/* Humidity Sensors */}
+                      {roomDevices.sensors.filter(s => (s as any).sensor_type === 'humidity').map((sensor) => (
+                        <div key={sensor.entity_id} className="bg-gray-50/80 rounded-2xl p-4 border border-gray-200/50">
+                          <div className="flex items-center space-x-3">
+                            <Droplets className="w-5 h-5 text-blue-600" />
+                            <div>
+                              <h4 className="font-semibold text-gray-900">{sensor.friendly_name}</h4>
+                              <p className="text-lg font-bold text-blue-600">{formatHumidity(sensor.state)}</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                      
+                      {/* Motion Sensors */}
+                      {roomDevices.binarySensors.filter(s => (s as any).sensor_type === 'motion').map((sensor) => (
+                        <div key={sensor.entity_id} className="bg-gray-50/80 rounded-2xl p-4 border border-gray-200/50">
+                          <div className="flex items-center space-x-3">
+                            <User className={`w-5 h-5 ${sensor.state === 'on' ? 'text-green-600' : 'text-gray-400'}`} />
+                            <div>
+                              <h4 className="font-semibold text-gray-900">{sensor.friendly_name}</h4>
+                              <p className={`text-lg font-bold ${sensor.state === 'on' ? 'text-green-600' : 'text-gray-400'}`}>
+                                {sensor.state === 'on' ? 'Motion' : 'No Motion'}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                      
+                      {/* Door/Window Sensors */}
+                      {roomDevices.binarySensors.filter(s => 
+                        (s as any).sensor_type === 'door' || (s as any).sensor_type === 'window'
+                      ).map((sensor) => (
+                        <div key={sensor.entity_id} className="bg-gray-50/80 rounded-2xl p-4 border border-gray-200/50">
+                          <div className="flex items-center space-x-3">
+                            {(sensor as any).sensor_type === 'door' ? (
+                              sensor.state === 'on' ? <DoorOpen className="w-5 h-5 text-orange-600" /> : <DoorClosed className="w-5 h-5 text-green-600" />
+                            ) : (
+                              <Columns2 className={`w-5 h-5 ${sensor.state === 'on' ? 'text-orange-600' : 'text-green-600'}`} />
+                            )}
+                            <div>
+                              <h4 className="font-semibold text-gray-900">{sensor.friendly_name}</h4>
+                              <p className={`text-lg font-bold ${sensor.state === 'on' ? 'text-orange-600' : 'text-green-600'}`}>
+                                {sensor.state === 'on' ? 'Open' : 'Closed'}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+
+                      {/* Flood Sensors */}
+                      {roomDevices.binarySensors.filter(s => (s as any).sensor_type === 'flood').map((sensor) => (
+                        <div key={sensor.entity_id} className={`bg-gray-50/80 rounded-2xl p-4 border ${sensor.state === 'on' ? 'border-red-300 bg-red-50' : 'border-gray-200/50'}`}>
+                          <div className="flex items-center space-x-3">
+                            <Waves className={`w-5 h-5 ${sensor.state === 'on' ? 'text-red-600' : 'text-blue-600'}`} />
+                            <div>
+                              <h4 className="font-semibold text-gray-900">{sensor.friendly_name}</h4>
+                              <p className={`text-lg font-bold ${sensor.state === 'on' ? 'text-red-600' : 'text-green-600'}`}>
+                                {sensor.state === 'on' ? 'FLOOD DETECTED' : 'Dry'}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+
+                      {/* Smoke Sensors */}
+                      {roomDevices.binarySensors.filter(s => (s as any).sensor_type === 'smoke').map((sensor) => (
+                        <div key={sensor.entity_id} className={`bg-gray-50/80 rounded-2xl p-4 border ${sensor.state === 'on' ? 'border-red-300 bg-red-50' : 'border-gray-200/50'}`}>
+                          <div className="flex items-center space-x-3">
+                            <Flame className={`w-5 h-5 ${sensor.state === 'on' ? 'text-red-600' : 'text-gray-600'}`} />
+                            <div>
+                              <h4 className="font-semibold text-gray-900">{sensor.friendly_name}</h4>
+                              <p className={`text-lg font-bold ${sensor.state === 'on' ? 'text-red-600' : 'text-green-600'}`}>
+                                {sensor.state === 'on' ? 'SMOKE DETECTED' : 'Clear'}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
                       ))}
                     </div>
                   </div>
