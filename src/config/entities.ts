@@ -10,7 +10,7 @@
 export interface EntityConfig {
   entity_id: string;
   friendly_name: string;
-  device_type: 'light' | 'cover' | 'media_player' | 'sensor' | 'binary_sensor' | 'fan' | 'lock' | 'camera' | 'alarm_control_panel';
+  device_type: 'light' | 'cover' | 'media_player' | 'sensor' | 'binary_sensor' | 'fan' | 'lock' | 'camera' | 'alarm_control_panel' | 'device_tracker';
   room: string;
   floor: string;
   sensor_type?: 'temperature' | 'humidity' | 'motion' | 'door' | 'window' | 'flood' | 'smoke';
@@ -25,6 +25,66 @@ export interface EntityConfig {
  * Only these entities will be monitored for real-time updates.
  */
 export const subscribedEntities: EntityConfig[] = [
+  // === DEVICE TRACKERS ===
+  {
+    entity_id: 'device_tracker.lima',
+    friendly_name: 'Sarah',
+    device_type: 'device_tracker',
+    room: 'System',
+    floor: 'System',
+    state: 'home',
+    last_updated: new Date().toISOString(),
+    available: true
+  },
+  {
+    entity_id: 'device_tracker.kitty_phone',
+    friendly_name: 'Mike',
+    device_type: 'device_tracker',
+    room: 'System',
+    floor: 'System',
+    state: 'away',
+    last_updated: new Date().toISOString(),
+    available: true
+  },
+  {
+    entity_id: 'device_tracker.emaphone',
+    friendly_name: 'Emma',
+    device_type: 'device_tracker',
+    room: 'System',
+    floor: 'System',
+    state: 'home',
+    last_updated: new Date().toISOString(),
+    available: true
+  },
+
+  // === BALCONY WEATHER SENSORS ===
+  {
+    entity_id: 'sensor.balcony_temperature_sensor_temperature',
+    friendly_name: 'Balcony Temperature',
+    device_type: 'sensor',
+    room: 'Balcony',
+    floor: 'System',
+    state: 18,
+    unit_of_measurement: '°C',
+    device_class: 'temperature',
+    sensor_type: 'temperature',
+    last_updated: new Date().toISOString(),
+    available: true
+  },
+  {
+    entity_id: 'sensor.balcony_temperature_sensor_humidity',
+    friendly_name: 'Balcony Humidity',
+    device_type: 'sensor',
+    room: 'Balcony',
+    floor: 'System',
+    state: 65,
+    unit_of_measurement: '%',
+    device_class: 'humidity',
+    sensor_type: 'humidity',
+    last_updated: new Date().toISOString(),
+    available: true
+  },
+
   // === LIGHTS ===
   {
     entity_id: 'light.bathroom_light_switch_switch',

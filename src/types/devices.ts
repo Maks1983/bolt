@@ -123,6 +123,16 @@ export interface AlarmControlPanelDevice extends BaseDevice {
   supported_features?: string[];
 }
 
+export interface DeviceTrackerDevice extends BaseDevice {
+  device_type: 'device_tracker';
+  state: 'home' | 'away' | 'not_home';
+  source_type?: 'gps' | 'router' | 'bluetooth' | 'bluetooth_le';
+  battery?: number;
+  gps_accuracy?: number;
+  latitude?: number;
+  longitude?: number;
+}
+
 export type Device = 
   | LightDevice 
   | BlindDevice 
@@ -133,7 +143,8 @@ export type Device =
   | CameraDevice 
   | FanDevice 
   | ClimateDevice
-  | AlarmControlPanelDevice;
+  | AlarmControlPanelDevice
+  | DeviceTrackerDevice;
 
 export interface Room {
   id: string;
