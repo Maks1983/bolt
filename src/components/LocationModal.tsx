@@ -45,7 +45,7 @@ const createCustomIcon = (color: string) => {
   });
 };
 
-// Home marker icon
+// Home marker icon with proper house shape
 const createHomeIcon = () => {
   return L.divIcon({
     className: 'home-marker',
@@ -59,14 +59,11 @@ const createHomeIcon = () => {
       display: flex;
       align-items: center;
       justify-content: center;
+      position: relative;
     ">
-      <div style="
-        width: 16px;
-        height: 16px;
-        background: white;
-        mask: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z\"/></svg>') no-repeat center;
-        mask-size: contain;
-      "></div>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="white" style="display: block;">
+        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+      </svg>
     </div>`,
     iconSize: [32, 32],
     iconAnchor: [16, 16],
