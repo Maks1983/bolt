@@ -266,22 +266,27 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
                   </button>
                 </div>
                 
-                <div className="grid grid-cols-2 gap-6">
-                  {/* Temperature - only show if configured */}
+                <div className="grid grid-cols-3 gap-6">
                   {roomStats.temperature !== null && (
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-white">{roomStats.temperature}°C</div>
-                      <div className="text-white/80 text-sm font-medium">Temperature</div>
-                    </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-white">{roomStats.temperature}°C</div>
+                    <div className="text-white/80 text-sm font-medium">Temperature</div>
+                  </div>
                   )}
-                  {/* Humidity - only show if configured */}
                   {roomStats.humidity !== null && (
                     <div className="text-center">
                       <div className="text-2xl font-bold text-white">{roomStats.humidity}%</div>
                       <div className="text-white/80 text-sm font-medium">Humidity</div>
                     </div>
                   )}
-
+                  
+                  <div className="text-center">
+                    {roomDevices.locks.map((lock) => (
+                      <div key={lock.entity_id}>
+                        <LockControl device={lock as any} />
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
@@ -365,25 +370,6 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
                     </div>
                   </div>
                 )}
-
-                {/* Security Controls */}
-                {roomDevices.locks.length > 0 && (
-                  <div>
-                    <div className="flex items-center space-x-3 mb-6">
-                      <div className="p-2 bg-red-100 rounded-xl">
-                        <Shield className="w-5 h-5 text-red-600" />
-                      </div>
-                      <h3 className="text-xl font-bold text-gray-900">Security</h3>
-                    </div>
-                    
-                    <div className="space-y-4">
-                      {roomDevices.locks.map((lock) => (
-                        <LockControl key={lock.entity_id} device={lock as any} />
-                      ))}
-                    </div>
-                  </div>
-                )}
-
               </div>
               
               {/* Footer */}
