@@ -261,10 +261,10 @@ const LocationModal: React.FC<LocationModalProps> = ({ user, onClose }) => {
               whenReady={handleMapReady}
               scrollWheelZoom={true}
               zoomControl={true}
-              attributionControl={true}
+              attributionControl={false}
             >
               <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                attribution=''
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 maxZoom={19}
                 tileSize={256}
@@ -380,13 +380,8 @@ const LocationModal: React.FC<LocationModalProps> = ({ user, onClose }) => {
             </div>
           </div>
 
-          {/* Map Controls and Travel Times */}
-          <div className="mt-6 flex items-center justify-between">
-            <div className="flex items-center space-x-2 text-sm text-gray-600">
-              <Navigation className="w-4 h-4" />
-              <span>Powered by OpenStreetMap</span>
-            </div>
-            
+          {/* Travel Times and Controls */}
+          <div className="mt-6 flex items-center justify-end">
             {/* Travel Times - Bottom Right */}
             <div className="flex items-center space-x-6">
               {/* Travel time to home */}
