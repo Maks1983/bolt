@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Leaflet CSS - Required for OpenStreetMap */
+@import 'leaflet/dist/leaflet.css';
+
 /* Custom slider styles */
 .slider::-webkit-slider-thumb {
   appearance: none;
@@ -72,4 +75,29 @@
 
 .duration-300 {
   animation-duration: 0.3s;
+}
+
+/* Leaflet map container styling */
+.leaflet-container {
+  border-radius: 1rem;
+  z-index: 1;
+}
+
+/* Custom marker styling */
+.custom-marker {
+  background: #ef4444;
+  border: 3px solid #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Leaflet popup styling */
+.leaflet-popup-content-wrapper {
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.leaflet-popup-content {
+  margin: 0.75rem;
+  font-family: inherit;
 }
