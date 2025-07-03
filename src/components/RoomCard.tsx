@@ -119,30 +119,30 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
             <div>
               <h3 className="text-xl font-bold text-white mb-1">{roomName}</h3>
             </div>
+
             {/* Sensor Icons - Always visible in top right corner */}
-            <div className="flex flex-col space-y-2">
-              {/* Presence sensor - only show if configured */}
-              {roomStats.motionSensor && (
-                <div className={`p-2 ${roomStats.presence ? 'bg-red-500/90' : 'bg-gray-500/90'} rounded-full shadow-lg backdrop-blur-sm`}>
-                  <User className="w-4 h-4 text-white" />
-                </div>
-              )}
-              
-              {/* Flood sensor - only show if configured */}
-              {roomStats.floodSensors.length > 0 && (
-                <div className={`p-2 ${roomStats.floodAlert ? 'bg-red-500/90' : 'bg-gray-500/90'} rounded-full shadow-lg backdrop-blur-sm`}>
-                  <Waves className="w-4 h-4 text-white" />
-                </div>
-              )}
-              
+            <div className="flex flex-row items-center space-x-2">
               {/* Smoke sensor - only show if configured */}
               {roomStats.smokeSensors.length > 0 && (
                 <div className={`p-2 ${roomStats.smokeAlert ? 'bg-red-500/90' : 'bg-gray-500/90'} rounded-full shadow-lg backdrop-blur-sm`}>
                   <Flame className="w-4 h-4 text-white" />
                 </div>
               )}
+              {/* Flood sensor - only show if configured */}
+              {roomStats.floodSensors.length > 0 && (
+                <div className={`p-2 ${roomStats.floodAlert ? 'bg-red-500/90' : 'bg-gray-500/90'} rounded-full shadow-lg backdrop-blur-sm`}>
+                  <Waves className="w-4 h-4 text-white" />
+                </div>
+              )}
+              {/* Presence sensor - only show if configured */}
+              {roomStats.motionSensor && (
+                <div className={`p-2 ${roomStats.presence ? 'bg-green-500/90' : 'bg-gray-500/90'} rounded-full shadow-lg backdrop-blur-sm`}>
+                  <User className="w-4 h-4 text-white" />
+                </div>
+              )}
             </div>
           </div>
+
           
           {/* Spacer */}
           <div className="flex-1"></div>
@@ -469,7 +469,7 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
                             <div>
                               <h4 className="font-semibold text-gray-900">{sensor.friendly_name}</h4>
                               <p className={`text-lg font-bold ${sensor.state === 'on' ? 'text-red-600' : 'text-green-600'}`}>
-                                {sensor.state === 'on' ? 'FLOOD DETECTED' : 'Normal'}
+                                {sensor.state === 'on' ? 'FLOOD DETECTED' : 'Dry'}
                               </p>
                             </div>
                           </div>
@@ -484,7 +484,7 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
                             <div>
                               <h4 className="font-semibold text-gray-900">{sensor.friendly_name}</h4>
                               <p className={`text-lg font-bold ${sensor.state === 'on' ? 'text-red-600' : 'text-green-600'}`}>
-                                {sensor.state === 'on' ? 'SMOKE DETECTED' : 'Normal'}
+                                {sensor.state === 'on' ? 'SMOKE DETECTED' : 'Clear'}
                               </p>
                             </div>
                           </div>
