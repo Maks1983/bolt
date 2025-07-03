@@ -13,8 +13,8 @@ L.Icon.Default.mergeOptions({
 
 // Static home coordinates - replace with your actual home location
 const HOME_COORDINATES = {
-  latitude: 40.7128,
-  longitude: -74.0060,
+  latitude: 59.5875217,
+  longitude: 11.1392873,
   name: 'Home'
 };
 
@@ -282,10 +282,11 @@ const LocationModal: React.FC<LocationModalProps> = ({ user, onClose }) => {
                       {location.latitude.toFixed(6)}, {location.longitude.toFixed(6)}
                     </div>
                     {deviceInfo.gps_accuracy && (
-                      <div className="text-xs text-gray-500">
-                        Accuracy: ±{deviceInfo.gps_accuracy}m
-                      </div>
+                        <div className="text-xs text-gray-500">
+                            Accuracy: ±{deviceInfo.gps_accuracy}m
+                        </div>
                     )}
+
                   </div>
                 </Popup>
               </Marker>
@@ -297,7 +298,8 @@ const LocationModal: React.FC<LocationModalProps> = ({ user, onClose }) => {
               >
                 <Popup>
                   <div className="text-center">
-                    <div className="font-semibold text-gray-900">🏠 {HOME_COORDINATES.name}</div>
+                    <div className="font-semibold text-gray-900">Home</div>
+                    <div className="text-sm text-gray-600">{HOME_COORDINATES.name}</div>
                     <div className="text-xs text-gray-500 mt-1">
                       {HOME_COORDINATES.latitude.toFixed(6)}, {HOME_COORDINATES.longitude.toFixed(6)}
                     </div>
@@ -406,16 +408,6 @@ const LocationModal: React.FC<LocationModalProps> = ({ user, onClose }) => {
               </div>
               
               <div className="flex space-x-2">
-                <button
-                  onClick={() => {
-                    if (mapReady && location.latitude && location.longitude) {
-                      window.open(`https://www.openstreetmap.org/?mlat=${location.latitude}&mlon=${location.longitude}&zoom=15`, '_blank');
-                    }
-                  }}
-                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm"
-                >
-                  View on OSM
-                </button>
                 <button 
                   onClick={onClose}
                   className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
