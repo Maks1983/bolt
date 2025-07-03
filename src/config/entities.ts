@@ -45,10 +45,6 @@ export const subscribedEntities: EntityConfig[] = [
     device_type: 'light',
     room: 'Kitchen',
     floor: 'Upper Floor',
-    state: 'on',
-    brightness: 255,
-    color_mode: 'brightness',
-    supported_color_modes: ['brightness'],
     last_updated: new Date().toISOString(),
     available: true
   },
@@ -265,7 +261,7 @@ export const subscribedEntities: EntityConfig[] = [
     available: true
   },
   {
-    entity_id: 'sensor.bedroom_temperature_sensor_humidity',
+    entity_id: 'sensor.bathroom_temperature_sensor_humidity',
     friendly_name: 'Bathroom Humidity',
     device_type: 'sensor',
     room: 'Bathroom',
