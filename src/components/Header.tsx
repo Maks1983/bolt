@@ -12,9 +12,9 @@ const Header: React.FC = () => {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Get specific device tracker entities
-  const sarahTracker = useRealtimeDevice('device_tracker.lima');
-  const mikeTracker = useRealtimeDevice('device_tracker.kitty_phone');
-  const emmaTracker = useRealtimeDevice('device_tracker.emaphone');
+  const NelsonTracker = useRealtimeDevice('device_tracker.lima');
+  const ClaudiaTracker = useRealtimeDevice('device_tracker.kitty_phone');
+  const EmaTracker = useRealtimeDevice('device_tracker.emaphone');
 
   // Get balcony weather sensors
   const balconyTemp = useRealtimeDevice('sensor.balcony_temperature_sensor_temperature');
@@ -48,22 +48,22 @@ const Header: React.FC = () => {
 
   const users = [
     { 
-      name: 'Sarah', 
-      status: sarahTracker?.state || 'unknown', 
+      name: 'Nelson', 
+      status: NelsonTracker?.state || 'unknown', 
       avatar: '👩‍💻',
-      entity: sarahTracker
+      entity: NelsonTracker
     },
     { 
-      name: 'Mike', 
-      status: mikeTracker?.state || 'unknown', 
+      name: 'Claudia', 
+      status: ClaudiaTracker?.state || 'unknown', 
       avatar: '👨‍💼',
-      entity: mikeTracker
+      entity: ClaudiaTracker
     },
     { 
-      name: 'Emma', 
-      status: emmaTracker?.state || 'unknown', 
+      name: 'Ema', 
+      status: EmaTracker?.state || 'unknown', 
       avatar: '👧',
-      entity: emmaTracker
+      entity: EmaTracker
     }
   ];
 
@@ -130,11 +130,11 @@ const Header: React.FC = () => {
   const getConnectionText = () => {
     switch (state.connectionState) {
       case 'connected':
-        return 'Connected to Home Assistant';
+        return 'Connected';
       case 'connecting':
         return 'Connecting...';
       case 'disconnected':
-        return 'Disconnected from Home Assistant';
+        return 'Disconnected';
       case 'error':
         return state.connectionError || 'Connection Error';
       default:
@@ -154,7 +154,7 @@ const Header: React.FC = () => {
 
   return (
     <>
-      <header className="bg-white/95 backdrop-blur-xl border-b border-gray-200/50 px-6 py-2 shadow-sm">
+      <header className="relative z-40 bg-white/95 backdrop-blur-xl border-b border-gray-200/50 px-6 py-2 shadow-sm">
         <div className="flex items-center justify-between max-w-7xl mx-auto">
           {/* User Presence - Left */}
           <div className="flex items-center space-x-2">
@@ -220,7 +220,7 @@ const Header: React.FC = () => {
 
               {/* Connection Dropdown */}
               {showConnectionDropdown && (
-                <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                <div className="absolute right-0 top-full mt-2 w-60 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
                   <div className="p-4">
                     <div className="flex items-center space-x-3 mb-3">
                       {getConnectionIcon()}
