@@ -27,7 +27,7 @@ export const roomConfigs: Room[] = [
     id: 'bathroom',
     name: 'Bathroom',
     floor: 'Upper Floor',
-    background_image: 'https://images.pexels.com/photos/342800/pexels-photo-342800.jpeg?auto=compress&cs=tinysrgb&w=800',
+    background_image: 'https://images.pexels.com/photos/6301176/pexels-photo-6301176.jpeg?auto=compress&cs=tinysrgb&w=800',
     devices: []
   },
   {
@@ -41,7 +41,7 @@ export const roomConfigs: Room[] = [
     id: 'living_room',
     name: 'Living Room',
     floor: 'Upper Floor',
-    background_image: 'https://images.pexels.com/photos/276724/pexels-photo-276724.jpeg?auto=compress&cs=tinysrgb&w=800',
+    background_image: 'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=800',
     devices: []
   },
   {
@@ -62,9 +62,16 @@ export const roomConfigs: Room[] = [
     id: 'laundry',
     name: 'Laundry',
     floor: 'Lower Floor',
-    background_image: 'https://images.pexels.com/photos/4107123/pexels-photo-4107123.jpeg?auto=compress&cs=tinysrgb&w=800',
+    background_image: 'https://images.pexels.com/photos/4993073/pexels-photo-4993073.jpeg?auto=compress&cs=tinysrgb&w=800',
     devices: []
-  }
+  },
+  /*{
+    id: 'ap_living_room',
+    name: 'Ap Living Room',
+    floor: 'Apartment',
+    background_image: 'https://images.pexels.com/photos/1571453/pexels-photo-1571453.jpeg?auto=compress&cs=tinysrgb&w=800',
+    devices: []
+  }*/
 ];
 
 // Floor configurations
@@ -78,5 +85,10 @@ export const floorConfigs: Floor[] = [
     id: 'lower_floor',
     name: 'Lower Floor',
     rooms: roomConfigs.filter(r => r.floor === 'Lower Floor')
+  },
+  {
+    id: 'apartment',
+    name: 'Apartment',
+    rooms: roomConfigs.filter(r => r.floor === 'Apartment')
   }
 ];
