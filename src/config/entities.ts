@@ -28,7 +28,7 @@ export const subscribedEntities: EntityConfig[] = [
   // === DEVICE TRACKERS ===
   {
     entity_id: 'device_tracker.lima',
-    friendly_name: 'Sarah',
+    friendly_name: 'Nelson',
     device_type: 'device_tracker',
     room: 'System',
     floor: 'System',
@@ -38,7 +38,7 @@ export const subscribedEntities: EntityConfig[] = [
   },
   {
     entity_id: 'device_tracker.kitty_phone',
-    friendly_name: 'Mike',
+    friendly_name: 'Claudia',
     device_type: 'device_tracker',
     room: 'System',
     floor: 'System',
@@ -48,7 +48,7 @@ export const subscribedEntities: EntityConfig[] = [
   },
   {
     entity_id: 'device_tracker.emaphone',
-    friendly_name: 'Emma',
+    friendly_name: 'Ema',
     device_type: 'device_tracker',
     room: 'System',
     floor: 'System',
@@ -84,7 +84,7 @@ export const subscribedEntities: EntityConfig[] = [
     last_updated: new Date().toISOString(),
     available: true
   },
-
+  
   // === LIGHTS ===
   {
     entity_id: 'light.bathroom_light_switch_switch',
