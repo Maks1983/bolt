@@ -3,6 +3,7 @@ import { Shield, Lock, Home, Plane, AlertTriangle, Clock } from 'lucide-react';
 import { AlarmControlPanelDevice } from '../../types/devices';
 import { useDevices } from '../../context/DeviceContext';
 import { useRealtimeDevice } from '../../hooks/useDeviceUpdates';
+import DeviceTimestamp from './DeviceTimestamp';
 
 interface AlarmControlProps {
   device: AlarmControlPanelDevice;
@@ -225,10 +226,10 @@ const AlarmControl: React.FC<AlarmControlProps> = ({ device }) => {
       {/* Additional Info */}
       <div className="mt-6 text-center text-sm text-gray-600">
         <p>Last changed by: {currentDevice.changed_by || 'System'}</p>
-        <p className="mt-1">
-          Last updated: {new Date(currentDevice.last_updated).toLocaleTimeString()}
-        </p>
       </div>
+
+      {/* Device Timestamp */}
+      <DeviceTimestamp device={currentDevice} />
     </div>
   );
 };

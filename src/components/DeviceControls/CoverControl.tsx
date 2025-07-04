@@ -3,6 +3,7 @@ import { ChevronUp } from 'lucide-react';
 import { BlindDevice } from '../../types/devices';
 import { useDevices } from '../../context/DeviceContext';
 import { useRealtimeDevice } from '../../hooks/useDeviceUpdates';
+import DeviceTimestamp from './DeviceTimestamp';
 
 interface CoverControlProps {
   device: BlindDevice;
@@ -85,6 +86,9 @@ const CoverControl: React.FC<CoverControlProps> = ({ device, type = 'blind' }) =
           className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
         />
       </div>
+
+      {/* Device Timestamp */}
+      <DeviceTimestamp device={currentDevice} />
     </div>
   );
 };

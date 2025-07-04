@@ -3,6 +3,7 @@ import { Lightbulb, Sun } from 'lucide-react';
 import { LightDevice } from '../../types/devices';
 import { useDevices } from '../../context/DeviceContext';
 import { useRealtimeDevice } from '../../hooks/useDeviceUpdates';
+import DeviceTimestamp from './DeviceTimestamp';
 
 interface LightControlProps {
   device: LightDevice;
@@ -103,6 +104,9 @@ const LightControl: React.FC<LightControlProps> = ({ device }) => {
           )}
         </div>
       )}
+
+      {/* Device Timestamp */}
+      <DeviceTimestamp device={currentDevice} />
     </div>
   );
 };

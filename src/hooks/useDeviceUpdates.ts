@@ -4,7 +4,7 @@
  * Provides real-time device state updates and control methods
  */
 
-import { useEffect, useCallback, useMemo } from 'react';
+import { useEffect, useCallback, useMemo, useState } from 'react';
 import { useDevices } from '../context/DeviceContext';
 import { Device } from '../types/devices';
 
@@ -202,5 +202,88 @@ export const useDeviceControl = () => {
     controlLock: safeControlLock,
     controlAlarm: safeControlAlarm,
     isConnected: state.connectionState === 'connected'
+  };
+};
+
+/**
+ * Hook for live timer functionality
+ * Calculates how long a device has been in its current state
+ */
+export const useLiveTimer = (device: Device) => {
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  // Update current time every second
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Calculate time since last update
+  const timeSinceUpdate = useMemo(() => {
+    if (!device.last_updated) return null;
+    
+    const lastUpdate = new Date(device.last_updated);
+    const diffMs = currentTime.getTime() - lastUpdate.getTime();
+    const diffSeconds = Math.floor(diffMs / 1000);
+    const diffMinutes = Math.floor(diffSeconds / 60);
+    const diffHours = Math.floor(diffMinutes / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffDays > 0) {
+      return `${diffDays}d ${diffHours % 24}h ago`;
+    } else if (diffHours > 0) {
+      return `${diffHours}h ${diffMinutes % 60}m ago`;
+    } else if (diffMinutes > 0) {
+      return `${diffMinutes}m ${diffSeconds % 60}s ago`;
+    } else {
+      return `${diffSeconds}s ago`;
+    }
+  }, [device.last_updated, currentTime]);
+
+  // Calculate time in current state
+  const timeInCurrentState = useMemo(() => {
+    if (!device.last_updated) return null;
+    
+    const lastUpdate = new Date(device.last_updated);
+    const diffMs = currentTime.getTime() - lastUpdate.getTime();
+    const diffSeconds = Math.floor(diffMs / 1000);
+    const diffMinutes = Math.floor(diffSeconds / 60);
+    const diffHours = Math.floor(diffMinutes / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffDays > 0) {
+      return `${diffDays}d ${diffHours % 24}h`;
+    } else if (diffHours > 0) {
+      return `${diffHours}h ${diffMinutes % 60}m`;
+    } else if (diffMinutes > 0) {
+      return `${diffMinutes}m ${diffSeconds % 60}s`;
+    } else {
+      return `${diffSeconds}s`;
+    }
+  }, [device.last_updated, currentTime]);
+
+  // Format last updated timestamp
+  const lastUpdatedFormatted = useMemo(() => {
+    if (!device.last_updated) return 'Never';
+    
+    const lastUpdate = new Date(device.last_updated);
+    return lastUpdate.toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false
+    });
+  }, [device.last_updated]);
+
+  return {
+    timeSinceUpdate,
+    timeInCurrentState,
+    lastUpdatedFormatted,
+    isRecent: timeSinceUpdate ? timeSinceUpdate.includes('s ago') : false
   };
 };

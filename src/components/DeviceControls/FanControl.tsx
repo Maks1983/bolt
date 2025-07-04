@@ -3,6 +3,7 @@ import { Fan } from 'lucide-react';
 import { FanDevice } from '../../types/devices';
 import { useDevices } from '../../context/DeviceContext';
 import { useRealtimeDevice } from '../../hooks/useDeviceUpdates';
+import DeviceTimestamp from './DeviceTimestamp';
 
 interface FanControlProps {
   device: FanDevice;
@@ -59,6 +60,9 @@ const FanControl: React.FC<FanControlProps> = ({ device }) => {
           />
         </div>
       )}
+
+      {/* Device Timestamp */}
+      <DeviceTimestamp device={currentDevice} />
     </div>
   );
 };
