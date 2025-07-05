@@ -301,7 +301,7 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
                   <div className="text-center">
                     {roomDevices.locks.map((lock) => (
                       <div key={lock.entity_id}>
-                        <LockControl device={lock as any} />
+                        <LockControl device={lock as any} variant="icon"  />
                       </div>
                     ))}
                   </div>
@@ -326,6 +326,24 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                       {roomDevices.lights.map((light) => (
                         <LightControl key={light.entity_id} device={light as any} />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Security Controls */}
+                {roomDevices.locks.length > 0 && (
+                  <div>
+                    <div className="flex items-center space-x-3 mb-6">
+                      <div className="p-2 bg-red-100 rounded-xl">
+                        <Shield className="w-5 h-5 text-red-600" />
+                      </div>
+                      <h3 className="text-xl font-bold text-gray-900">Security</h3>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                      {roomDevices.locks.map((lock) => (
+                        <LockControl key={lock.entity_id} device={lock as any} variant="card" />
                       ))}
                     </div>
                   </div>
