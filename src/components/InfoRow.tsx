@@ -20,7 +20,6 @@ interface InfoRowProps {
 const InfoRow: React.FC<InfoRowProps> = ({ cameras }) => {
   const [expandedCard, setExpandedCard] = useState<string | null>(null);
   const [cameraFeeds, setCameraFeeds] = useState<Record<string, boolean>>({});
-  const [cameraFeeds, setCameraFeeds] = useState<Record<string, boolean>>({});
 
   // Get balcony weather sensors for weather card
   const balconyTemp = useRealtimeDevice('sensor.balcony_temperature_sensor_temperature');
