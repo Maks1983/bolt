@@ -27,7 +27,7 @@ const InfoRow: React.FC<InfoRowProps> = () => {
   // Temperature state
   const [tempTimeframe, setTempTimeframe] = useState<'24h' | '7d'>('24h');
 
-  // Get real camera entities from Home Assistant
+  // Get real camera entities and detection sensors from Home Assistant
   const frontDoorCamera = useRealtimeDevice('camera.g4_doorbell_pro_poe_high_resolution_channel');
   const backyardCamera = useRealtimeDevice('camera.g4_bullet_backyard_high_resolution_channel');
   
