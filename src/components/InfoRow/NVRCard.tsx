@@ -187,15 +187,47 @@ const NVRCard: React.FC = () => {
                     {selectedCamera === camera.id && (
                       <div className="mb-4">
                         <div className="relative bg-black rounded-lg overflow-hidden aspect-video">
+                          {/* RTSP Stream - Browser Compatible */}
+                          <video
+                            className="w-full h-full object-cover"
+                            autoPlay
+                            muted
+                            playsInline
+                            onError={(e) => {
+                              console.error('Video stream error:', e);
+                              // Fallback to static image on error
+                              e.currentTarget.style.display = 'none';
+                              const fallbackImg = e.currentTarget.nextElementSibling as HTMLImageElement;
+                              if (fallbackImg) fallbackImg.style.display = 'block';
+                            }}
+                          >
+                            <source src={camera.rtspUrl} type="application/x-rtsp" />
+                            <source src={`/api/camera_proxy/${camera.entity?.entity_id}`} type="video/mp4" />
+                            Your browser does not support the video tag.
+                          </video>
+                          
+                          {/* Fallback Image */}
                           <img
                             src={camera.backgroundImage}
-                            alt={`${camera.name} feed`}
+                            alt={`${camera.name} fallback`}
                             className="w-full h-full object-cover"
+                            style={{ display: 'none' }}
                           />
+                          
+                          {/* Stream Error Message */}
+                          <div className="absolute inset-0 flex items-center justify-center bg-black/80 text-white text-center p-4" style={{ display: 'none' }} id={`error-${camera.id}`}>
+                            <div>
+                              <Camera className="w-12 h-12 mx-auto mb-2 text-gray-400" />
+                              <p className="text-sm">Camera feed unavailable</p>
+                              <p className="text-xs text-gray-400 mt-1">Using fallback image</p>
+                            </div>
+                          </div>
                           
                           {/* RTSP URL Overlay */}
                           <div className="absolute top-3 left-3 bg-black/70 rounded-full px-3 py-1">
-                            <span className="text-white text-xs font-mono">{camera.rtspUrl}</span>
+                            <span className="text-white text-xs font-mono">
+                              {camera.rtspUrl.length > 30 ? `${camera.rtspUrl.substring(0, 30)}...` : camera.rtspUrl}
+                            </span>
                           </div>
                           
                           {/* Live indicator */}
@@ -273,9 +305,28 @@ const NVRCard: React.FC = () => {
               {/* Implementation Note */}
               <div className="mt-4 p-4 bg-blue-50 rounded-xl border border-blue-200">
                 <p className="text-sm text-blue-800">
-                  <strong>RTSP Integration:</strong> Direct RTSP URLs from Unifi NVR are configured. 
-                  For live browser viewing, consider setting up a WebRTC gateway or using Home Assistant's camera proxy.
+                  <strong>Camera Feed Setup:</strong> To see live feeds, you need one of these solutions:
                 </p>
+                <ul className="text-sm text-blue-700 mt-2 list-disc list-inside space-y-1">
+                  <li><strong>Option 1:</strong> Use Home Assistant camera proxy: <code>/api/camera_proxy/camera.entity_id</code></li>
+                  <li><strong>Option 2:</strong> Set up WebRTC gateway (go2rtc, frigate, etc.)</li>
+                  <li><strong>Option 3:</strong> Use HLS/DASH streaming from your NVR</li>
+                  <li><strong>Current:</strong> RTSP URLs configured but may not work in browsers</li>
+                </ul>
+              </div>
+              
+              {/* Setup Instructions */}
+              <div className="mt-4 p-4 bg-amber-50 rounded-xl border border-amber-200">
+                <p className="text-sm text-amber-800">
+                  <strong>Prerequisites for Live Feeds:</strong>
+                </p>
+                <ol className="text-sm text-amber-700 mt-2 list-decimal list-inside space-y-1">
+                  <li>Ensure your camera entities are properly configured in Home Assistant</li>
+                  <li>Verify camera streams are accessible via <code>/api/camera_proxy/camera.g4_doorbell_pro_poe_high_resolution_channel</code></li>
+                  <li>For RTSP: Install a WebRTC gateway like go2rtc or use Frigate integration</li>
+                  <li>Update the <code>rtspUrl</code> in the camera configuration with your actual stream URLs</li>
+                  <li>Test camera access in Home Assistant first before expecting it to work here</li>
+                </ol>
               </div>
             </div>
           </div>
