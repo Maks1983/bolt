@@ -1,18 +1,11 @@
 import React from 'react';
 import { Settings } from 'lucide-react';
-import { useDevices } from '../../context/DeviceContext';
 
 interface ActionsCardProps {
   onClick?: () => void;
 }
 
 const ActionsCard: React.FC<ActionsCardProps> = ({ onClick }) => {
-  const { state } = useDevices();
-
-  // Get all lights
-  const lights = state.devices.filter(device => device.device_type === 'light');
-  const lightsOn = lights.filter(light => light.state === 'on').length;
-
   return (
     <div 
       className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 border border-white/20 shadow-lg hover:shadow-xl transition-all cursor-pointer min-w-[120px]"
