@@ -1,5 +1,5 @@
 import React from 'react';
-import { Lock, Unlock, AlertTriangle } from 'lucide-react';
+import { Lock, Unlock } from 'lucide-react';
 import { useDevices } from '../../context/DeviceContext';
 
 interface SecurityCardProps {
@@ -19,53 +19,27 @@ const SecurityCard: React.FC<SecurityCardProps> = ({ onClick }) => {
   const lockedCount = locks.filter(lock => lock.state === 'locked').length;
   const totalLocks = locks.length;
   const openSensors = securitySensors.filter(sensor => sensor.state === 'on').length;
-  const totalSensors = securitySensors.length;
 
-  const getSecurityStatus = () => {
-    if (totalLocks === 0) return { status: 'No Locks', color: 'gray' };
-    if (lockedCount === totalLocks && openSensors === 0) {
-      return { status: 'Secure', color: 'green' };
-    } else if (lockedCount === totalLocks && openSensors > 0) {
-      return { status: 'Locked, Open Windows', color: 'yellow' };
-    } else {
-      return { status: 'Unsecured', color: 'red' };
-    }
-  };
-
-  const securityStatus = getSecurityStatus();
+  const isSecure = lockedCount === totalLocks && openSensors === 0 && totalLocks > 0;
 
   return (
     <div 
-      className={`bg-gradient-to-br from-${securityStatus.color}-50 to-${securityStatus.color}-100 rounded-2xl p-4 border border-${securityStatus.color}-200/50 shadow-sm hover:shadow-md transition-all ${onClick ? 'cursor-pointer' : ''}`}
+      className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 border border-white/20 shadow-lg hover:shadow-xl transition-all cursor-pointer min-w-[120px]"
       onClick={onClick}
     >
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center space-x-2">
-          <div className={`p-2 bg-${securityStatus.color}-600 rounded-lg`}>
-            {securityStatus.color === 'green' ? (
-              <Lock className="w-4 h-4 text-white" />
-            ) : securityStatus.color === 'red' ? (
-              <Unlock className="w-4 h-4 text-white" />
-            ) : (
-              <AlertTriangle className="w-4 h-4 text-white" />
-            )}
+      <div className="flex flex-col items-center space-y-3">
+        <div className={`p-3 rounded-full ${isSecure ? 'bg-green-500/20' : 'bg-red-500/20'} shadow-lg`}>
+          {isSecure ? (
+            <Lock className="w-6 h-6 text-green-600" />
+          ) : (
+            <Unlock className="w-6 h-6 text-red-600" />
+          )}
+        </div>
+        <div className="text-center">
+          <div className="text-sm font-bold text-gray-900">Security</div>
+          <div className={`text-xs font-medium ${isSecure ? 'text-green-600' : 'text-red-600'}`}>
+            {totalLocks === 0 ? 'No Locks' : isSecure ? 'Secure' : 'Unsecured'}
           </div>
-          <span className="font-semibold text-gray-900">Security</span>
-        </div>
-        <div className="flex items-center space-x-1">
-          <div className={`w-2 h-2 bg-${securityStatus.color}-500 rounded-full`}></div>
-          <span className={`text-xs text-${securityStatus.color}-600 font-medium`}>{securityStatus.status}</span>
-        </div>
-      </div>
-      
-      <div className="space-y-2">
-        <div className="flex justify-between text-sm">
-          <span className="text-gray-600">Locks</span>
-          <span className="font-medium text-gray-900">{lockedCount}/{totalLocks} locked</span>
-        </div>
-        <div className="flex justify-between text-sm">
-          <span className="text-gray-600">Openings</span>
-          <span className="font-medium text-gray-900">{openSensors}/{totalSensors} open</span>
         </div>
       </div>
     </div>

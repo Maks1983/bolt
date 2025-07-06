@@ -1,5 +1,5 @@
 import React from 'react';
-import { Activity, User, UserCheck, UserX } from 'lucide-react';
+import { Activity } from 'lucide-react';
 import { useDevices } from '../../context/DeviceContext';
 
 interface ActivityCardProps {
@@ -17,64 +17,25 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ onClick }) => {
 
   // Calculate activity metrics
   const activeMotionSensors = motionSensors.filter(sensor => sensor.state === 'on').length;
-  const totalMotionSensors = motionSensors.length;
   const peopleHome = deviceTrackers.filter(tracker => tracker.state === 'home').length;
-  const totalPeople = deviceTrackers.length;
 
-  // Determine activity level
-  const getActivityLevel = () => {
-    const motionPercentage = totalMotionSensors > 0 ? (activeMotionSensors / totalMotionSensors) * 100 : 0;
-    
-    if (peopleHome === 0) {
-      return { level: 'Away', color: 'gray', icon: UserX };
-    } else if (motionPercentage > 50) {
-      return { level: 'High Activity', color: 'green', icon: Activity };
-    } else if (motionPercentage > 20) {
-      return { level: 'Moderate', color: 'blue', icon: User };
-    } else {
-      return { level: 'Low Activity', color: 'yellow', icon: UserCheck };
-    }
-  };
-
-  const activity = getActivityLevel();
-  const ActivityIcon = activity.icon;
+  const hasActivity = activeMotionSensors > 0 || peopleHome > 0;
 
   return (
     <div 
-      className={`bg-gradient-to-br from-${activity.color}-50 to-${activity.color}-100 rounded-2xl p-4 border border-${activity.color}-200/50 shadow-sm hover:shadow-md transition-all ${onClick ? 'cursor-pointer' : ''}`}
+      className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 border border-white/20 shadow-lg hover:shadow-xl transition-all cursor-pointer min-w-[120px]"
       onClick={onClick}
     >
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center space-x-2">
-          <div className={`p-2 bg-${activity.color}-600 rounded-lg`}>
-            <ActivityIcon className="w-4 h-4 text-white" />
+      <div className="flex flex-col items-center space-y-3">
+        <div className={`p-3 rounded-full ${hasActivity ? 'bg-green-500/20' : 'bg-gray-500/20'} shadow-lg`}>
+          <Activity className={`w-6 h-6 ${hasActivity ? 'text-green-600' : 'text-gray-600'}`} />
+        </div>
+        <div className="text-center">
+          <div className="text-sm font-bold text-gray-900">Activity</div>
+          <div className={`text-xs font-medium ${hasActivity ? 'text-green-600' : 'text-gray-600'}`}>
+            {peopleHome > 0 ? `${peopleHome} home` : 'No activity'}
           </div>
-          <span className="font-semibold text-gray-900">Activity</span>
         </div>
-        <div className="flex items-center space-x-1">
-          <div className={`w-2 h-2 bg-${activity.color}-500 rounded-full`}></div>
-          <span className={`text-xs text-${activity.color}-600 font-medium`}>{activity.level}</span>
-        </div>
-      </div>
-      
-      <div className="space-y-2">
-        <div className="flex justify-between text-sm">
-          <span className="text-gray-600">People Home</span>
-          <span className="font-medium text-gray-900">{peopleHome}/{totalPeople}</span>
-        </div>
-        <div className="flex justify-between text-sm">
-          <span className="text-gray-600">Motion Detected</span>
-          <span className="font-medium text-gray-900">{activeMotionSensors}/{totalMotionSensors}</span>
-        </div>
-        {activeMotionSensors > 0 && (
-          <div className="text-xs text-gray-500">
-            Active in: {motionSensors
-              .filter(s => s.state === 'on')
-              .map(s => s.room)
-              .join(', ')
-            }
-          </div>
-        )}
       </div>
     </div>
   );
