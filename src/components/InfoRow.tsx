@@ -1,22 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Shield, Lock, Zap, TrendingDown, Thermometer, Activity, Clock, DoorOpen, Lightbulb, User, Bell, X, Settings, Moon, Plane, Users, Sun, Coffee, Camera, Play, Pause, RotateCcw, Maximize, Home, AlertTriangle, CheckCircle, Power, Wifi, WifiOff, Delete, Hash, BarChart3, TrendingUp, Droplets, Wind } from 'lucide-react';
-
-interface Camera {
-  id: number;
-  name: string;
-  location: string;
-  recording: boolean;
-  nightVision: boolean;
-  temperature: number;
-  humidity: number;
-  backgroundImage: string;
-}
+import { useRealtimeDevice } from '../hooks/useDeviceUpdates';
 
 interface InfoRowProps {
-  cameras: Camera[];
+  cameras?: any[]; // Keep for backward compatibility but won't use
 }
 
-const InfoRow: React.FC<InfoRowProps> = ({ cameras }) => {
+const InfoRow: React.FC<InfoRowProps> = () => {
   const [showActivity, setShowActivity] = useState(false);
   const [showActions, setShowActions] = useState(false);
   const [showNVR, setShowNVR] = useState(false);
@@ -36,6 +26,73 @@ const InfoRow: React.FC<InfoRowProps> = ({ cameras }) => {
   
   // Temperature state
   const [tempTimeframe, setTempTimeframe] = useState<'24h' | '7d'>('24h');
+
+  // Get real camera entities and detection sensors from Home Assistant
+  const frontDoorCamera = useRealtimeDevice('camera.g4_doorbell_pro_poe_high_resolution_channel');
+  const backyardCamera = useRealtimeDevice('camera.g4_bullet_backyard_high_resolution_channel');
+  
+  // Get detection sensors for front door camera
+  const frontDoorMotion = useRealtimeDevice('binary_sensor.g4_doorbell_pro_poe_motion');
+  const frontDoorPerson = useRealtimeDevice('binary_sensor.g4_doorbell_pro_poe_person_detected');
+  const frontDoorAnimal = useRealtimeDevice('binary_sensor.g4_doorbell_pro_poe_animal_detected');
+  const frontDoorVehicle = useRealtimeDevice('binary_sensor.g4_doorbell_pro_poe_vehicle_detected');
+  const frontDoorDoorbell = useRealtimeDevice('binary_sensor.g4_doorbell_pro_poe_doorbell');
+  const frontDoorNightMode = useRealtimeDevice('binary_sensor.g4_doorbell_pro_poe_is_dark');
+  
+  // Get detection sensors for backyard camera
+  const backyardMotion = useRealtimeDevice('binary_sensor.g4_bullet_backyard_motion');
+  const backyardPerson = useRealtimeDevice('binary_sensor.g4_bullet_backyard_person_detected');
+  const backyardAnimal = useRealtimeDevice('binary_sensor.g4_bullet_backyard_animal_detected');
+  const backyardVehicle = useRealtimeDevice('binary_sensor.g4_bullet_backyard_vehicle_detected');
+  const backyardNightMode = useRealtimeDevice('binary_sensor.g4_bullet_backyard_is_dark');
+
+  // Create camera objects from real entities
+  const realCameras = [
+    {
+      id: 1,
+      name: frontDoorCamera?.friendly_name || 'Front Door Camera',
+      location: 'Front Door',
+      recording: frontDoorCamera?.state === 'recording',
+      nightVision: frontDoorNightMode?.state === 'on',
+      temperature: 15, // Could be pulled from nearby sensor if available
+      humidity: 60,    // Could be pulled from nearby sensor if available
+      backgroundImage: frontDoorCamera?.entity_picture || 
+        `${import.meta.env.VITE_HA_WEBSOCKET_URL?.replace('ws://', 'http://').replace('/api/websocket', '')}/api/camera_proxy/${frontDoorCamera?.entity_id}` ||
+        'https://images.pexels.com/photos/1396122/pexels-photo-1396122.jpeg?auto=compress&cs=tinysrgb&w=800',
+      entity: frontDoorCamera,
+      detections: {
+        motion: frontDoorMotion?.state === 'on',
+        person: frontDoorPerson?.state === 'on',
+        animal: frontDoorAnimal?.state === 'on',
+        vehicle: frontDoorVehicle?.state === 'on',
+        doorbell: frontDoorDoorbell?.state === 'on'
+      }
+    },
+    {
+      id: 2,
+      name: backyardCamera?.friendly_name || 'Backyard Camera',
+      location: 'Backyard',
+      recording: backyardCamera?.state === 'recording',
+      nightVision: backyardNightMode?.state === 'on',
+      temperature: 16, // Could be pulled from nearby sensor if available
+      humidity: 58,    // Could be pulled from nearby sensor if available
+      backgroundImage: backyardCamera?.entity_picture || 
+        `${import.meta.env.VITE_HA_WEBSOCKET_URL?.replace('ws://', 'http://').replace('/api/websocket', '')}/api/camera_proxy/${backyardCamera?.entity_id}` ||
+        'https://images.pexels.com/photos/1105766/pexels-photo-1105766.jpeg?auto=compress&cs=tinysrgb&w=800',
+      entity: backyardCamera,
+      detections: {
+        motion: backyardMotion?.state === 'on',
+        person: backyardPerson?.state === 'on',
+        animal: backyardAnimal?.state === 'on',
+        vehicle: backyardVehicle?.state === 'on'
+      }
+    }
+  ].filter(camera => camera.entity); // Only include cameras that exist in HA
+
+  // Count active detections across all cameras
+  const totalActiveDetections = realCameras.reduce((total, camera) => {
+    return total + Object.values(camera.detections).filter(Boolean).length;
+  }, 0);
 
   const activities = [
     {
@@ -387,8 +444,13 @@ const InfoRow: React.FC<InfoRowProps> = ({ cameras }) => {
               </div>
               <div>
                 <div className="text-xs font-medium text-gray-600">NVR</div>
-                <div className="text-xs text-green-600 font-bold">{cameras.length} cameras</div>
+                <div className="text-xs text-green-600 font-bold">{realCameras.length} cameras</div>
               </div>
+              {totalActiveDetections > 0 && (
+                <span className="px-2 py-1 bg-red-500 text-white text-xs rounded-full">
+                  {totalActiveDetections} alerts
+                </span>
+              )}
             </button>
           </div>
         </div>
@@ -1239,7 +1301,7 @@ const InfoRow: React.FC<InfoRowProps> = ({ cameras }) => {
             
             <div className="p-6">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {cameras.map((camera) => (
+                {realCameras.map((camera) => (
                   <div key={camera.id} className="bg-gray-50/80 rounded-2xl overflow-hidden border border-gray-200/50 shadow-lg">
                     {/* Camera Feed Area */}
                     <div className="relative h-64 bg-gray-900">
@@ -1257,6 +1319,15 @@ const InfoRow: React.FC<InfoRowProps> = ({ cameras }) => {
                           {camera.recording ? 'RECORDING' : 'OFFLINE'}
                         </span>
                       </div>
+                      
+                      {/* Active detections indicator */}
+                      {Object.values(camera.detections).some(Boolean) && (
+                        <div className="absolute top-3 right-3 bg-red-500/90 rounded-full px-2 py-1">
+                          <span className="text-white text-xs font-bold">
+                            {Object.values(camera.detections).filter(Boolean).length} ALERTS
+                          </span>
+                        </div>
+                      )}
                       
                       {/* Night Vision Indicator */}
                       {camera.nightVision && (
@@ -1299,7 +1370,7 @@ const InfoRow: React.FC<InfoRowProps> = ({ cameras }) => {
                         </div>
                       </div>
                       
-                      <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div className="grid grid-cols-2 gap-4 text-sm mb-4">
                         <div className="flex items-center justify-between">
                           <span className="text-gray-600">Temperature</span>
                           <span className="font-semibold text-gray-900">{camera.temperature}°C</span>
@@ -1322,7 +1393,31 @@ const InfoRow: React.FC<InfoRowProps> = ({ cameras }) => {
                         </div>
                       </div>
                       
-                      <div className="mt-4 pt-4 border-t border-gray-200">
+                      {/* Detection Status */}
+                      <div className="bg-gray-50 rounded-xl p-4 mb-4">
+                        <h4 className="font-semibold text-gray-900 mb-3">AI Detection Status</h4>
+                        <div className="grid grid-cols-2 gap-3">
+                          {Object.entries(camera.detections).map(([type, active]) => (
+                            <div
+                              key={type}
+                              className={`flex items-center justify-between p-2 rounded-lg border ${
+                                active 
+                                  ? 'bg-red-50 border-red-200 text-red-700' 
+                                  : 'bg-gray-50 border-gray-200 text-gray-600'
+                              }`}
+                            >
+                              <span className="text-sm font-medium capitalize">
+                                {type.replace('_', ' ')}
+                              </span>
+                              <div className={`w-2 h-2 rounded-full ${
+                                active ? 'bg-red-500' : 'bg-gray-300'
+                              }`}></div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      <div className="pt-4 border-t border-gray-200">
                         <div className="flex space-x-2">
                           <button className="flex-1 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors font-medium text-sm">
                             View Full Screen
