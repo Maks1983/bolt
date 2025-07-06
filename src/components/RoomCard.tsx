@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { 
   Lightbulb, Thermometer, User, X, Clock, 
   Droplets, DoorOpen, DoorClosed, Columns2,
-  Waves, Flame, Wind, Shield, AlertTriangle, Fan, Lock, Unlock, Camera
+  Waves, Flame, Wind, Shield, AlertTriangle, Fan, Lock, Unlock
 } from 'lucide-react';
 import { useRoomDevices } from '../hooks/useDeviceUpdates';
 import { formatTemperature, formatHumidity } from '../utils/deviceHelpers';
@@ -11,7 +11,6 @@ import CoverControl from './DeviceControls/CoverControl';
 import MediaPlayerControl from './DeviceControls/MediaPlayerControl';
 import FanControl from './DeviceControls/FanControl';
 import LockControl from './DeviceControls/LockControl';
-import CameraControl from './DeviceControls/CameraControl';
 
 interface RoomCardProps {
   roomName: string;
@@ -302,7 +301,7 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
                   <div className="text-center">
                     {roomDevices.locks.map((lock) => (
                       <div key={lock.entity_id}>
-                        <LockControl device={lock as any} variant="icon"  />
+                        <LockControl device={lock as any} />
                       </div>
                     ))}
                   </div>
@@ -327,24 +326,6 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                       {roomDevices.lights.map((light) => (
                         <LightControl key={light.entity_id} device={light as any} />
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Security Controls */}
-                {roomDevices.locks.length > 0 && (
-                  <div>
-                    <div className="flex items-center space-x-3 mb-6">
-                      <div className="p-2 bg-red-100 rounded-xl">
-                        <Shield className="w-5 h-5 text-red-600" />
-                      </div>
-                      <h3 className="text-xl font-bold text-gray-900">Security</h3>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                      {roomDevices.locks.map((lock) => (
-                        <LockControl key={lock.entity_id} device={lock as any} variant="card" />
                       ))}
                     </div>
                   </div>
@@ -403,24 +384,6 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
                     <div className="space-y-4">
                       {roomDevices.mediaPlayers.map((player) => (
                         <MediaPlayerControl key={player.entity_id} device={player as any} />
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Camera Controls */}
-                {roomDevices.cameras.length > 0 && (
-                  <div>
-                    <div className="flex items-center space-x-3 mb-6">
-                      <div className="p-2 bg-indigo-100 rounded-xl">
-                        <Camera className="w-5 h-5 text-indigo-600" />
-                      </div>
-                      <h3 className="text-xl font-bold text-gray-900">Security Cameras</h3>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                      {roomDevices.cameras.map((camera) => (
-                        <CameraControl key={camera.entity_id} device={camera as any} />
                       ))}
                     </div>
                   </div>
