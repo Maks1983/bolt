@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Thermometer, Droplets, BarChart3, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { Thermometer, Droplets, Wind } from 'lucide-react';
 import { useRealtimeDevice } from '../../hooks/useDeviceUpdates';
 import { formatTemperature, formatHumidity } from '../../utils/deviceHelpers';
 
@@ -17,9 +17,6 @@ const IndoorCard: React.FC = () => {
   const masterBedroomHumidity = useRealtimeDevice('sensor.master_bedroom_temperature_sensor_humidity');
   const bathroomTemp = useRealtimeDevice('sensor.bathroom_temperature_sensor_temperature');
   const bathroomHumidity = useRealtimeDevice('sensor.bathroom_temperature_sensor_humidity');
-  
-  // Get outdoor temperature from balcony sensor for comparison
-  const balconyTemp = useRealtimeDevice('sensor.balcony_temperature_sensor_temperature');
 
   // Calculate average temperature
   const temperatures = [
@@ -47,10 +44,6 @@ const IndoorCard: React.FC = () => {
     ? humidities.reduce((sum, humidity) => sum + humidity, 0) / humidities.length 
     : 50;
 
-  // Calculate indoor vs outdoor difference
-  const outdoorTemp = balconyTemp ? Number(balconyTemp.state) : 18;
-  const tempDifference = avgTemp - outdoorTemp;
-
   const roomSensors = [
     { name: 'Living Room', temp: livingRoomTemp, humidity: livingRoomHumidity },
     { name: 'Kitchen', temp: kitchenTemp, humidity: kitchenHumidity },
@@ -58,12 +51,6 @@ const IndoorCard: React.FC = () => {
     { name: 'Master Bedroom', temp: masterBedroomTemp, humidity: masterBedroomHumidity },
     { name: 'Bathroom', temp: bathroomTemp, humidity: bathroomHumidity }
   ].filter(room => room.temp || room.humidity);
-
-  const getTrendIcon = () => {
-    if (tempDifference > 2) return <TrendingUp className="w-4 h-4 text-red-500" />;
-    if (tempDifference < -2) return <TrendingDown className="w-4 h-4 text-blue-500" />;
-    return <Minus className="w-4 h-4 text-gray-500" />;
-  };
 
   return (
     <>
@@ -78,13 +65,13 @@ const IndoorCard: React.FC = () => {
         </div>
       </div>
 
-      {/* Indoor Climate & Analysis Modal */}
+      {/* Indoor Climate Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-5xl w-full max-h-[95vh] overflow-y-auto shadow-2xl border border-gray-200">
+          <div className="bg-white rounded-3xl max-w-4xl w-full shadow-2xl border border-gray-200">
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">Indoor Climate & Analysis</h2>
+                <h2 className="text-2xl font-bold text-gray-900">Indoor Climate</h2>
                 <button 
                   onClick={() => setShowModal(false)}
                   className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
@@ -94,11 +81,11 @@ const IndoorCard: React.FC = () => {
               </div>
               
               {/* Overview Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                 <div className="bg-blue-50 rounded-2xl p-6 border border-blue-200">
                   <div className="flex items-center space-x-3 mb-4">
                     <Thermometer className="w-6 h-6 text-blue-600" />
-                    <h3 className="text-lg font-semibold text-gray-900">Average Indoor</h3>
+                    <h3 className="text-lg font-semibold text-gray-900">Average Temperature</h3>
                   </div>
                   <div className="text-3xl font-bold text-blue-600">{formatTemperature(avgTemp)}</div>
                   <div className="text-sm text-gray-600 mt-2">
@@ -116,112 +103,47 @@ const IndoorCard: React.FC = () => {
                     Across {humidities.length} sensors
                   </div>
                 </div>
-
-                <div className="bg-purple-50 rounded-2xl p-6 border border-purple-200">
-                  <div className="flex items-center space-x-3 mb-4">
-                    <BarChart3 className="w-6 h-6 text-purple-600" />
-                    <h3 className="text-lg font-semibold text-gray-900">vs Outdoor</h3>
-                  </div>
-                  <div className="text-3xl font-bold text-purple-600">
-                    {tempDifference > 0 ? '+' : ''}{tempDifference.toFixed(1)}°C
-                  </div>
-                  <div className="flex items-center space-x-1 mt-2">
-                    {getTrendIcon()}
-                    <span className="text-sm text-gray-600">
-                      {tempDifference > 2 ? 'Warmer inside' : 
-                       tempDifference < -2 ? 'Cooler inside' : 
-                       'Similar temps'}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Temperature Comparison */}
-              <div className="mb-8">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Indoor vs Outdoor Comparison</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="bg-blue-50 rounded-2xl p-6 border border-blue-200">
-                    <div className="flex items-center space-x-3 mb-4">
-                      <Thermometer className="w-6 h-6 text-blue-600" />
-                      <h4 className="text-lg font-semibold text-gray-900">Indoor Average</h4>
-                    </div>
-                    <div className="text-3xl font-bold text-blue-600">{formatTemperature(avgTemp)}</div>
-                    <div className="text-sm text-gray-600 mt-2">
-                      Range: {temperatures.length > 0 ? 
-                        `${formatTemperature(Math.min(...temperatures))} - ${formatTemperature(Math.max(...temperatures))}` : 
-                        'No data'
-                      }
-                    </div>
-                  </div>
-
-                  <div className="bg-green-50 rounded-2xl p-6 border border-green-200">
-                    <div className="flex items-center space-x-3 mb-4">
-                      <Thermometer className="w-6 h-6 text-green-600" />
-                      <h4 className="text-lg font-semibold text-gray-900">Outdoor</h4>
-                    </div>
-                    <div className="text-3xl font-bold text-green-600">{formatTemperature(outdoorTemp)}</div>
-                    <div className="text-sm text-gray-600 mt-2">
-                      Balcony sensor
-                    </div>
-                  </div>
-                </div>
               </div>
 
               {/* Room-by-Room Breakdown */}
-              <div className="mb-6">
+              <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Room-by-Room Climate</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {roomSensors.map((room, index) => {
-                    const roomTemp = room.temp ? Number(room.temp.state) : null;
-                    const diffFromAvg = roomTemp ? roomTemp - avgTemp : null;
-                    
-                    return (
-                      <div key={index} className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                        <h4 className="font-semibold text-gray-900 mb-3">{room.name}</h4>
-                        <div className="space-y-2">
-                          {room.temp && (
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center space-x-2">
-                                <Thermometer className="w-4 h-4 text-blue-600" />
-                                <span className="text-sm text-gray-600">Temperature</span>
-                              </div>
-                              <div className="text-right">
-                                <span className="text-sm font-semibold text-blue-600">
-                                  {formatTemperature(room.temp.state)}
-                                </span>
-                                {diffFromAvg && (
-                                  <div className={`text-xs ${
-                                    diffFromAvg > 0.5 ? 'text-red-600' : 
-                                    diffFromAvg < -0.5 ? 'text-blue-600' : 
-                                    'text-gray-500'
-                                  }`}>
-                                    {diffFromAvg > 0 ? '+' : ''}{diffFromAvg.toFixed(1)}°C
-                                  </div>
-                                )}
-                              </div>
+                  {roomSensors.map((room, index) => (
+                    <div key={index} className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                      <h4 className="font-semibold text-gray-900 mb-3">{room.name}</h4>
+                      <div className="space-y-2">
+                        {room.temp && (
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-2">
+                              <Thermometer className="w-4 h-4 text-blue-600" />
+                              <span className="text-sm text-gray-600">Temperature</span>
                             </div>
-                          )}
-                          {room.humidity && (
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center space-x-2">
-                                <Droplets className="w-4 h-4 text-cyan-600" />
-                                <span className="text-sm text-gray-600">Humidity</span>
-                              </div>
-                              <span className="text-sm font-semibold text-cyan-600">
-                                {formatHumidity(room.humidity.state)}
-                              </span>
+                            <span className="text-sm font-semibold text-blue-600">
+                              {formatTemperature(room.temp.state)}
+                            </span>
+                          </div>
+                        )}
+                        {room.humidity && (
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-2">
+                              <Droplets className="w-4 h-4 text-cyan-600" />
+                              <span className="text-sm text-gray-600">Humidity</span>
                             </div>
-                          )}
-                        </div>
+                            <span className="text-sm font-semibold text-cyan-600">
+                              {formatHumidity(room.humidity.state)}
+                            </span>
+                          </div>
+                        )}
                       </div>
-                    );
-                  })}
+                    </div>
+                  ))}
                 </div>
               </div>
 
               {roomSensors.length === 0 && (
                 <div className="text-center py-8">
-                  <Thermometer className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <Wind className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                   <p className="text-gray-600">No climate sensors configured</p>
                   <p className="text-sm text-gray-500 mt-2">
                     Add temperature and humidity sensors to your Home Assistant configuration

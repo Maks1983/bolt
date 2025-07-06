@@ -3,6 +3,7 @@ import AlarmCard from './AlarmCard';
 import SecurityCard from './SecurityCard';
 import EnergyCard from './EnergyCard';
 import IndoorCard from './IndoorCard';
+import AverageCard from './AverageCard';
 import ActivityCard from './ActivityCard';
 import ActionsCard from './ActionsCard';
 import NVRCard from './NVRCard';
@@ -16,6 +17,7 @@ const InfoRow: React.FC = () => {
           <SecurityCard />
           <EnergyCard />
           <IndoorCard />
+          <AverageCard />
           <ActivityCard />
           <ActionsCard />
           <NVRCard />
