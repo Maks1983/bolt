@@ -199,7 +199,7 @@ const SystemOverviewCard: React.FC = () => {
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Response Time</span>
-                    <span className="font-medium text-green-600">{'< 100ms'}</span>
+                    <span className="font-medium text-green-600">&lt; 100ms</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Memory Usage</span>
