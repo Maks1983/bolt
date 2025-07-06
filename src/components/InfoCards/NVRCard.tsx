@@ -42,17 +42,43 @@ const NVRCard: React.FC<NVRCardProps> = ({ onClick }) => {
 
   return (
     <div 
-      className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 border border-white/20 shadow-lg hover:shadow-xl transition-all cursor-pointer min-w-[120px]"
+      className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl p-4 border border-slate-200/50 shadow-sm hover:shadow-md transition-all cursor-pointer"
       onClick={onClick}
     >
-      <div className="flex flex-col items-center space-y-3">
-        <div className="p-3 bg-slate-500/20 rounded-full shadow-lg">
-          <HardDrive className="w-6 h-6 text-slate-600" />
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center space-x-2">
+          <div className="p-2 bg-slate-600 rounded-lg">
+            <HardDrive className="w-4 h-4 text-white" />
+          </div>
+          <span className="font-semibold text-slate-900">NVR System</span>
         </div>
-        <div className="text-center">
-          <div className="text-sm font-bold text-gray-900">NVR</div>
-          <div className="text-xs text-gray-600 font-medium">{recordingCameras}/{totalCameras} recording</div>
+        <div className="flex items-center space-x-1">
+          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+          <span className="text-xs text-green-600 font-medium">Online</span>
         </div>
+      </div>
+      
+      <div className="space-y-2">
+        <div className="flex justify-between text-sm">
+          <span className="text-slate-600">Cameras</span>
+          <span className="font-medium text-slate-900">{recordingCameras}/{totalCameras} recording</span>
+        </div>
+        <div className="flex justify-between text-sm">
+          <span className="text-slate-600">Storage</span>
+          <span className="font-medium text-slate-900">{storageUsed}TB / {storageTotal}TB</span>
+        </div>
+        <div className="w-full bg-slate-200 rounded-full h-2">
+          <div 
+            className="bg-slate-600 h-2 rounded-full transition-all duration-300" 
+            style={{ width: `${storagePercentage}%` }}
+          ></div>
+        </div>
+        {activeDetections > 0 && (
+          <div className="flex items-center space-x-1 text-xs text-red-600 font-medium">
+            <AlertTriangle className="w-3 h-3" />
+            <span>{activeDetections} active detections</span>
+          </div>
+        )}
       </div>
     </div>
   );
