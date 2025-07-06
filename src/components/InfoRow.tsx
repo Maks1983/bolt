@@ -1,7 +1,7 @@
 import React from 'react';
 import { NVRCard } from './InfoCards/NVRCard';
 import ActionsCard from './InfoCards/ActionsCard';
-import { ActivityCard } from './InfoCards/ActivityCard';
+import ActivityCard from './InfoCards/ActivityCard';
 import { IndoorAverageCard } from './InfoCards/IndoorAverageCard';
 import { EnergyCard } from './InfoCards/EnergyCard';
 import { SecurityCard } from './InfoCards/SecurityCard';
