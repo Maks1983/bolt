@@ -30,7 +30,8 @@ const InfoRow: React.FC<InfoRowProps> = () => {
 
   // Get real camera entities and detection sensors from Home Assistant
   const frontDoorCamera = useRealtimeDevice('camera.g4_doorbell_pro_poe_high_resolution_channel');
-  const backyardCamera = useRealtimeDevice('camera.g4_bullet_backyard_high_resolution_channel');
+  const backyardCamera = useRealtimeDevice('camera.g5_turret_ultra_high_resolution_channel');
+  const packageCamera = useRealtimeDevice('camera.g4_doorbell_pro_poe_package_camera');
   
   // Get detection sensors for front door camera
   const frontDoorMotion = useRealtimeDevice('binary_sensor.g4_doorbell_pro_poe_motion');
@@ -41,11 +42,11 @@ const InfoRow: React.FC<InfoRowProps> = () => {
   const frontDoorNightMode = useRealtimeDevice('binary_sensor.g4_doorbell_pro_poe_is_dark');
   
   // Get detection sensors for backyard camera
-  const backyardMotion = useRealtimeDevice('binary_sensor.g4_bullet_backyard_motion');
-  const backyardPerson = useRealtimeDevice('binary_sensor.g4_bullet_backyard_person_detected');
-  const backyardAnimal = useRealtimeDevice('binary_sensor.g4_bullet_backyard_animal_detected');
-  const backyardVehicle = useRealtimeDevice('binary_sensor.g4_bullet_backyard_vehicle_detected');
-  const backyardNightMode = useRealtimeDevice('binary_sensor.g4_bullet_backyard_is_dark');
+  const backyardMotion = useRealtimeDevice('binary_sensor.g5_turret_ultra_motion');
+  const backyardPerson = useRealtimeDevice('binary_sensor.g5_turret_ultra_person_detected');
+  const backyardAnimal = useRealtimeDevice('binary_sensor.g5_turret_ultra_animal_detected');
+  const backyardVehicle = useRealtimeDevice('binary_sensor.g5_turret_ultra_vehicle_detected');
+  const backyardNightMode = useRealtimeDevice('binary_sensor.g5_turret_ultra_is_dark');
 
   // Create camera objects from real entities
   const realCameras = [
@@ -87,6 +88,18 @@ const InfoRow: React.FC<InfoRowProps> = () => {
         animal: backyardAnimal?.state === 'on',
         vehicle: backyardVehicle?.state === 'on'
       }
+    },
+    {
+      id: 3,
+      name: packageCamera?.friendly_name || 'Package Camera',
+      location: 'Front Door',
+      recording: packageCamera?.state === 'recording',
+      temperature: 16, // Could be pulled from nearby sensor if available
+      humidity: 58,    // Could be pulled from nearby sensor if available
+      backgroundImage: packageCamera?.entity_picture || 
+        `${import.meta.env.VITE_HA_WEBSOCKET_URL?.replace('ws://', 'http://').replace('/api/websocket', '')}/api/camera_proxy/${packageCamera?.entity_id}` ||
+        'https://images.pexels.com/photos/6169029/pexels-photo-6169029.jpeg?auto=compress&cs=tinysrgb&w=800',
+      entity: packageCamera,
     }
   ].filter(camera => camera.entity); // Only include cameras that exist in HA
 
