@@ -15,8 +15,8 @@ import {
 } from 'lucide-react';
 import { useDevices } from '../../context/DeviceContext';
 
-// Configuration for go2rtc streams
-const BASE_STREAM_URL = "http://10.150.50.10:1984/stream.html?src=";
+// Updated configuration for go2rtc streams
+const BASE_STREAM_URL = "https://nvr.alfcent.com/stream.html?src=";
 const CAMERAS = ["Doorbell", "Package", "Backyard"];
 
 interface Camera {
@@ -76,62 +76,95 @@ const NVRCard: React.FC<NVRCardProps> = ({ onClick }) => {
     onClick();
   };
 
-  const CameraStream: React.FC<{ camera: Camera; isFullscreen?: boolean }> = ({ camera, isFullscreen = false }) => {
+  const CameraStream: React.FC<{ camera: Camera; isFullscreen?: boolean; isThumbnail?: boolean }> = ({ 
+    camera, 
+    isFullscreen = false, 
+    isThumbnail = false 
+  }) => {
     const [isLoading, setIsLoading] = useState(true);
     const [hasError, setHasError] = useState(false);
 
+    const handleIframeLoad = () => {
+      setIsLoading(false);
+      setHasError(false);
+    };
+
+    const handleIframeError = () => {
+      setHasError(true);
+      setIsLoading(false);
+    };
+
     return (
-      <div className={`relative bg-black rounded-lg overflow-hidden ${isFullscreen ? 'aspect-video' : 'aspect-video'}`}>
+      <div className={`relative bg-black rounded-lg overflow-hidden ${
+        isThumbnail ? 'aspect-video' : 'aspect-video'
+      }`}>
         {/* Stream iframe */}
         {!hasError ? (
           <iframe
             src={camera.streamUrl}
-            className="w-full h-full border-0"
-            allow="autoplay; fullscreen"
-            onLoad={() => setIsLoading(false)}
-            onError={() => {
-              setHasError(true);
-              setIsLoading(false);
+            className={`w-full h-full border-0 ${isThumbnail ? 'pointer-events-none' : ''}`}
+            allow="autoplay; fullscreen; camera; microphone"
+            allowFullScreen
+            onLoad={handleIframeLoad}
+            onError={handleIframeError}
+            sandbox="allow-same-origin allow-scripts allow-forms"
+            style={{
+              transform: isThumbnail ? 'scale(0.8)' : 'scale(1)',
+              transformOrigin: 'top left'
             }}
           />
         ) : (
-          <div className="flex items-center justify-center h-full text-white">
+          <div className="flex items-center justify-center h-full text-white bg-gray-800">
             <div className="text-center">
               <Camera className="w-12 h-12 mx-auto mb-2 text-gray-400" />
               <p className="text-sm">Stream unavailable</p>
               <p className="text-xs text-gray-400 mt-1">{camera.name}</p>
+              <button 
+                onClick={() => {
+                  setHasError(false);
+                  setIsLoading(true);
+                }}
+                className="mt-2 px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600 transition-colors"
+              >
+                Retry
+              </button>
             </div>
           </div>
         )}
 
         {/* Loading overlay */}
         {isLoading && !hasError && (
-          <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
             <div className="text-white text-center">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-2"></div>
               <p className="text-sm">Loading stream...</p>
+              <p className="text-xs text-gray-300 mt-1">{camera.name}</p>
             </div>
           </div>
         )}
 
         {/* Camera info overlay */}
-        <div className="absolute top-3 left-3 flex items-center space-x-2 bg-black/70 rounded-full px-3 py-1">
-          <div className={`w-2 h-2 rounded-full ${
-            camera.status === 'recording' ? 'bg-red-500 animate-pulse' : 
-            camera.status === 'online' ? 'bg-green-500' : 'bg-gray-500'
-          }`}></div>
-          <span className="text-white text-xs font-medium">{camera.name}</span>
-        </div>
+        {!isThumbnail && (
+          <div className="absolute top-3 left-3 flex items-center space-x-2 bg-black/70 rounded-full px-3 py-1">
+            <div className={`w-2 h-2 rounded-full ${
+              camera.status === 'recording' ? 'bg-red-500 animate-pulse' : 
+              camera.status === 'online' ? 'bg-green-500' : 'bg-gray-500'
+            }`}></div>
+            <span className="text-white text-xs font-medium">{camera.name}</span>
+          </div>
+        )}
 
         {/* Status indicator */}
-        <div className="absolute top-3 right-3 bg-black/70 rounded-full px-2 py-1">
-          <span className="text-white text-xs font-medium uppercase">
-            {camera.status === 'recording' ? 'REC' : camera.status}
-          </span>
-        </div>
+        {!isThumbnail && (
+          <div className="absolute top-3 right-3 bg-black/70 rounded-full px-2 py-1">
+            <span className="text-white text-xs font-medium uppercase">
+              {camera.status === 'recording' ? 'LIVE' : camera.status}
+            </span>
+          </div>
+        )}
 
         {/* Click overlay for grid view */}
-        {!isFullscreen && (
+        {!isFullscreen && !isThumbnail && (
           <div 
             className="absolute inset-0 bg-transparent hover:bg-black/20 transition-colors cursor-pointer"
             onClick={() => handleCameraClick(camera)}
@@ -210,6 +243,7 @@ const NVRCard: React.FC<NVRCardProps> = ({ onClick }) => {
                       className={`p-2 rounded-md transition-colors ${
                         gridView ? 'bg-slate-600 text-white' : 'text-gray-600 hover:bg-gray-100'
                       }`}
+                      title="Grid View"
                     >
                       <Grid3X3 className="w-4 h-4" />
                     </button>
@@ -219,6 +253,7 @@ const NVRCard: React.FC<NVRCardProps> = ({ onClick }) => {
                         !gridView && selectedCamera ? 'bg-slate-600 text-white' : 'text-gray-600 hover:bg-gray-100'
                       }`}
                       disabled={!selectedCamera}
+                      title="Single Camera View"
                     >
                       <Maximize2 className="w-4 h-4" />
                     </button>
@@ -247,17 +282,32 @@ const NVRCard: React.FC<NVRCardProps> = ({ onClick }) => {
                       <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                         <div>
                           <h3 className="font-semibold text-gray-900">{camera.name}</h3>
-                          <p className="text-sm text-gray-600 capitalize">{camera.status}</p>
+                          <p className="text-sm text-gray-600 capitalize flex items-center space-x-2">
+                            <div className={`w-2 h-2 rounded-full ${
+                              camera.status === 'recording' ? 'bg-red-500' : 
+                              camera.status === 'online' ? 'bg-green-500' : 'bg-gray-400'
+                            }`}></div>
+                            <span>{camera.status}</span>
+                          </p>
                         </div>
                         
                         <div className="flex items-center space-x-2">
-                          <button className="p-2 bg-white rounded-lg hover:bg-gray-100 transition-colors border border-gray-200">
+                          <button 
+                            className="p-2 bg-white rounded-lg hover:bg-gray-100 transition-colors border border-gray-200"
+                            title="Audio"
+                          >
                             <Volume2 className="w-4 h-4 text-gray-600" />
                           </button>
-                          <button className="p-2 bg-white rounded-lg hover:bg-gray-100 transition-colors border border-gray-200">
+                          <button 
+                            className="p-2 bg-white rounded-lg hover:bg-gray-100 transition-colors border border-gray-200"
+                            title="Refresh"
+                          >
                             <RotateCcw className="w-4 h-4 text-gray-600" />
                           </button>
-                          <button className="p-2 bg-white rounded-lg hover:bg-gray-100 transition-colors border border-gray-200">
+                          <button 
+                            className="p-2 bg-white rounded-lg hover:bg-gray-100 transition-colors border border-gray-200"
+                            title="Settings"
+                          >
                             <Settings className="w-4 h-4 text-gray-600" />
                           </button>
                         </div>
@@ -277,7 +327,15 @@ const NVRCard: React.FC<NVRCardProps> = ({ onClick }) => {
                       <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
                         <div>
                           <h3 className="text-xl font-bold text-gray-900">{selectedCamera.name}</h3>
-                          <p className="text-gray-600">Live Stream • {selectedCamera.status}</p>
+                          <p className="text-gray-600 flex items-center space-x-2">
+                            <span>Live Stream</span>
+                            <span>•</span>
+                            <div className={`w-2 h-2 rounded-full ${
+                              selectedCamera.status === 'recording' ? 'bg-red-500' : 
+                              selectedCamera.status === 'online' ? 'bg-green-500' : 'bg-gray-400'
+                            }`}></div>
+                            <span className="capitalize">{selectedCamera.status}</span>
+                          </p>
                         </div>
                         
                         <div className="flex items-center space-x-3">
@@ -289,7 +347,16 @@ const NVRCard: React.FC<NVRCardProps> = ({ onClick }) => {
                             <Play className="w-4 h-4 text-gray-600" />
                             <span className="text-sm font-medium">Record</span>
                           </button>
-                          <button className="flex items-center space-x-2 px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700 transition-colors">
+                          <button 
+                            className="flex items-center space-x-2 px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700 transition-colors"
+                            onClick={() => {
+                              // Try to make the iframe fullscreen
+                              const iframe = document.querySelector('iframe');
+                              if (iframe && iframe.requestFullscreen) {
+                                iframe.requestFullscreen();
+                              }
+                            }}
+                          >
                             <Maximize2 className="w-4 h-4" />
                             <span className="text-sm font-medium">Fullscreen</span>
                           </button>
@@ -311,11 +378,7 @@ const NVRCard: React.FC<NVRCardProps> = ({ onClick }) => {
                           onClick={() => setSelectedCamera(camera)}
                         >
                           <div className="aspect-video bg-black rounded-md mb-2 overflow-hidden">
-                            <iframe
-                              src={camera.streamUrl}
-                              className="w-full h-full border-0 scale-75 origin-top-left"
-                              allow="autoplay"
-                            />
+                            <CameraStream camera={camera} isThumbnail={true} />
                           </div>
                           <div className="flex items-center justify-between">
                             <span className="text-sm font-medium text-gray-900">{camera.name}</span>
@@ -342,6 +405,7 @@ const NVRCard: React.FC<NVRCardProps> = ({ onClick }) => {
                   </div>
                   <div>Storage: {storageUsed}TB / {storageTotal}TB ({storagePercentage.toFixed(1)}%)</div>
                   <div>Streams: WebRTC via go2rtc</div>
+                  <div className="text-xs text-gray-500">URL: {BASE_STREAM_URL}</div>
                 </div>
                 
                 <button 
