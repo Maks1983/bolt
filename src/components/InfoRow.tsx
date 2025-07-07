@@ -1,8 +1,14 @@
-Here's the fixed version with all missing closing brackets added:
+import React, { useState } from 'react';
+import { X, Clock } from 'lucide-react';
+import NVRWebRTCSection from './NVRWebRTCSection';
 
-```typescript
-{/* NVR Camera System Modal */}
-{showNVR && (
+const InfoRow: React.FC = () => {
+  const [showNVR, setShowNVR] = useState(false);
+
+  return (
+    <>
+      {/* NVR Camera System Modal */}
+      {showNVR && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl lg:rounded-3xl w-full max-w-sm sm:max-w-2xl lg:max-w-6xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden shadow-2xl border border-gray-200">
             <div className="bg-gradient-to-r from-green-500 to-emerald-600 p-6">
@@ -54,4 +60,3 @@ Here's the fixed version with all missing closing brackets added:
 };
 
 export default InfoRow;
-```
