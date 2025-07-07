@@ -1278,7 +1278,7 @@ const InfoRow: React.FC<InfoRowProps> = () => {
        {/* NVR Camera System Modal - RESPONSIVE */}
       {showNVR && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4">
-          <div className="bg-white rounded-2xl sm:rounded-3xl w-full h-full sm:h-auto sm:max-w-6xl sm:max-h-[95vh] overflow-hidden shadow-2xl border border-gray-200 flex flex-col">
+          <div className="bg-white rounded-2xl sm:rounded-3xl w-full max-w-sm sm:max-w-2xl h-full sm:h-auto max-h-[100vh] sm:max-h-[90vh] overflow-hidden flex flex-col">
             <div className="bg-gradient-to-r from-green-500 to-emerald-600 p-4 sm:p-6 flex-shrink-0">
               <div className="flex items-center justify-between">
                 <div>
@@ -1298,7 +1298,7 @@ const InfoRow: React.FC<InfoRowProps> = () => {
               <NVRWebRTCSection />
             </div>
             
-            <div className="p-3 sm:p-4 lg:p-6 border-t border-gray-100 bg-gray-50/50 flex-shrink-0">
+            <div className="p-2 sm:p-3 lg:p-4 border-t border-gray-100 bg-gray-50/50 flex-shrink-0">
               <div className="flex flex-col sm:flex-row items-center justify-between space-y-3 sm:space-y-0">
                 <div className="flex items-center space-x-2 lg:space-x-4 text-xs lg:text-sm text-gray-600">
                   <div className="flex items-center space-x-2">
