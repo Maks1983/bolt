@@ -457,21 +457,21 @@ const InfoRow: React.FC<InfoRowProps> = () => {
         </div>
       </div>
 
-      {/* Alarm Control Panel Modal */}
+      {/* Alarm Control Panel Modal - RESPONSIVE */}
       {showAlarm && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border border-gray-200">
-            <div className={`bg-gradient-to-r ${getAlarmStatusColor(alarmStatus).bg} p-6`}>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4">
+          <div className="bg-white rounded-2xl sm:rounded-3xl w-full max-w-sm sm:max-w-md h-full sm:h-auto max-h-[100vh] sm:max-h-[95vh] overflow-hidden shadow-2xl border border-gray-200 flex flex-col">
+            <div className={`bg-gradient-to-r ${getAlarmStatusColor(alarmStatus).bg} p-4 sm:p-6 flex-shrink-0`}>
               <div className="flex items-center justify-between">
                 <div className="text-center flex-1">
-                  <h2 className="text-2xl font-bold text-white mb-1">ALARM SYSTEM</h2>
-                  <div className="text-3xl font-bold text-white">{getAlarmStatusColor(alarmStatus).text}</div>
+                  <h2 className="text-lg sm:text-2xl font-bold text-white mb-1">ALARM SYSTEM</h2>
+                  <div className="text-xl sm:text-3xl font-bold text-white">{getAlarmStatusColor(alarmStatus).text}</div>
                   {(exitDelay > 0 || entryDelay > 0) && (
                     <div className="mt-3 text-white">
                       <div className="text-sm opacity-90">
                         {exitDelay > 0 ? 'Exit Delay' : 'Entry Delay'}
                       </div>
-                      <div className="text-4xl font-bold">
+                      <div className="text-2xl sm:text-4xl font-bold">
                         {exitDelay > 0 ? exitDelay : entryDelay}
                       </div>
                     </div>
@@ -486,20 +486,20 @@ const InfoRow: React.FC<InfoRowProps> = () => {
               </div>
             </div>
             
-            <div className="p-6">
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6">
               {/* Code Display */}
-              <div className="mb-6">
+              <div className="mb-4 sm:mb-6">
                 <div className="text-center mb-4">
                   <div className="text-sm font-medium text-gray-600 mb-2">Enter Security Code</div>
                   <div className="flex justify-center space-x-2">
                     {[...Array(6)].map((_, i) => (
                       <div 
                         key={i}
-                        className={`w-8 h-8 border-2 rounded-lg flex items-center justify-center ${
+                        className={`w-6 h-6 sm:w-8 sm:h-8 border-2 rounded-lg flex items-center justify-center ${
                           i < alarmCode.length ? 'border-blue-500 bg-blue-50' : 'border-gray-300'
                         }`}
                       >
-                        {i < alarmCode.length && <div className="w-2 h-2 bg-blue-500 rounded-full"></div>}
+                        {i < alarmCode.length && <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-blue-500 rounded-full"></div>}
                       </div>
                     ))}
                   </div>
@@ -507,43 +507,43 @@ const InfoRow: React.FC<InfoRowProps> = () => {
               </div>
 
               {/* Numpad */}
-              <div className="grid grid-cols-3 gap-3 mb-6">
+              <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-4 sm:mb-6">
                 {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
                   <button
                     key={num}
                     onClick={() => handleNumpadClick(num.toString())}
-                    className="h-12 bg-gray-100 hover:bg-gray-200 rounded-xl font-bold text-lg transition-colors"
+                    className="h-10 sm:h-12 bg-gray-100 hover:bg-gray-200 rounded-xl font-bold text-base sm:text-lg transition-colors"
                   >
                     {num}
                   </button>
                 ))}
                 <button
                   onClick={() => handleNumpadClick('*')}
-                  className="h-12 bg-gray-100 hover:bg-gray-200 rounded-xl font-bold text-lg transition-colors"
+                  className="h-10 sm:h-12 bg-gray-100 hover:bg-gray-200 rounded-xl font-bold text-base sm:text-lg transition-colors"
                 >
                   *
                 </button>
                 <button
                   onClick={() => handleNumpadClick('0')}
-                  className="h-12 bg-gray-100 hover:bg-gray-200 rounded-xl font-bold text-lg transition-colors"
+                  className="h-10 sm:h-12 bg-gray-100 hover:bg-gray-200 rounded-xl font-bold text-base sm:text-lg transition-colors"
                 >
                   0
                 </button>
                 <button
                   onClick={() => handleNumpadClick('#')}
-                  className="h-12 bg-gray-100 hover:bg-gray-200 rounded-xl font-bold text-lg transition-colors"
+                  className="h-10 sm:h-12 bg-gray-100 hover:bg-gray-200 rounded-xl font-bold text-base sm:text-lg transition-colors"
                 >
                   #
                 </button>
               </div>
 
               {/* Control Buttons */}
-              <div className="grid grid-cols-2 gap-3 mb-4">
+              <div className="grid grid-cols-2 gap-2 sm:gap-3 mb-3 sm:mb-4">
                 <button
                   onClick={handleBackspace}
-                  className="h-12 bg-gray-200 hover:bg-gray-300 rounded-xl font-medium transition-colors flex items-center justify-center"
+                  className="h-10 sm:h-12 bg-gray-200 hover:bg-gray-300 rounded-xl font-medium transition-colors flex items-center justify-center"
                 >
-                  <Delete className="w-5 h-5" />
+                  <Delete className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
                 <button
                   onClick={() => {
@@ -554,38 +554,38 @@ const InfoRow: React.FC<InfoRowProps> = () => {
                       }
                     }
                   }}
-                  className="h-12 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-medium transition-colors"
+                  className="h-10 sm:h-12 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-medium transition-colors text-sm sm:text-base"
                 >
                   ENTER
                 </button>
               </div>
 
               {/* Quick Actions */}
-              <div className="space-y-3">
-                <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2 sm:space-y-3">
+                <div className="grid grid-cols-2 gap-2 sm:gap-3">
                   <button
                     onClick={() => handleAlarmAction('arm_home')}
-                    className="h-12 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-medium transition-colors"
+                    className="h-10 sm:h-12 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-medium transition-colors text-sm sm:text-base"
                   >
                     ARM HOME
                   </button>
                   <button
                     onClick={() => handleAlarmAction('arm_away')}
-                    className="h-12 bg-red-500 hover:bg-red-600 text-white rounded-xl font-medium transition-colors"
+                    className="h-10 sm:h-12 bg-red-500 hover:bg-red-600 text-white rounded-xl font-medium transition-colors text-sm sm:text-base"
                   >
                     ARM AWAY
                   </button>
                 </div>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-2 sm:gap-3">
                   <button
                     onClick={() => handleAlarmAction('disarm')}
-                    className="h-12 bg-gray-500 hover:bg-gray-600 text-white rounded-xl font-medium transition-colors"
+                    className="h-10 sm:h-12 bg-gray-500 hover:bg-gray-600 text-white rounded-xl font-medium transition-colors text-sm sm:text-base"
                   >
                     DISARM
                   </button>
                   <button
                     onClick={() => handleAlarmAction('panic')}
-                    className="h-12 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold transition-colors"
+                    className="h-10 sm:h-12 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold transition-colors text-sm sm:text-base"
                   >
                     PANIC
                   </button>
@@ -593,7 +593,7 @@ const InfoRow: React.FC<InfoRowProps> = () => {
               </div>
             </div>
             
-            <div className="p-4 border-t border-gray-100 bg-gray-50/50 text-center">
+            <div className="p-3 sm:p-4 border-t border-gray-100 bg-gray-50/50 text-center flex-shrink-0">
               <div className="text-xs text-gray-500">
                 Default code: 1234 • Last armed: {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })}
               </div>
@@ -602,15 +602,15 @@ const InfoRow: React.FC<InfoRowProps> = () => {
         </div>
       )}
 
-      {/* Security Panel Modal */}
+      {/* Security Panel Modal - RESPONSIVE */}
       {showSecurity && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-5xl w-full max-h-[90vh] overflow-hidden shadow-2xl border border-gray-200">
-            <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-6">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4">
+          <div className="bg-white rounded-2xl sm:rounded-3xl w-full h-full sm:h-auto sm:max-w-6xl sm:max-h-[95vh] overflow-hidden shadow-2xl border border-gray-200 flex flex-col">
+            <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-4 sm:p-6 flex-shrink-0">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-2xl font-bold text-white">Security System</h2>
-                  <p className="text-blue-100">
+                  <h2 className="text-lg sm:text-2xl font-bold text-white">Security System</h2>
+                  <p className="text-blue-100 text-sm sm:text-base">
                     Status: <span className="font-bold">SECURE</span> • 
                     {securityZones.filter(zone => zone.status === 'secure').length}/{securityZones.length} zones secure
                   </p>
@@ -624,135 +624,133 @@ const InfoRow: React.FC<InfoRowProps> = () => {
               </div>
             </div>
             
-            <div className="max-h-[calc(90vh-8rem)] overflow-y-auto">
-              <div className="p-6">
-                {/* System Status Overview */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-                  <div className="bg-emerald-50 rounded-2xl p-4 border border-emerald-200">
-                    <div className="flex items-center space-x-3">
-                      <CheckCircle className="w-6 h-6 text-emerald-600" />
-                      <div>
-                        <div className="text-2xl font-bold text-emerald-700">
-                          {securityZones.filter(zone => zone.status === 'secure').length}
-                        </div>
-                        <div className="text-sm text-emerald-600 font-medium">Secure Zones</div>
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+              {/* System Status Overview */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
+                <div className="bg-emerald-50 rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-emerald-200">
+                  <div className="flex items-center space-x-2 sm:space-x-3">
+                    <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600" />
+                    <div>
+                      <div className="text-lg sm:text-2xl font-bold text-emerald-700">
+                        {securityZones.filter(zone => zone.status === 'secure').length}
                       </div>
-                    </div>
-                  </div>
-                  
-                  <div className="bg-red-50 rounded-2xl p-4 border border-red-200">
-                    <div className="flex items-center space-x-3">
-                      <AlertTriangle className="w-6 h-6 text-red-600" />
-                      <div>
-                        <div className="text-2xl font-bold text-red-700">
-                          {securityZones.filter(zone => zone.status === 'triggered').length}
-                        </div>
-                        <div className="text-sm text-red-600 font-medium">Triggered</div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="bg-yellow-50 rounded-2xl p-4 border border-yellow-200">
-                    <div className="flex items-center space-x-3">
-                      <Power className="w-6 h-6 text-yellow-600" />
-                      <div>
-                        <div className="text-2xl font-bold text-yellow-700">
-                          {securityZones.filter(zone => zone.status === 'bypassed').length}
-                        </div>
-                        <div className="text-sm text-yellow-600 font-medium">Bypassed</div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="bg-gray-50 rounded-2xl p-4 border border-gray-200">
-                    <div className="flex items-center space-x-3">
-                      <WifiOff className="w-6 h-6 text-gray-600" />
-                      <div>
-                        <div className="text-2xl font-bold text-gray-700">
-                          {securityZones.filter(zone => zone.status === 'offline').length}
-                        </div>
-                        <div className="text-sm text-gray-600 font-medium">Offline</div>
-                      </div>
+                      <div className="text-xs sm:text-sm text-emerald-600 font-medium">Secure Zones</div>
                     </div>
                   </div>
                 </div>
+                
+                <div className="bg-red-50 rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-red-200">
+                  <div className="flex items-center space-x-2 sm:space-x-3">
+                    <AlertTriangle className="w-5 h-5 sm:w-6 sm:h-6 text-red-600" />
+                    <div>
+                      <div className="text-lg sm:text-2xl font-bold text-red-700">
+                        {securityZones.filter(zone => zone.status === 'triggered').length}
+                      </div>
+                      <div className="text-xs sm:text-sm text-red-600 font-medium">Triggered</div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="bg-yellow-50 rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-yellow-200">
+                  <div className="flex items-center space-x-2 sm:space-x-3">
+                    <Power className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-600" />
+                    <div>
+                      <div className="text-lg sm:text-2xl font-bold text-yellow-700">
+                        {securityZones.filter(zone => zone.status === 'bypassed').length}
+                      </div>
+                      <div className="text-xs sm:text-sm text-yellow-600 font-medium">Bypassed</div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="bg-gray-50 rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-gray-200">
+                  <div className="flex items-center space-x-2 sm:space-x-3">
+                    <WifiOff className="w-5 h-5 sm:w-6 sm:h-6 text-gray-600" />
+                    <div>
+                      <div className="text-lg sm:text-2xl font-bold text-gray-700">
+                        {securityZones.filter(zone => zone.status === 'offline').length}
+                      </div>
+                      <div className="text-xs sm:text-sm text-gray-600 font-medium">Offline</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-                {/* Zone Details */}
-                <div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-6">Zone Status</h3>
-                  
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                    {securityZones.map((zone) => {
-                      const Icon = zone.icon;
-                      return (
-                        <div key={zone.id} className="bg-gray-50/80 rounded-2xl p-5 border border-gray-200/50 hover:shadow-md transition-shadow">
-                          <div className="flex items-center justify-between mb-4">
-                            <div className="flex items-center space-x-3">
-                              <div className="p-2 bg-white rounded-xl shadow-sm">
-                                <Icon className="w-5 h-5 text-gray-700" />
-                              </div>
-                              <div>
-                                <h4 className="font-bold text-gray-900">{zone.name}</h4>
-                                <div className="flex items-center space-x-2 mt-1">
-                                  <span className={`px-2 py-1 rounded-lg text-xs font-medium ${getZoneTypeColor(zone.type)}`}>
-                                    {zone.type}
-                                  </span>
-                                  <span className={`px-2 py-1 rounded-lg text-xs font-bold ${getZoneStatusColor(zone.status)}`}>
-                                    {zone.status.toUpperCase()}
-                                  </span>
-                                </div>
-                              </div>
+              {/* Zone Details */}
+              <div>
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6">Zone Status</h3>
+                
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
+                  {securityZones.map((zone) => {
+                    const Icon = zone.icon;
+                    return (
+                      <div key={zone.id} className="bg-gray-50/80 rounded-xl sm:rounded-2xl p-4 sm:p-5 border border-gray-200/50 hover:shadow-md transition-shadow">
+                        <div className="flex items-center justify-between mb-3 sm:mb-4">
+                          <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
+                            <div className="p-1.5 sm:p-2 bg-white rounded-lg sm:rounded-xl shadow-sm flex-shrink-0">
+                              <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-gray-700" />
                             </div>
-                            
-                            <div className="flex items-center space-x-2">
-                              <button className="px-3 py-1.5 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors text-sm font-medium">
-                                Test
-                              </button>
-                              <button className="px-3 py-1.5 bg-yellow-100 text-yellow-700 rounded-lg hover:bg-yellow-200 transition-colors text-sm font-medium">
-                                Bypass
-                              </button>
+                            <div className="min-w-0 flex-1">
+                              <h4 className="font-bold text-gray-900 text-sm sm:text-base truncate">{zone.name}</h4>
+                              <div className="flex items-center space-x-1 sm:space-x-2 mt-1">
+                                <span className={`px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-md sm:rounded-lg text-xs font-medium ${getZoneTypeColor(zone.type)}`}>
+                                  {zone.type}
+                                </span>
+                                <span className={`px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-md sm:rounded-lg text-xs font-bold ${getZoneStatusColor(zone.status)}`}>
+                                  {zone.status.toUpperCase()}
+                                </span>
+                              </div>
                             </div>
                           </div>
                           
-                          <div className="flex items-center justify-between text-sm text-gray-600">
-                            <div className="flex items-center space-x-2">
-                              <Clock className="w-4 h-4" />
-                              <span>Last triggered: {zone.lastTriggered}</span>
-                            </div>
-                            <div className="flex items-center space-x-1">
-                              <Wifi className="w-4 h-4 text-green-500" />
-                              <span className="text-green-600 font-medium">Online</span>
-                            </div>
+                          <div className="flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
+                            <button className="px-2 py-1 sm:px-3 sm:py-1.5 bg-blue-100 text-blue-700 rounded-md sm:rounded-lg hover:bg-blue-200 transition-colors text-xs sm:text-sm font-medium">
+                              Test
+                            </button>
+                            <button className="px-2 py-1 sm:px-3 sm:py-1.5 bg-yellow-100 text-yellow-700 rounded-md sm:rounded-lg hover:bg-yellow-200 transition-colors text-xs sm:text-sm font-medium">
+                              Bypass
+                            </button>
                           </div>
                         </div>
-                      );
-                    })}
-                  </div>
+                        
+                        <div className="flex items-center justify-between text-xs sm:text-sm text-gray-600">
+                          <div className="flex items-center space-x-1 sm:space-x-2 min-w-0 flex-1">
+                            <Clock className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                            <span className="truncate">Last triggered: {zone.lastTriggered}</span>
+                          </div>
+                          <div className="flex items-center space-x-1 flex-shrink-0 ml-2">
+                            <Wifi className="w-3 h-3 sm:w-4 sm:h-4 text-green-500" />
+                            <span className="text-green-600 font-medium">Online</span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </div>
             
-            <div className="p-6 border-t border-gray-100 bg-gray-50/50">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4 text-sm text-gray-600">
+            <div className="p-4 sm:p-6 border-t border-gray-100 bg-gray-50/50 flex-shrink-0">
+              <div className="flex flex-col sm:flex-row items-center justify-between space-y-3 sm:space-y-0">
+                <div className="flex items-center space-x-2 sm:space-x-4 text-xs sm:text-sm text-gray-600">
                   <div className="flex items-center space-x-2">
                     <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                     <span>All Systems Secure</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <Clock className="w-4 h-4" />
+                    <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
                     <span>Last updated: {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })}</span>
                   </div>
                 </div>
-                <div className="flex space-x-3">
+                <div className="flex space-x-2 sm:space-x-3 w-full sm:w-auto">
                   <button 
                     onClick={() => setShowSecurity(false)}
-                    className="px-6 py-3 bg-gray-200 text-gray-700 rounded-2xl hover:bg-gray-300 transition-colors font-semibold"
+                    className="flex-1 sm:flex-none px-4 py-2 sm:px-6 sm:py-3 bg-gray-200 text-gray-700 rounded-xl sm:rounded-2xl hover:bg-gray-300 transition-colors font-semibold text-sm sm:text-base"
                   >
                     Close Panel
                   </button>
-                  <button className="px-6 py-3 bg-blue-500 text-white rounded-2xl hover:bg-blue-600 transition-colors font-semibold">
-                    System Settings
+                  <button className="flex-1 sm:flex-none px-4 py-2 sm:px-6 sm:py-3 bg-blue-500 text-white rounded-xl sm:rounded-2xl hover:bg-blue-600 transition-colors font-semibold text-sm sm:text-base">
+                    Settings
                   </button>
                 </div>
               </div>
@@ -761,15 +759,15 @@ const InfoRow: React.FC<InfoRowProps> = () => {
         </div>
       )}
 
-      {/* Energy Panel Modal */}
+      {/* Energy Panel Modal - RESPONSIVE */}
       {showEnergy && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-6xl w-full max-h-[90vh] overflow-hidden shadow-2xl border border-gray-200">
-            <div className="bg-gradient-to-r from-orange-500 to-red-600 p-6">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4">
+          <div className="bg-white rounded-2xl sm:rounded-3xl w-full h-full sm:h-auto sm:max-w-6xl sm:max-h-[95vh] overflow-hidden shadow-2xl border border-gray-200 flex flex-col">
+            <div className="bg-gradient-to-r from-orange-500 to-red-600 p-4 sm:p-6 flex-shrink-0">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-2xl font-bold text-white">Energy Management</h2>
-                  <p className="text-orange-100">Real-time consumption and cost monitoring</p>
+                  <h2 className="text-lg sm:text-2xl font-bold text-white">Energy Management</h2>
+                  <p className="text-orange-100 text-sm sm:text-base">Real-time consumption and cost monitoring</p>
                 </div>
                 <button 
                   onClick={() => setShowEnergy(false)}
@@ -780,156 +778,154 @@ const InfoRow: React.FC<InfoRowProps> = () => {
               </div>
             </div>
             
-            <div className="max-h-[calc(90vh-8rem)] overflow-y-auto">
-              <div className="p-6 space-y-8">
-                {/* Current Consumption Overview */}
-                <div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-6">Current Consumption</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <div className="bg-orange-50 rounded-2xl p-6 border border-orange-200">
-                      <div className="flex items-center space-x-3 mb-3">
-                        <Zap className="w-6 h-6 text-orange-600" />
-                        <h4 className="font-bold text-gray-900">Live Usage</h4>
-                      </div>
-                      <div className="text-3xl font-bold text-orange-700 mb-1">2.4 kW</div>
-                      <div className="text-sm text-orange-600">3.2 kWh today</div>
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 sm:space-y-8">
+              {/* Current Consumption Overview */}
+              <div>
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6">Current Consumption</h3>
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+                  <div className="bg-orange-50 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-orange-200">
+                    <div className="flex items-center space-x-2 sm:space-x-3 mb-2 sm:mb-3">
+                      <Zap className="w-5 h-5 sm:w-6 sm:h-6 text-orange-600" />
+                      <h4 className="font-bold text-gray-900 text-sm sm:text-base">Live Usage</h4>
                     </div>
-                    
-                    <div className="bg-blue-50 rounded-2xl p-6 border border-blue-200">
-                      <div className="flex items-center space-x-3 mb-3">
-                        <BarChart3 className="w-6 h-6 text-blue-600" />
-                        <h4 className="font-bold text-gray-900">Current Rate</h4>
-                      </div>
-                      <div className="text-3xl font-bold text-blue-700 mb-1">€0.13</div>
-                      <div className="text-sm text-blue-600 flex items-center">
-                        <TrendingDown className="w-3 h-3 mr-1" />
-                        per kWh
-                      </div>
-                    </div>
-                    
-                    <div className="bg-green-50 rounded-2xl p-6 border border-green-200">
-                      <div className="flex items-center space-x-3 mb-3">
-                        <TrendingUp className="w-6 h-6 text-green-600" />
-                        <h4 className="font-bold text-gray-900">Cost Today</h4>
-                      </div>
-                      <div className="text-3xl font-bold text-green-700 mb-1">€0.42</div>
-                      <div className="text-sm text-green-600">-12% vs yesterday</div>
-                    </div>
-                    
-                    <div className="bg-purple-50 rounded-2xl p-6 border border-purple-200">
-                      <div className="flex items-center space-x-3 mb-3">
-                        <CheckCircle className="w-6 h-6 text-purple-600" />
-                        <h4 className="font-bold text-gray-900">Efficiency</h4>
-                      </div>
-                      <div className="text-3xl font-bold text-purple-700 mb-1">87%</div>
-                      <div className="text-sm text-purple-600">vs avg home</div>
-                    </div>
+                    <div className="text-xl sm:text-3xl font-bold text-orange-700 mb-1">2.4 kW</div>
+                    <div className="text-xs sm:text-sm text-orange-600">3.2 kWh today</div>
                   </div>
-                </div>
-
-                {/* Consumption Chart */}
-                <div>
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-xl font-bold text-gray-900">Consumption Chart</h3>
-                    <div className="flex bg-gray-100 rounded-lg p-1">
-                      <button
-                        onClick={() => setEnergyTimeframe('24h')}
-                        className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                          energyTimeframe === '24h' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600'
-                        }`}
-                      >
-                        24h
-                      </button>
-                      <button
-                        onClick={() => setEnergyTimeframe('7d')}
-                        className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                          energyTimeframe === '7d' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600'
-                        }`}
-                      >
-                        7d
-                      </button>
+                  
+                  <div className="bg-blue-50 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-blue-200">
+                    <div className="flex items-center space-x-2 sm:space-x-3 mb-2 sm:mb-3">
+                      <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
+                      <h4 className="font-bold text-gray-900 text-sm sm:text-base">Current Rate</h4>
+                    </div>
+                    <div className="text-xl sm:text-3xl font-bold text-blue-700 mb-1">€0.13</div>
+                    <div className="text-xs sm:text-sm text-blue-600 flex items-center">
+                      <TrendingDown className="w-3 h-3 mr-1" />
+                      per kWh
                     </div>
                   </div>
                   
-                  <div className="bg-gray-50 rounded-2xl p-6 border border-gray-200">
-                    <div className="flex items-end space-x-2 h-48">
-                      {(energyTimeframe === '24h' ? energyData24h : energyData7d).map((data, index) => (
-                        <div key={index} className="flex-1 flex flex-col items-center">
-                          <div className="w-full flex flex-col space-y-1 mb-2">
-                            <div 
-                              className="bg-orange-500 rounded-t"
-                              style={{ height: `${(data.consumption / (energyTimeframe === '24h' ? 5 : 50)) * 100}%` }}
-                            ></div>
-                            <div 
-                              className="bg-blue-500 rounded-b"
-                              style={{ height: `${(data.cost / (energyTimeframe === '24h' ? 0.6 : 6)) * 100}%` }}
-                            ></div>
-                          </div>
-                          <div className="text-xs text-gray-600 font-medium">{data.time}</div>
-                        </div>
-                      ))}
+                  <div className="bg-green-50 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-green-200">
+                    <div className="flex items-center space-x-2 sm:space-x-3 mb-2 sm:mb-3">
+                      <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" />
+                      <h4 className="font-bold text-gray-900 text-sm sm:text-base">Cost Today</h4>
                     </div>
-                    <div className="flex items-center justify-center space-x-6 mt-4">
-                      <div className="flex items-center space-x-2">
-                        <div className="w-3 h-3 bg-orange-500 rounded"></div>
-                        <span className="text-sm text-gray-600">Consumption ({energyTimeframe === '24h' ? 'kW' : 'kWh'})</span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <div className="w-3 h-3 bg-blue-500 rounded"></div>
-                        <span className="text-sm text-gray-600">Cost (€)</span>
-                      </div>
+                    <div className="text-xl sm:text-3xl font-bold text-green-700 mb-1">€0.42</div>
+                    <div className="text-xs sm:text-sm text-green-600">-12% vs yesterday</div>
+                  </div>
+                  
+                  <div className="bg-purple-50 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-purple-200">
+                    <div className="flex items-center space-x-2 sm:space-x-3 mb-2 sm:mb-3">
+                      <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" />
+                      <h4 className="font-bold text-gray-900 text-sm sm:text-base">Efficiency</h4>
                     </div>
+                    <div className="text-xl sm:text-3xl font-bold text-purple-700 mb-1">87%</div>
+                    <div className="text-xs sm:text-sm text-purple-600">vs avg home</div>
                   </div>
                 </div>
+              </div>
 
-                {/* High-Use Devices */}
-                <div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-6">High-Use Devices</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {highUseDevices.map((device, index) => (
-                      <div key={index} className="bg-gray-50 rounded-2xl p-5 border border-gray-200">
-                        <div className="flex items-center justify-between mb-3">
-                          <h4 className="font-bold text-gray-900">{device.name}</h4>
-                          <span className={`text-sm font-medium ${device.color}`}>{device.status}</span>
-                        </div>
-                        <div className="text-2xl font-bold text-gray-900 mb-1">{device.consumption} kW</div>
-                        <div className="text-sm text-gray-600 mb-3">{device.percentage}% of total usage</div>
-                        <div className="w-full bg-gray-200 rounded-full h-2">
+              {/* Consumption Chart */}
+              <div>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 space-y-3 sm:space-y-0">
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-900">Consumption Chart</h3>
+                  <div className="flex bg-gray-100 rounded-lg p-1">
+                    <button
+                      onClick={() => setEnergyTimeframe('24h')}
+                      className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-md text-sm font-medium transition-colors ${
+                        energyTimeframe === '24h' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600'
+                      }`}
+                    >
+                      24h
+                    </button>
+                    <button
+                      onClick={() => setEnergyTimeframe('7d')}
+                      className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-md text-sm font-medium transition-colors ${
+                        energyTimeframe === '7d' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600'
+                      }`}
+                    >
+                      7d
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="bg-gray-50 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-gray-200">
+                  <div className="flex items-end space-x-1 sm:space-x-2 h-32 sm:h-48">
+                    {(energyTimeframe === '24h' ? energyData24h : energyData7d).map((data, index) => (
+                      <div key={index} className="flex-1 flex flex-col items-center">
+                        <div className="w-full flex flex-col space-y-1 mb-2">
                           <div 
-                            className="bg-orange-500 h-2 rounded-full"
-                            style={{ width: `${device.percentage}%` }}
+                            className="bg-orange-500 rounded-t"
+                            style={{ height: `${(data.consumption / (energyTimeframe === '24h' ? 5 : 50)) * 100}%` }}
+                          ></div>
+                          <div 
+                            className="bg-blue-500 rounded-b"
+                            style={{ height: `${(data.cost / (energyTimeframe === '24h' ? 0.6 : 6)) * 100}%` }}
                           ></div>
                         </div>
+                        <div className="text-xs text-gray-600 font-medium">{data.time}</div>
                       </div>
                     ))}
                   </div>
+                  <div className="flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-6 mt-4">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-3 h-3 bg-orange-500 rounded"></div>
+                      <span className="text-sm text-gray-600">Consumption ({energyTimeframe === '24h' ? 'kW' : 'kWh'})</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-3 h-3 bg-blue-500 rounded"></div>
+                      <span className="text-sm text-gray-600">Cost (€)</span>
+                    </div>
+                  </div>
                 </div>
+              </div>
 
-                {/* Tips & Notices */}
-                <div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-6">Tips & Notices</h3>
-                  <div className="space-y-3">
-                    <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4">
-                      <div className="flex items-center space-x-3">
-                        <div className="p-2 bg-blue-100 rounded-lg">
-                          <Clock className="w-5 h-5 text-blue-600" />
-                        </div>
-                        <div>
-                          <h4 className="font-bold text-blue-900">Peak Pricing Active</h4>
-                          <p className="text-sm text-blue-700">Higher rates until 8 PM. Consider delaying high-energy tasks.</p>
-                        </div>
+              {/* High-Use Devices */}
+              <div>
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6">High-Use Devices</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
+                  {highUseDevices.map((device, index) => (
+                    <div key={index} className="bg-gray-50 rounded-xl sm:rounded-2xl p-4 sm:p-5 border border-gray-200">
+                      <div className="flex items-center justify-between mb-2 sm:mb-3">
+                        <h4 className="font-bold text-gray-900 text-sm sm:text-base">{device.name}</h4>
+                        <span className={`text-xs sm:text-sm font-medium ${device.color}`}>{device.status}</span>
+                      </div>
+                      <div className="text-lg sm:text-2xl font-bold text-gray-900 mb-1">{device.consumption} kW</div>
+                      <div className="text-xs sm:text-sm text-gray-600 mb-2 sm:mb-3">{device.percentage}% of total usage</div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div 
+                          className="bg-orange-500 h-2 rounded-full"
+                          style={{ width: `${device.percentage}%` }}
+                        ></div>
                       </div>
                     </div>
-                    
-                    <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-4">
-                      <div className="flex items-center space-x-3">
-                        <div className="p-2 bg-yellow-100 rounded-lg">
-                          <Zap className="w-5 h-5 text-yellow-600" />
-                        </div>
-                        <div>
-                          <h4 className="font-bold text-yellow-900">EV Charging Scheduled</h4>
-                          <p className="text-sm text-yellow-700">Tesla Model 3 will start charging at 11 PM (off-peak rates).</p>
-                        </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Tips & Notices */}
+              <div>
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6">Tips & Notices</h3>
+                <div className="space-y-3">
+                  <div className="bg-blue-50 border border-blue-200 rounded-xl sm:rounded-2xl p-3 sm:p-4">
+                    <div className="flex items-center space-x-2 sm:space-x-3">
+                      <div className="p-1.5 sm:p-2 bg-blue-100 rounded-lg flex-shrink-0">
+                        <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-blue-900 text-sm sm:text-base">Peak Pricing Active</h4>
+                        <p className="text-xs sm:text-sm text-blue-700">Higher rates until 8 PM. Consider delaying high-energy tasks.</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-xl sm:rounded-2xl p-3 sm:p-4">
+                    <div className="flex items-center space-x-2 sm:space-x-3">
+                      <div className="p-1.5 sm:p-2 bg-yellow-100 rounded-lg flex-shrink-0">
+                        <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-yellow-900 text-sm sm:text-base">EV Charging Scheduled</h4>
+                        <p className="text-xs sm:text-sm text-yellow-700">Tesla Model 3 will start charging at 11 PM (off-peak rates).</p>
                       </div>
                     </div>
                   </div>
@@ -937,21 +933,21 @@ const InfoRow: React.FC<InfoRowProps> = () => {
               </div>
             </div>
             
-            <div className="p-6 border-t border-gray-100 bg-gray-50/50">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4 text-sm text-gray-600">
+            <div className="p-4 sm:p-6 border-t border-gray-100 bg-gray-50/50 flex-shrink-0">
+              <div className="flex flex-col sm:flex-row items-center justify-between space-y-3 sm:space-y-0">
+                <div className="flex items-center space-x-2 sm:space-x-4 text-xs sm:text-sm text-gray-600">
                   <div className="flex items-center space-x-2">
                     <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                     <span>All meters online</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <Clock className="w-4 h-4" />
+                    <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
                     <span>Last updated: {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })}</span>
                   </div>
                 </div>
                 <button 
                   onClick={() => setShowEnergy(false)}
-                  className="px-6 py-3 bg-gray-200 text-gray-700 rounded-2xl hover:bg-gray-300 transition-colors font-semibold"
+                  className="w-full sm:w-auto px-4 py-2 sm:px-6 sm:py-3 bg-gray-200 text-gray-700 rounded-xl sm:rounded-2xl hover:bg-gray-300 transition-colors font-semibold text-sm sm:text-base"
                 >
                   Close Panel
                 </button>
@@ -961,15 +957,15 @@ const InfoRow: React.FC<InfoRowProps> = () => {
         </div>
       )}
 
-      {/* Temperature Panel Modal */}
+      {/* Temperature Panel Modal - RESPONSIVE */}
       {showTemperature && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-6xl w-full max-h-[90vh] overflow-hidden shadow-2xl border border-gray-200">
-            <div className="bg-gradient-to-r from-blue-500 to-cyan-600 p-6">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4">
+          <div className="bg-white rounded-2xl sm:rounded-3xl w-full h-full sm:h-auto sm:max-w-6xl sm:max-h-[95vh] overflow-hidden shadow-2xl border border-gray-200 flex flex-col">
+            <div className="bg-gradient-to-r from-blue-500 to-cyan-600 p-4 sm:p-6 flex-shrink-0">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-2xl font-bold text-white">Indoor Climate Control</h2>
-                  <p className="text-blue-100">Temperature and humidity monitoring across all zones</p>
+                  <h2 className="text-lg sm:text-2xl font-bold text-white">Indoor Climate Control</h2>
+                  <p className="text-blue-100 text-sm sm:text-base">Temperature and humidity monitoring across all zones</p>
                 </div>
                 <button 
                   onClick={() => setShowTemperature(false)}
@@ -980,182 +976,180 @@ const InfoRow: React.FC<InfoRowProps> = () => {
               </div>
             </div>
             
-            <div className="max-h-[calc(90vh-8rem)] overflow-y-auto">
-              <div className="p-6 space-y-8">
-                {/* Climate Overview */}
-                <div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-6">Climate Overview</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <div className="bg-blue-50 rounded-2xl p-6 border border-blue-200">
-                      <div className="flex items-center space-x-3 mb-3">
-                        <Thermometer className="w-6 h-6 text-blue-600" />
-                        <h4 className="font-bold text-gray-900">Avg Temperature</h4>
-                      </div>
-                      <div className="text-3xl font-bold text-blue-700 mb-1">21.3°C</div>
-                      <div className="text-sm text-blue-600 flex items-center">
-                        <TrendingUp className="w-3 h-3 mr-1" />
-                        +0.3°C since 1h
-                      </div>
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 sm:space-y-8">
+              {/* Climate Overview */}
+              <div>
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6">Climate Overview</h3>
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+                  <div className="bg-blue-50 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-blue-200">
+                    <div className="flex items-center space-x-2 sm:space-x-3 mb-2 sm:mb-3">
+                      <Thermometer className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
+                      <h4 className="font-bold text-gray-900 text-sm sm:text-base">Avg Temperature</h4>
                     </div>
-                    
-                    <div className="bg-cyan-50 rounded-2xl p-6 border border-cyan-200">
-                      <div className="flex items-center space-x-3 mb-3">
-                        <Droplets className="w-6 h-6 text-cyan-600" />
-                        <h4 className="font-bold text-gray-900">Avg Humidity</h4>
-                      </div>
-                      <div className="text-3xl font-bold text-cyan-700 mb-1">51%</div>
-                      <div className="text-sm text-cyan-600">Optimal range</div>
-                    </div>
-                    
-                    <div className="bg-green-50 rounded-2xl p-6 border border-green-200">
-                      <div className="flex items-center space-x-3 mb-3">
-                        <CheckCircle className="w-6 h-6 text-green-600" />
-                        <h4 className="font-bold text-gray-900">Comfort Score</h4>
-                      </div>
-                      <div className="text-3xl font-bold text-green-700 mb-1">85%</div>
-                      <div className="text-sm text-green-600">Excellent</div>
-                    </div>
-                    
-                    <div className="bg-purple-50 rounded-2xl p-6 border border-purple-200">
-                      <div className="flex items-center space-x-3 mb-3">
-                        <Wind className="w-6 h-6 text-purple-600" />
-                        <h4 className="font-bold text-gray-900">Sensors</h4>
-                      </div>
-                      <div className="text-3xl font-bold text-purple-700 mb-1">8</div>
-                      <div className="text-sm text-purple-600">All reporting</div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Historical Chart */}
-                <div>
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-xl font-bold text-gray-900">Temperature History</h3>
-                    <div className="flex bg-gray-100 rounded-lg p-1">
-                      <button
-                        onClick={() => setTempTimeframe('24h')}
-                        className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                          tempTimeframe === '24h' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600'
-                        }`}
-                      >
-                        24h
-                      </button>
-                      <button
-                        onClick={() => setTempTimeframe('7d')}
-                        className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                          tempTimeframe === '7d' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600'
-                        }`}
-                      >
-                        7d
-                      </button>
+                    <div className="text-xl sm:text-3xl font-bold text-blue-700 mb-1">21.3°C</div>
+                    <div className="text-xs sm:text-sm text-blue-600 flex items-center">
+                      <TrendingUp className="w-3 h-3 mr-1" />
+                      +0.3°C since 1h
                     </div>
                   </div>
                   
-                  <div className="bg-gray-50 rounded-2xl p-6 border border-gray-200">
-                    <div className="flex items-end space-x-2 h-48">
-                      {(tempTimeframe === '24h' ? tempData24h : tempData7d).map((data, index) => (
-                        <div key={index} className="flex-1 flex flex-col items-center">
-                          <div className="w-full flex flex-col space-y-1 mb-2">
-                            <div 
-                              className="bg-blue-500 rounded-t"
-                              style={{ height: `${((data.indoor - 15) / 15) * 100}%` }}
-                            ></div>
-                            <div 
-                              className="bg-gray-400 rounded-b"
-                              style={{ height: `${((data.outdoor - 5) / 20) * 100}%` }}
-                            ></div>
-                          </div>
-                          <div className="text-xs text-gray-600 font-medium">{data.time}</div>
-                        </div>
-                      ))}
+                  <div className="bg-cyan-50 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-cyan-200">
+                    <div className="flex items-center space-x-2 sm:space-x-3 mb-2 sm:mb-3">
+                      <Droplets className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-600" />
+                      <h4 className="font-bold text-gray-900 text-sm sm:text-base">Avg Humidity</h4>
                     </div>
-                    <div className="flex items-center justify-center space-x-6 mt-4">
-                      <div className="flex items-center space-x-2">
-                        <div className="w-3 h-3 bg-blue-500 rounded"></div>
-                        <span className="text-sm text-gray-600">Indoor Temperature</span>
+                    <div className="text-xl sm:text-3xl font-bold text-cyan-700 mb-1">51%</div>
+                    <div className="text-xs sm:text-sm text-cyan-600">Optimal range</div>
+                  </div>
+                  
+                  <div className="bg-green-50 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-green-200">
+                    <div className="flex items-center space-x-2 sm:space-x-3 mb-2 sm:mb-3">
+                      <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" />
+                      <h4 className="font-bold text-gray-900 text-sm sm:text-base">Comfort Score</h4>
+                    </div>
+                    <div className="text-xl sm:text-3xl font-bold text-green-700 mb-1">85%</div>
+                    <div className="text-xs sm:text-sm text-green-600">Excellent</div>
+                  </div>
+                  
+                  <div className="bg-purple-50 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-purple-200">
+                    <div className="flex items-center space-x-2 sm:space-x-3 mb-2 sm:mb-3">
+                      <Wind className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" />
+                      <h4 className="font-bold text-gray-900 text-sm sm:text-base">Sensors</h4>
+                    </div>
+                    <div className="text-xl sm:text-3xl font-bold text-purple-700 mb-1">8</div>
+                    <div className="text-xs sm:text-sm text-purple-600">All reporting</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Historical Chart */}
+              <div>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 space-y-3 sm:space-y-0">
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-900">Temperature History</h3>
+                  <div className="flex bg-gray-100 rounded-lg p-1">
+                    <button
+                      onClick={() => setTempTimeframe('24h')}
+                      className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-md text-sm font-medium transition-colors ${
+                        tempTimeframe === '24h' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600'
+                      }`}
+                    >
+                      24h
+                    </button>
+                    <button
+                      onClick={() => setTempTimeframe('7d')}
+                      className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-md text-sm font-medium transition-colors ${
+                        tempTimeframe === '7d' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600'
+                      }`}
+                    >
+                      7d
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="bg-gray-50 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-gray-200">
+                  <div className="flex items-end space-x-1 sm:space-x-2 h-32 sm:h-48">
+                    {(tempTimeframe === '24h' ? tempData24h : tempData7d).map((data, index) => (
+                      <div key={index} className="flex-1 flex flex-col items-center">
+                        <div className="w-full flex flex-col space-y-1 mb-2">
+                          <div 
+                            className="bg-blue-500 rounded-t"
+                            style={{ height: `${((data.indoor - 15) / 15) * 100}%` }}
+                          ></div>
+                          <div 
+                            className="bg-gray-400 rounded-b"
+                            style={{ height: `${((data.outdoor - 5) / 20) * 100}%` }}
+                          ></div>
+                        </div>
+                        <div className="text-xs text-gray-600 font-medium">{data.time}</div>
                       </div>
-                      <div className="flex items-center space-x-2">
-                        <div className="w-3 h-3 bg-gray-400 rounded"></div>
-                        <span className="text-sm text-gray-600">Outdoor Temperature</span>
-                      </div>
+                    ))}
+                  </div>
+                  <div className="flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-6 mt-4">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-3 h-3 bg-blue-500 rounded"></div>
+                      <span className="text-sm text-gray-600">Indoor Temperature</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-3 h-3 bg-gray-400 rounded"></div>
+                      <span className="text-sm text-gray-600">Outdoor Temperature</span>
                     </div>
                   </div>
                 </div>
+              </div>
 
-                {/* Room Breakdown Table */}
-                <div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-6">Room Breakdown</h3>
-                  <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-                    <div className="overflow-x-auto">
-                      <table className="w-full">
-                        <thead className="bg-gray-50 border-b border-gray-200">
-                          <tr>
-                            <th className="text-left py-4 px-6 font-bold text-gray-900">Room</th>
-                            <th className="text-left py-4 px-6 font-bold text-gray-900">Temp (°C)</th>
-                            <th className="text-left py-4 px-6 font-bold text-gray-900">Humidity (%)</th>
-                            <th className="text-left py-4 px-6 font-bold text-gray-900">Trend</th>
-                            <th className="text-left py-4 px-6 font-bold text-gray-900">Status</th>
-                            <th className="text-left py-4 px-6 font-bold text-gray-900">Last Updated</th>
+              {/* Room Breakdown Table */}
+              <div>
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6">Room Breakdown</h3>
+                <div className="bg-white rounded-xl sm:rounded-2xl border border-gray-200 overflow-hidden">
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead className="bg-gray-50 border-b border-gray-200">
+                        <tr>
+                          <th className="text-left py-3 px-4 sm:py-4 sm:px-6 font-bold text-gray-900 text-sm sm:text-base">Room</th>
+                          <th className="text-left py-3 px-4 sm:py-4 sm:px-6 font-bold text-gray-900 text-sm sm:text-base">Temp (°C)</th>
+                          <th className="text-left py-3 px-4 sm:py-4 sm:px-6 font-bold text-gray-900 text-sm sm:text-base">Humidity (%)</th>
+                          <th className="text-left py-3 px-4 sm:py-4 sm:px-6 font-bold text-gray-900 text-sm sm:text-base">Trend</th>
+                          <th className="text-left py-3 px-4 sm:py-4 sm:px-6 font-bold text-gray-900 text-sm sm:text-base">Status</th>
+                          <th className="text-left py-3 px-4 sm:py-4 sm:px-6 font-bold text-gray-900 text-sm sm:text-base hidden sm:table-cell">Last Updated</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {roomTemperatures.map((room, index) => (
+                          <tr 
+                            key={index} 
+                            className="border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors"
+                          >
+                            <td className="py-3 px-4 sm:py-4 sm:px-6">
+                              <div className="font-semibold text-gray-900 text-sm sm:text-base">{room.name}</div>
+                            </td>
+                            <td className="py-3 px-4 sm:py-4 sm:px-6">
+                              <div className={`font-bold text-sm sm:text-base ${
+                                room.temp < 20 ? 'text-blue-600' : 
+                                room.temp > 24 ? 'text-red-600' : 'text-green-600'
+                              }`}>
+                                {room.temp}°C
+                              </div>
+                            </td>
+                            <td className="py-3 px-4 sm:py-4 sm:px-6">
+                              <div className="font-medium text-gray-700 text-sm sm:text-base">{room.humidity}%</div>
+                            </td>
+                            <td className="py-3 px-4 sm:py-4 sm:px-6">
+                              <div className="flex items-center">
+                                {getTrendIcon(room.trend)}
+                              </div>
+                            </td>
+                            <td className="py-3 px-4 sm:py-4 sm:px-6">
+                              <span className={`px-2 py-1 rounded-lg text-xs font-bold ${getTempStatusColor(room.status)}`}>
+                                {room.status.toUpperCase()}
+                              </span>
+                            </td>
+                            <td className="py-3 px-4 sm:py-4 sm:px-6 hidden sm:table-cell">
+                              <div className="text-sm text-gray-500">{room.lastUpdated}</div>
+                            </td>
                           </tr>
-                        </thead>
-                        <tbody>
-                          {roomTemperatures.map((room, index) => (
-                            <tr 
-                              key={index} 
-                              className="border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors"
-                            >
-                              <td className="py-4 px-6">
-                                <div className="font-semibold text-gray-900">{room.name}</div>
-                              </td>
-                              <td className="py-4 px-6">
-                                <div className={`font-bold ${
-                                  room.temp < 20 ? 'text-blue-600' : 
-                                  room.temp > 24 ? 'text-red-600' : 'text-green-600'
-                                }`}>
-                                  {room.temp}°C
-                                </div>
-                              </td>
-                              <td className="py-4 px-6">
-                                <div className="font-medium text-gray-700">{room.humidity}%</div>
-                              </td>
-                              <td className="py-4 px-6">
-                                <div className="flex items-center">
-                                  {getTrendIcon(room.trend)}
-                                </div>
-                              </td>
-                              <td className="py-4 px-6">
-                                <span className={`px-2 py-1 rounded-lg text-xs font-bold ${getTempStatusColor(room.status)}`}>
-                                  {room.status.toUpperCase()}
-                                </span>
-                              </td>
-                              <td className="py-4 px-6">
-                                <div className="text-sm text-gray-500">{room.lastUpdated}</div>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
                 </div>
               </div>
             </div>
             
-            <div className="p-6 border-t border-gray-100 bg-gray-50/50">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4 text-sm text-gray-600">
+            <div className="p-4 sm:p-6 border-t border-gray-100 bg-gray-50/50 flex-shrink-0">
+              <div className="flex flex-col sm:flex-row items-center justify-between space-y-3 sm:space-y-0">
+                <div className="flex items-center space-x-2 sm:space-x-4 text-xs sm:text-sm text-gray-600">
                   <div className="flex items-center space-x-2">
                     <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                     <span>All sensors online</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <Clock className="w-4 h-4" />
+                    <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
                     <span>Last updated: {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })}</span>
                   </div>
                 </div>
                 <button 
                   onClick={() => setShowTemperature(false)}
-                  className="px-6 py-3 bg-gray-200 text-gray-700 rounded-2xl hover:bg-gray-300 transition-colors font-semibold"
+                  className="w-full sm:w-auto px-4 py-2 sm:px-6 sm:py-3 bg-gray-200 text-gray-700 rounded-xl sm:rounded-2xl hover:bg-gray-300 transition-colors font-semibold text-sm sm:text-base"
                 >
                   Close Panel
                 </button>
@@ -1165,15 +1159,15 @@ const InfoRow: React.FC<InfoRowProps> = () => {
         </div>
       )}
 
-      {/* Activity Log Modal */}
+      {/* Activity Log Modal - RESPONSIVE */}
       {showActivity && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[80vh] overflow-hidden shadow-2xl border border-gray-200">
-            <div className="bg-gradient-to-r from-purple-500 to-indigo-600 p-6">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4">
+          <div className="bg-white rounded-2xl sm:rounded-3xl w-full max-w-sm sm:max-w-2xl h-full sm:h-auto max-h-[100vh] sm:max-h-[80vh] overflow-hidden shadow-2xl border border-gray-200 flex flex-col">
+            <div className="bg-gradient-to-r from-purple-500 to-indigo-600 p-4 sm:p-6 flex-shrink-0">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-2xl font-bold text-white">Recent Activity</h2>
-                  <p className="text-purple-100">Last 6 events in your home</p>
+                  <h2 className="text-lg sm:text-2xl font-bold text-white">Recent Activity</h2>
+                  <p className="text-purple-100 text-sm sm:text-base">Last 6 events in your home</p>
                 </div>
                 <button 
                   onClick={() => setShowActivity(false)}
@@ -1184,40 +1178,40 @@ const InfoRow: React.FC<InfoRowProps> = () => {
               </div>
             </div>
             
-            <div className="max-h-96 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto">
               {activities.map((activity, index) => {
                 const Icon = activity.icon;
                 return (
                   <div 
                     key={activity.id} 
-                    className={`flex items-center space-x-4 p-5 hover:bg-gray-50 transition-colors ${
+                    className={`flex items-center space-x-3 sm:space-x-4 p-4 sm:p-5 hover:bg-gray-50 transition-colors ${
                       index !== activities.length - 1 ? 'border-b border-gray-100' : ''
                     }`}
                   >
-                    <div className={`p-3 bg-gray-100 rounded-xl ${activity.color}`}>
-                      <Icon className="w-5 h-5" />
+                    <div className={`p-2 sm:p-3 bg-gray-100 rounded-xl ${activity.color} flex-shrink-0`}>
+                      <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-1">
-                        <h3 className="text-sm font-bold text-gray-900 truncate">
+                        <h3 className="text-sm sm:text-base font-bold text-gray-900 truncate">
                           {activity.title}
                         </h3>
-                        <div className="flex items-center space-x-1 text-gray-400">
+                        <div className="flex items-center space-x-1 text-gray-400 flex-shrink-0 ml-2">
                           <Clock className="w-3 h-3" />
                           <span className="text-xs font-medium">{activity.time}</span>
                         </div>
                       </div>
-                      <p className="text-sm text-gray-600 truncate">{activity.description}</p>
+                      <p className="text-xs sm:text-sm text-gray-600 truncate">{activity.description}</p>
                     </div>
                   </div>
                 );
               })}
             </div>
             
-            <div className="p-6 border-t border-gray-100">
+            <div className="p-4 sm:p-6 border-t border-gray-100 flex-shrink-0">
               <button 
                 onClick={() => setShowActivity(false)}
-                className="w-full px-6 py-3 bg-gray-100 text-gray-700 rounded-2xl hover:bg-gray-200 transition-colors font-semibold"
+                className="w-full px-4 py-2 sm:px-6 sm:py-3 bg-gray-100 text-gray-700 rounded-xl sm:rounded-2xl hover:bg-gray-200 transition-colors font-semibold text-sm sm:text-base"
               >
                 Close Activity Log
               </button>
@@ -1226,15 +1220,15 @@ const InfoRow: React.FC<InfoRowProps> = () => {
         </div>
       )}
 
-      {/* Actions Modal */}
+      {/* Actions Modal - RESPONSIVE */}
       {showActions && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-gray-200">
-            <div className="bg-gradient-to-r from-indigo-500 to-purple-600 p-6">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4">
+          <div className="bg-white rounded-2xl sm:rounded-3xl w-full max-w-sm sm:max-w-lg h-full sm:h-auto max-h-[100vh] sm:max-h-[95vh] overflow-hidden shadow-2xl border border-gray-200 flex flex-col">
+            <div className="bg-gradient-to-r from-indigo-500 to-purple-600 p-4 sm:p-6 flex-shrink-0">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-2xl font-bold text-white">Quick Actions</h2>
-                  <p className="text-indigo-100">Control your home scenes</p>
+                  <h2 className="text-lg sm:text-2xl font-bold text-white">Quick Actions</h2>
+                  <p className="text-indigo-100 text-sm sm:text-base">Control your home scenes</p>
                 </div>
                 <button 
                   onClick={() => setShowActions(false)}
@@ -1245,20 +1239,20 @@ const InfoRow: React.FC<InfoRowProps> = () => {
               </div>
             </div>
             
-            <div className="p-6">
-              <div className="grid grid-cols-2 gap-4">
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+              <div className="grid grid-cols-2 gap-3 sm:gap-4">
                 {actions.map((action, index) => {
                   const Icon = action.icon;
                   return (
                     <button
                       key={index}
-                      className={`relative p-4 bg-gradient-to-br ${action.color} rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border border-white/20 ${
+                      className={`relative p-3 sm:p-4 bg-gradient-to-br ${action.color} rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border border-white/20 ${
                         action.active ? 'ring-2 ring-indigo-400 ring-offset-2' : ''
                       }`}
                     >
                       <div className="text-center">
-                        <Icon className="w-6 h-6 text-white mx-auto mb-2" />
-                        <span className="text-white text-sm font-bold">{action.name}</span>
+                        <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-white mx-auto mb-2" />
+                        <span className="text-white text-xs sm:text-sm font-bold">{action.name}</span>
                       </div>
                       {action.active && (
                         <div className="absolute -top-1 -right-1 w-3 h-3 bg-white rounded-full shadow-sm"></div>
@@ -1269,10 +1263,10 @@ const InfoRow: React.FC<InfoRowProps> = () => {
               </div>
             </div>
             
-            <div className="p-6 border-t border-gray-100">
+            <div className="p-4 sm:p-6 border-t border-gray-100 flex-shrink-0">
               <button 
                 onClick={() => setShowActions(false)}
-                className="w-full px-6 py-3 bg-gray-100 text-gray-700 rounded-2xl hover:bg-gray-200 transition-colors font-semibold"
+                className="w-full px-4 py-2 sm:px-6 sm:py-3 bg-gray-100 text-gray-700 rounded-xl sm:rounded-2xl hover:bg-gray-200 transition-colors font-semibold text-sm sm:text-base"
               >
                 Close Actions
               </button>
@@ -1281,15 +1275,15 @@ const InfoRow: React.FC<InfoRowProps> = () => {
         </div>
       )}
 
-       {/* NVR Camera System Modal - Updated with WebRTC */}
+       {/* NVR Camera System Modal - RESPONSIVE */}
       {showNVR && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl lg:rounded-3xl w-full max-w-sm sm:max-w-2xl lg:max-w-6xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden shadow-2xl border border-gray-200">
-            <div className="bg-gradient-to-r from-green-500 to-emerald-600 p-6">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4">
+          <div className="bg-white rounded-2xl sm:rounded-3xl w-full h-full sm:h-auto sm:max-w-6xl sm:max-h-[95vh] overflow-hidden shadow-2xl border border-gray-200 flex flex-col">
+            <div className="bg-gradient-to-r from-green-500 to-emerald-600 p-4 sm:p-6 flex-shrink-0">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-white">NVR Camera System</h2>
-                  <p className="text-green-100 text-sm lg:text-base">Live camera feeds from exterior locations</p>
+                  <h2 className="text-lg sm:text-2xl font-bold text-white">NVR Camera System</h2>
+                  <p className="text-green-100 text-sm sm:text-base">Live camera feeds from exterior locations</p>
                 </div>
                 <button 
                   onClick={() => setShowNVR(false)}
@@ -1300,12 +1294,12 @@ const InfoRow: React.FC<InfoRowProps> = () => {
               </div>
             </div>
             
-            <div className="max-h-[calc(95vh-8rem)] sm:max-h-[calc(90vh-8rem)] overflow-y-auto">
+            <div className="flex-1 overflow-y-auto">
               <NVRWebRTCSection />
             </div>
             
-            <div className="p-3 sm:p-4 lg:p-6 border-t border-gray-100 bg-gray-50/50">
-              <div className="flex items-center justify-between">
+            <div className="p-3 sm:p-4 lg:p-6 border-t border-gray-100 bg-gray-50/50 flex-shrink-0">
+              <div className="flex flex-col sm:flex-row items-center justify-between space-y-3 sm:space-y-0">
                 <div className="flex items-center space-x-2 lg:space-x-4 text-xs lg:text-sm text-gray-600">
                   <div className="flex items-center space-x-2">
                     <div className="w-2 h-2 bg-green-500 rounded-full"></div>
@@ -1319,10 +1313,9 @@ const InfoRow: React.FC<InfoRowProps> = () => {
                 </div>
                 <button 
                   onClick={() => setShowNVR(false)}
-                  className="px-3 py-2 sm:px-4 sm:py-2 lg:px-6 lg:py-3 bg-gray-200 text-gray-700 rounded-xl lg:rounded-2xl hover:bg-gray-300 transition-colors font-semibold text-sm lg:text-base"
+                  className="w-full sm:w-auto px-3 py-2 sm:px-4 sm:py-2 lg:px-6 lg:py-3 bg-gray-200 text-gray-700 rounded-xl lg:rounded-2xl hover:bg-gray-300 transition-colors font-semibold text-sm lg:text-base"
                 >
                   <span className="hidden sm:inline">Close NVR</span>
-                  
                   <span className="sm:hidden">Close</span>
                 </button>
               </div>
