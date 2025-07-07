@@ -2,7 +2,11 @@ import React from 'react';
 import { Lock, Unlock, AlertTriangle } from 'lucide-react';
 import { useDevices } from '../../context/DeviceContext';
 
-const SecurityCard: React.FC = () => {
+interface SecurityCardProps {
+  onClick?: () => void;
+}
+
+const SecurityCard: React.FC<SecurityCardProps> = ({ onClick }) => {
   const { state } = useDevices();
 
   // Get all locks and security sensors
@@ -31,7 +35,10 @@ const SecurityCard: React.FC = () => {
   const securityStatus = getSecurityStatus();
 
   return (
-    <div className={`bg-gradient-to-br from-${securityStatus.color}-50 to-${securityStatus.color}-100 rounded-2xl p-4 border border-${securityStatus.color}-200/50 shadow-sm hover:shadow-md transition-all min-w-[200px]`}>
+    <div 
+      className={`bg-gradient-to-br from-${securityStatus.color}-50 to-${securityStatus.color}-100 rounded-2xl p-4 border border-${securityStatus.color}-200/50 shadow-sm hover:shadow-md transition-all ${onClick ? 'cursor-pointer' : ''}`}
+      onClick={onClick}
+    >
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center space-x-2">
           <div className={`p-2 bg-${securityStatus.color}-600 rounded-lg`}>

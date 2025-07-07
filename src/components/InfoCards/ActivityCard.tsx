@@ -2,7 +2,11 @@ import React from 'react';
 import { Activity, User, UserCheck, UserX } from 'lucide-react';
 import { useDevices } from '../../context/DeviceContext';
 
-const ActivityCard: React.FC = () => {
+interface ActivityCardProps {
+  onClick?: () => void;
+}
+
+const ActivityCard: React.FC<ActivityCardProps> = ({ onClick }) => {
   const { state } = useDevices();
 
   // Get motion sensors and device trackers
@@ -36,7 +40,10 @@ const ActivityCard: React.FC = () => {
   const ActivityIcon = activity.icon;
 
   return (
-    <div className={`bg-gradient-to-br from-${activity.color}-50 to-${activity.color}-100 rounded-2xl p-4 border border-${activity.color}-200/50 shadow-sm hover:shadow-md transition-all min-w-[200px]`}>
+    <div 
+      className={`bg-gradient-to-br from-${activity.color}-50 to-${activity.color}-100 rounded-2xl p-4 border border-${activity.color}-200/50 shadow-sm hover:shadow-md transition-all ${onClick ? 'cursor-pointer' : ''}`}
+      onClick={onClick}
+    >
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center space-x-2">
           <div className={`p-2 bg-${activity.color}-600 rounded-lg`}>
