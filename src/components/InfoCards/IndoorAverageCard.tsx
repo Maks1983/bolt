@@ -3,11 +3,7 @@ import { Thermometer, Droplets } from 'lucide-react';
 import { useDevices } from '../../context/DeviceContext';
 import { formatTemperature, formatHumidity } from '../../utils/deviceHelpers';
 
-interface IndoorAverageCardProps {
-  onClick?: () => void;
-}
-
-const IndoorAverageCard: React.FC<IndoorAverageCardProps> = ({ onClick }) => {
+const IndoorAverageCard: React.FC = () => {
   const { state } = useDevices();
 
   // Get all temperature and humidity sensors
@@ -41,10 +37,7 @@ const IndoorAverageCard: React.FC<IndoorAverageCardProps> = ({ onClick }) => {
   const comfort = getComfortLevel();
 
   return (
-    <div 
-      className={`bg-gradient-to-br from-${comfort.color}-50 to-${comfort.color}-100 rounded-2xl p-4 border border-${comfort.color}-200/50 shadow-sm hover:shadow-md transition-all ${onClick ? 'cursor-pointer' : ''}`}
-      onClick={onClick}
-    >
+    <div className={`bg-gradient-to-br from-${comfort.color}-50 to-${comfort.color}-100 rounded-2xl p-4 border border-${comfort.color}-200/50 shadow-sm hover:shadow-md transition-all min-w-[200px]`}>
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center space-x-2">
           <div className={`p-2 bg-${comfort.color}-600 rounded-lg`}>

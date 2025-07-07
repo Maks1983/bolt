@@ -10,11 +10,7 @@ import {
 } from 'lucide-react';
 import { useDevices } from '../../context/DeviceContext';
 
-interface ActionsCardProps {
-  onClick?: () => void;
-}
-
-const ActionsCard: React.FC<ActionsCardProps> = ({ onClick }) => {
+const ActionsCard: React.FC = () => {
   const { state, controlLight, controlAlarm } = useDevices();
 
   // Get all lights and alarm systems
@@ -79,10 +75,7 @@ const ActionsCard: React.FC<ActionsCardProps> = ({ onClick }) => {
   };
 
   return (
-    <div 
-      className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-4 border border-purple-200/50 shadow-sm hover:shadow-md transition-all cursor-pointer"
-      onClick={onClick}
-    >
+    <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-4 border border-purple-200/50 shadow-sm hover:shadow-md transition-all min-w-[200px]">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center space-x-2">
           <div className="p-2 bg-purple-600 rounded-lg">
@@ -98,10 +91,7 @@ const ActionsCard: React.FC<ActionsCardProps> = ({ onClick }) => {
       
       <div className="grid grid-cols-2 gap-2">
         <button
-          onClick={(e) => {
-            e.stopPropagation();
-            handleAllLightsToggle();
-          }}
+          onClick={handleAllLightsToggle}
           className="flex flex-col items-center space-y-1 p-2 bg-white/60 rounded-lg hover:bg-white/80 transition-colors"
         >
           {allLightsOn ? (
@@ -115,10 +105,7 @@ const ActionsCard: React.FC<ActionsCardProps> = ({ onClick }) => {
         </button>
         
         <button
-          onClick={(e) => {
-            e.stopPropagation();
-            handleGoodNight();
-          }}
+          onClick={handleGoodNight}
           className="flex flex-col items-center space-y-1 p-2 bg-white/60 rounded-lg hover:bg-white/80 transition-colors"
         >
           <Moon className="w-4 h-4 text-indigo-600" />
@@ -126,10 +113,7 @@ const ActionsCard: React.FC<ActionsCardProps> = ({ onClick }) => {
         </button>
         
         <button
-          onClick={(e) => {
-            e.stopPropagation();
-            handleGoodMorning();
-          }}
+          onClick={handleGoodMorning}
           className="flex flex-col items-center space-y-1 p-2 bg-white/60 rounded-lg hover:bg-white/80 transition-colors"
         >
           <Sun className="w-4 h-4 text-orange-600" />
@@ -137,10 +121,7 @@ const ActionsCard: React.FC<ActionsCardProps> = ({ onClick }) => {
         </button>
         
         <button
-          onClick={(e) => {
-            e.stopPropagation();
-            handleAwayMode();
-          }}
+          onClick={handleAwayMode}
           className="flex flex-col items-center space-y-1 p-2 bg-white/60 rounded-lg hover:bg-white/80 transition-colors"
         >
           <Shield className="w-4 h-4 text-blue-600" />

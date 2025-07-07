@@ -2,11 +2,7 @@ import React from 'react';
 import { Shield, AlertTriangle } from 'lucide-react';
 import { useDevices } from '../../context/DeviceContext';
 
-interface AlarmCardProps {
-  onClick?: () => void;
-}
-
-const AlarmCard: React.FC<AlarmCardProps> = ({ onClick }) => {
+const AlarmCard: React.FC = () => {
   const { state } = useDevices();
 
   // Get alarm control panel devices
@@ -36,10 +32,7 @@ const AlarmCard: React.FC<AlarmCardProps> = ({ onClick }) => {
   const StatusIcon = alarmStatus.icon;
 
   return (
-    <div 
-      className={`bg-gradient-to-br from-${alarmStatus.color}-50 to-${alarmStatus.color}-100 rounded-2xl p-4 border border-${alarmStatus.color}-200/50 shadow-sm hover:shadow-md transition-all ${onClick ? 'cursor-pointer' : ''}`}
-      onClick={onClick}
-    >
+    <div className={`bg-gradient-to-br from-${alarmStatus.color}-50 to-${alarmStatus.color}-100 rounded-2xl p-4 border border-${alarmStatus.color}-200/50 shadow-sm hover:shadow-md transition-all min-w-[200px]`}>
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center space-x-2">
           <div className={`p-2 bg-${alarmStatus.color}-600 rounded-lg`}>

@@ -2,11 +2,7 @@ import React from 'react';
 import { Zap, TrendingUp, TrendingDown } from 'lucide-react';
 import { useDevices } from '../../context/DeviceContext';
 
-interface EnergyCardProps {
-  onClick?: () => void;
-}
-
-const EnergyCard: React.FC<EnergyCardProps> = ({ onClick }) => {
+const EnergyCard: React.FC = () => {
   const { state } = useDevices();
 
   // Get all lights and calculate energy usage estimate
@@ -30,10 +26,7 @@ const EnergyCard: React.FC<EnergyCardProps> = ({ onClick }) => {
   const TrendIcon = trend === 'up' ? TrendingUp : TrendingDown;
 
   return (
-    <div 
-      className={`bg-gradient-to-br from-${usageColor}-50 to-${usageColor}-100 rounded-2xl p-4 border border-${usageColor}-200/50 shadow-sm hover:shadow-md transition-all ${onClick ? 'cursor-pointer' : ''}`}
-      onClick={onClick}
-    >
+    <div className={`bg-gradient-to-br from-${usageColor}-50 to-${usageColor}-100 rounded-2xl p-4 border border-${usageColor}-200/50 shadow-sm hover:shadow-md transition-all min-w-[200px]`}>
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center space-x-2">
           <div className={`p-2 bg-${usageColor}-600 rounded-lg`}>
