@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Camera, X, ExternalLink } from 'lucide-react';
-import CameraWebRTC from '../CameraWebRTC';
+import WebRTCPlayer from '../WebRTCPlayer';
 
 // Camera configuration
 const CAMERA_ID = "Backyard";
+const STREAM_BASE_URL = "https://nvr.alfcent.com:8555";
 
 interface CameraFeedCardProps {
   onClick?: () => void;
@@ -101,21 +102,13 @@ const CameraFeedCard: React.FC<CameraFeedCardProps> = ({ onClick }) => {
             {/* Video Feed */}
             <div className="p-4">
               <div className="relative bg-black rounded-xl overflow-hidden" style={{ aspectRatio: '16/9' }}>
-                <CameraWebRTC 
+                <WebRTCPlayer 
+                  streamUrl={STREAM_BASE_URL}
                   cameraId={CAMERA_ID}
                   className="rounded-xl"
+                  onError={(error) => console.error('WebRTC Error:', error)}
+                  onConnected={() => console.log('WebRTC Connected')}
                 />
-                
-                {/* Live indicator overlay */}
-                <div className="absolute top-3 left-3 flex items-center space-x-2 bg-black/70 rounded-full px-3 py-1 backdrop-blur-sm">
-                  <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                  <span className="text-white text-xs font-medium">LIVE</span>
-                </div>
-
-                {/* WebRTC badge */}
-                <div className="absolute top-3 right-3 bg-green-500/90 rounded-full px-2 py-1 backdrop-blur-sm">
-                  <span className="text-white text-xs font-medium">WebRTC</span>
-                </div>
               </div>
             </div>
 

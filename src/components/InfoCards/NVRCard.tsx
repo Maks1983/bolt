@@ -8,10 +8,11 @@ import {
   ExternalLink
 } from 'lucide-react';
 import { useDevices } from '../../context/DeviceContext';
-import CameraWebRTC from '../CameraWebRTC';
+import WebRTCPlayer from '../WebRTCPlayer';
 
 // Camera configuration
 const CAMERA_ID = "Backyard";
+const STREAM_BASE_URL = "https://nvr.alfcent.com:8555";
 
 interface NVRCardProps {
   onClick: () => void;
@@ -130,21 +131,13 @@ const NVRCard: React.FC<NVRCardProps> = ({ onClick }) => {
               <div className="space-y-6">
                 {/* Main Stream Container */}
                 <div className="relative bg-black rounded-xl overflow-hidden shadow-lg" style={{ aspectRatio: '16/9' }}>
-                  <CameraWebRTC 
+                  <WebRTCPlayer 
+                    streamUrl={STREAM_BASE_URL}
                     cameraId={CAMERA_ID}
                     className="rounded-xl"
+                    onError={(error) => console.error('WebRTC Error:', error)}
+                    onConnected={() => console.log('WebRTC Connected')}
                   />
-                  
-                  {/* Live indicator overlay */}
-                  <div className="absolute top-4 left-4 flex items-center space-x-2 bg-black/70 rounded-full px-4 py-2 backdrop-blur-sm">
-                    <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
-                    <span className="text-white text-sm font-medium">LIVE - {CAMERA_ID}</span>
-                  </div>
-
-                  {/* WebRTC indicator */}
-                  <div className="absolute top-4 right-4 bg-green-500/90 rounded-full px-3 py-1 backdrop-blur-sm">
-                    <span className="text-white text-xs font-medium">WebRTC</span>
-                  </div>
                 </div>
 
                 {/* Stream Information Grid */}
