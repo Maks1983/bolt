@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { 
   Camera, 
   HardDrive, 
-  X
+  X,
+  ExternalLink,
+  RefreshCw
 } from 'lucide-react';
 
 interface NVRCardProps {
@@ -11,6 +13,8 @@ interface NVRCardProps {
 
 const NVRCard: React.FC<NVRCardProps> = ({ onClick }) => {
   const [showExpandedView, setShowExpandedView] = useState(false);
+  const [streamError, setStreamError] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   // Simple mock data for the card
   const onlineCameras = 3;
@@ -19,9 +23,21 @@ const NVRCard: React.FC<NVRCardProps> = ({ onClick }) => {
   const storageTotal = 8.0; // TB
   const storagePercentage = (storageUsed / storageTotal) * 100;
 
+  const streamUrl = "http://nvr.alfcent.com/stream.html?src=Backyard";
+
   const handleCardClick = () => {
     setShowExpandedView(true);
     onClick();
+  };
+
+  const handleRefresh = () => {
+    setStreamError(false);
+    setRefreshKey(prev => prev + 1);
+  };
+
+  const handleIframeError = () => {
+    console.log('Iframe failed to load - likely CORS/X-Frame-Options blocking');
+    setStreamError(true);
   };
 
   return (
@@ -62,7 +78,7 @@ const NVRCard: React.FC<NVRCardProps> = ({ onClick }) => {
         </div>
       </div>
 
-      {/* Simple Expanded View Modal */}
+      {/* Expanded View Modal */}
       {showExpandedView && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl max-w-6xl w-full max-h-[95vh] overflow-hidden shadow-2xl border border-gray-200">
@@ -75,48 +91,92 @@ const NVRCard: React.FC<NVRCardProps> = ({ onClick }) => {
                   </div>
                   <div>
                     <h2 className="text-2xl font-bold text-gray-900">Backyard Camera</h2>
-                    <p className="text-gray-600">Live Stream</p>
+                    <p className="text-gray-600">Live Stream via go2rtc</p>
                   </div>
                 </div>
                 
-                <button 
-                  onClick={() => setShowExpandedView(false)}
-                  className="p-3 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
-                >
-                  <X className="w-6 h-6 text-gray-600" />
-                </button>
+                <div className="flex items-center space-x-3">
+                  <button 
+                    onClick={handleRefresh}
+                    className="p-2 bg-blue-100 rounded-lg hover:bg-blue-200 transition-colors"
+                    title="Refresh stream"
+                  >
+                    <RefreshCw className="w-4 h-4 text-blue-600" />
+                  </button>
+                  
+                  <a 
+                    href={streamUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="p-2 bg-green-100 rounded-lg hover:bg-green-200 transition-colors"
+                    title="Open in new tab"
+                  >
+                    <ExternalLink className="w-4 h-4 text-green-600" />
+                  </a>
+                  
+                  <button 
+                    onClick={() => setShowExpandedView(false)}
+                    className="p-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                  >
+                    <X className="w-4 h-4 text-gray-600" />
+                  </button>
+                </div>
               </div>
             </div>
 
             {/* Stream Content */}
             <div className="p-6">
               <div className="bg-black rounded-2xl overflow-hidden aspect-video relative">
-                <iframe
-                  src="http://nvr.alfcent.com/stream.html?src=Backyard"
-                  className="w-full h-full border-0 rounded-2xl"
-                  allow="autoplay; fullscreen; camera; microphone"
-                  sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
-                  title="Backyard Camera Stream"
-                  onLoad={() => console.log('Stream iframe loaded')}
-                  onError={() => console.log('Stream iframe error')}
-                />
-                
-                {/* Fallback message */}
-                <div className="absolute inset-0 flex items-center justify-center text-white bg-black/50 rounded-2xl pointer-events-none">
-                  <div className="text-center">
-                    <Camera className="w-12 h-12 mx-auto mb-2 text-gray-400" />
-                    <p className="text-sm">Loading stream...</p>
-                    <p className="text-xs text-gray-400 mt-1">If stream doesn't load, try opening in new tab</p>
-                    <a 
-                      href="http://nvr.alfcent.com/stream.html?src=Backyard" 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-blue-400 hover:text-blue-300 text-xs underline mt-2 inline-block pointer-events-auto"
-                    >
-                      Open in new tab
-                    </a>
+                {!streamError ? (
+                  <iframe
+                    key={refreshKey}
+                    src={streamUrl}
+                    className="w-full h-full border-0"
+                    allow="autoplay; fullscreen; camera; microphone; display-capture"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    title="Backyard Camera Stream"
+                    onLoad={() => {
+                      console.log('✅ Stream iframe loaded successfully');
+                    }}
+                    onError={handleIframeError}
+                    style={{
+                      border: 'none',
+                      outline: 'none'
+                    }}
+                  />
+                ) : (
+                  /* Fallback when iframe is blocked */
+                  <div className="flex items-center justify-center h-full text-white">
+                    <div className="text-center space-y-4">
+                      <Camera className="w-16 h-16 mx-auto text-gray-400" />
+                      <div>
+                        <h3 className="text-lg font-semibold mb-2">Stream Cannot Be Embedded</h3>
+                        <p className="text-sm text-gray-300 mb-4">
+                          The go2rtc server is blocking iframe embedding for security reasons.
+                        </p>
+                        <div className="space-y-2">
+                          <a 
+                            href={streamUrl} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                            <span>Open Stream in New Tab</span>
+                          </a>
+                          <div className="text-xs text-gray-400 mt-2">
+                            <p>To fix this, you can:</p>
+                            <ul className="list-disc list-inside mt-1 space-y-1">
+                              <li>Configure go2rtc to allow iframe embedding</li>
+                              <li>Use a reverse proxy without X-Frame-Options</li>
+                              <li>Access the stream directly via WebRTC</li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
 
@@ -126,9 +186,9 @@ const NVRCard: React.FC<NVRCardProps> = ({ onClick }) => {
                 <div className="flex items-center space-x-6 text-sm text-gray-600">
                   <div className="flex items-center space-x-2">
                     <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span>Stream Online</span>
+                    <span>go2rtc Server Online</span>
                   </div>
-                  <div>Source: WebRTC via go2rtc</div>
+                  <div>Stream URL: {streamUrl}</div>
                 </div>
                 
                 <button 
