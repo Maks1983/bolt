@@ -8,6 +8,7 @@ import IndoorAverageCard from './InfoCards/IndoorAverageCard';
 import ActivityCard from './InfoCards/ActivityCard';
 import ActionsCard from './InfoCards/ActionsCard';
 import NVRCard from './InfoCards/NVRCard';
+import CameraFeedCard from './InfoCards/CameraFeedCard';
 
 interface InfoRowProps {
   cameras?: any[]; // Keep for backward compatibility but won't use
@@ -460,6 +461,7 @@ const InfoRow: React.FC<InfoRowProps> = () => {
               )}
             </button>
           </div>
+          <CameraFeedCard />
         </div>
       </div>
 
