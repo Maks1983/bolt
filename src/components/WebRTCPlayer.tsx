@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { AlertCircle, Loader, Wifi, WifiOff } from 'lucide-react';
-import Peer from 'simple-peer';
 
 interface WebRTCPlayerProps {
   streamUrl: string;
@@ -18,7 +17,7 @@ const WebRTCPlayer: React.FC<WebRTCPlayerProps> = ({
   onConnected
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const peerRef = useRef<Peer.Instance | null>(null);
+  const pcRef = useRef<RTCPeerConnection | null>(null);
   const [connectionState, setConnectionState] = useState<'connecting' | 'connected' | 'failed' | 'disconnected'>('disconnected');
   const [error, setError] = useState<string | null>(null);
 
@@ -32,98 +31,91 @@ const WebRTCPlayer: React.FC<WebRTCPlayerProps> = ({
         setConnectionState('connecting');
         setError(null);
 
-        console.log('🔄 Initializing WebRTC with simple-peer...');
-
-        // Create peer connection using simple-peer
-        const peer = new Peer({
-          initiator: true,
-          trickle: false,
-          config: {
-            iceServers: [
-              { urls: 'stun:stun.l.google.com:19302' },
-              { urls: 'stun:stun1.l.google.com:19302' }
-            ]
-          }
+        // Create RTCPeerConnection with STUN servers
+        const pc = new RTCPeerConnection({
+          iceServers: [
+            { urls: 'stun:stun.l.google.com:19302' },
+            { urls: 'stun:stun1.l.google.com:19302' }
+          ]
         });
 
-        peerRef.current = peer;
+        pcRef.current = pc;
 
-        // Handle peer events
-        peer.on('signal', async (data) => {
-          console.log('📡 Peer signal generated:', data.type);
-          
-          try {
-            // Send offer to Go2RTC
-            const response = await fetch(`${streamUrl}/api/webrtc`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                type: data.type,
-                sdp: data.sdp
-              })
-            });
-
-            if (!response.ok) {
-              throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            }
-
-            const answer = await response.json();
-            console.log('📥 Received answer from Go2RTC:', answer.type);
-            
-            if (answer.type === 'answer') {
-              peer.signal(answer);
-            }
-          } catch (err) {
-            console.error('❌ Failed to exchange signals:', err);
+        // Handle incoming streams
+        pc.ontrack = (event) => {
+          console.log('📺 Received WebRTC track:', event.track.kind);
+          if (videoRef.current && event.streams[0]) {
+            videoRef.current.srcObject = event.streams[0];
             if (mounted) {
-              const errorMessage = err instanceof Error ? err.message : 'Signal exchange failed';
-              setError(errorMessage);
-              setConnectionState('failed');
-              onError?.(errorMessage);
+              setConnectionState('connected');
+              onConnected?.();
             }
           }
+        };
+
+        // Handle connection state changes
+        pc.onconnectionstatechange = () => {
+          console.log('🔗 WebRTC connection state:', pc.connectionState);
+          if (!mounted) return;
+
+          switch (pc.connectionState) {
+            case 'connected':
+              setConnectionState('connected');
+              onConnected?.();
+              break;
+            case 'failed':
+            case 'disconnected':
+              setConnectionState('failed');
+              setError('WebRTC connection failed');
+              onError?.('WebRTC connection failed');
+              break;
+            case 'connecting':
+              setConnectionState('connecting');
+              break;
+          }
+        };
+
+        // Handle ICE connection state
+        pc.oniceconnectionstatechange = () => {
+          console.log('🧊 ICE connection state:', pc.iceConnectionState);
+        };
+
+        // Create offer for WebRTC negotiation
+        const offer = await pc.createOffer({
+          offerToReceiveVideo: true,
+          offerToReceiveAudio: true
         });
 
-        peer.on('stream', (stream) => {
-          console.log('📺 Received stream from peer');
-          if (videoRef.current && mounted) {
-            videoRef.current.srcObject = stream;
-            setConnectionState('connected');
-            onConnected?.();
-          }
+        await pc.setLocalDescription(offer);
+
+        // Connect to Go2RTC WebRTC endpoint
+        const response = await fetch(`${streamUrl}/api/webrtc`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            type: 'offer',
+            sdp: offer.sdp
+          })
         });
 
-        peer.on('connect', () => {
-          console.log('✅ Peer connected');
-          if (mounted) {
-            setConnectionState('connected');
-            onConnected?.();
-          }
-        });
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
 
-        peer.on('error', (err) => {
-          console.error('❌ Peer error:', err);
-          if (mounted) {
-            const errorMessage = err.message || 'Peer connection failed';
-            setError(errorMessage);
-            setConnectionState('failed');
-            onError?.(errorMessage);
-          }
-        });
-
-        peer.on('close', () => {
-          console.log('🔌 Peer connection closed');
-          if (mounted) {
-            setConnectionState('disconnected');
-          }
-        });
+        const answer = await response.json();
+        
+        if (answer.type === 'answer') {
+          await pc.setRemoteDescription(new RTCSessionDescription(answer));
+        } else {
+          throw new Error('Invalid WebRTC answer received');
+        }
 
       } catch (err) {
         console.error('❌ WebRTC initialization failed:', err);
         if (mounted) {
-          const errorMessage = err instanceof Error ? err.message : 'WebRTC initialization failed';
+          const errorMessage = err instanceof Error ? err.message : 'WebRTC connection failed';
           setError(errorMessage);
           setConnectionState('failed');
           onError?.(errorMessage);
@@ -135,9 +127,9 @@ const WebRTCPlayer: React.FC<WebRTCPlayerProps> = ({
 
     return () => {
       mounted = false;
-      if (peerRef.current) {
-        peerRef.current.destroy();
-        peerRef.current = null;
+      if (pcRef.current) {
+        pcRef.current.close();
+        pcRef.current = null;
       }
     };
   }, [streamUrl, cameraId, onError, onConnected]);
@@ -168,13 +160,6 @@ const WebRTCPlayer: React.FC<WebRTCPlayerProps> = ({
     }
   };
 
-  const handleRetry = () => {
-    setConnectionState('disconnected');
-    setError(null);
-    // Trigger re-initialization by updating a dependency
-    window.location.reload();
-  };
-
   return (
     <div className={`relative w-full h-full bg-black rounded-lg overflow-hidden ${className}`}>
       {/* Video Element */}
@@ -201,17 +186,12 @@ const WebRTCPlayer: React.FC<WebRTCPlayerProps> = ({
             <AlertCircle className="w-12 h-12 mx-auto mb-4 text-red-500" />
             <h3 className="text-lg font-semibold mb-2">Connection Failed</h3>
             <p className="text-sm text-gray-300 mb-4">{error}</p>
-            <div className="space-y-2">
-              <button
-                onClick={handleRetry}
-                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-              >
-                Retry Connection
-              </button>
-              <div className="text-xs text-gray-400">
-                Using simple-peer WebRTC library
-              </div>
-            </div>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+            >
+              Retry Connection
+            </button>
           </div>
         </div>
       )}
@@ -222,7 +202,7 @@ const WebRTCPlayer: React.FC<WebRTCPlayerProps> = ({
           <div className="text-center text-white p-6">
             <Loader className="w-12 h-12 mx-auto mb-4 text-blue-500 animate-spin" />
             <h3 className="text-lg font-semibold mb-2">Connecting to Stream</h3>
-            <p className="text-sm text-gray-300">Establishing WebRTC connection with simple-peer...</p>
+            <p className="text-sm text-gray-300">Establishing WebRTC connection...</p>
           </div>
         </div>
       )}
@@ -231,13 +211,6 @@ const WebRTCPlayer: React.FC<WebRTCPlayerProps> = ({
       <div className="absolute top-3 right-3 bg-indigo-500/90 rounded-full px-3 py-1 backdrop-blur-sm">
         <span className="text-white text-xs font-medium">{cameraId}</span>
       </div>
-
-      {/* Debug Info */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className="absolute bottom-3 left-3 bg-black/70 rounded px-2 py-1 text-xs text-white">
-          simple-peer v{require('simple-peer/package.json').version}
-        </div>
-      )}
     </div>
   );
 };
