@@ -92,7 +92,7 @@ const NVRCard: React.FC<NVRCardProps> = ({ onClick }) => {
             <div className="p-6">
               <div className="bg-black rounded-2xl overflow-hidden aspect-video">
                 <iframe
-                  src="http://10.150.50.10:1984/stream.html?src=Backyard"
+                  src="http://nvr.alfcent.com/stream.html?src=Backyard"
                   className="w-full h-full border-0"
                   allow="autoplay; fullscreen"
                   title="Backyard Camera Stream"
