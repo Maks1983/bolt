@@ -90,13 +90,33 @@ const NVRCard: React.FC<NVRCardProps> = ({ onClick }) => {
 
             {/* Stream Content */}
             <div className="p-6">
-              <div className="bg-black rounded-2xl overflow-hidden aspect-video">
+              <div className="bg-black rounded-2xl overflow-hidden aspect-video relative">
                 <iframe
                   src="http://nvr.alfcent.com/stream.html?src=Backyard"
-                  className="w-full h-full border-0"
-                  allow="autoplay; fullscreen"
+                  className="w-full h-full border-0 rounded-2xl"
+                  allow="autoplay; fullscreen; camera; microphone"
+                  sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
                   title="Backyard Camera Stream"
+                  onLoad={() => console.log('Stream iframe loaded')}
+                  onError={() => console.log('Stream iframe error')}
                 />
+                
+                {/* Fallback message */}
+                <div className="absolute inset-0 flex items-center justify-center text-white bg-black/50 rounded-2xl pointer-events-none">
+                  <div className="text-center">
+                    <Camera className="w-12 h-12 mx-auto mb-2 text-gray-400" />
+                    <p className="text-sm">Loading stream...</p>
+                    <p className="text-xs text-gray-400 mt-1">If stream doesn't load, try opening in new tab</p>
+                    <a 
+                      href="http://nvr.alfcent.com/stream.html?src=Backyard" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-blue-400 hover:text-blue-300 text-xs underline mt-2 inline-block pointer-events-auto"
+                    >
+                      Open in new tab
+                    </a>
+                  </div>
+                </div>
               </div>
             </div>
 
