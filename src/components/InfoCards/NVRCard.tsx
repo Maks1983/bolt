@@ -16,7 +16,7 @@ import {
 import { useDevices } from '../../context/DeviceContext';
 
 // Configuration for go2rtc streams
-const BASE_STREAM_URL = "https://nvr.alfcent.com/stream.html?src=";
+const BASE_STREAM_URL = "http://10.150.50.10:1984/stream.html?src=";
 const CAMERAS = ["Doorbell", "Package", "Backyard"];
 
 interface Camera {
