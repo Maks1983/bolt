@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Shield, Lock, Zap, TrendingDown, Thermometer, Activity, Clock, DoorOpen, Lightbulb, User, Bell, X, Settings, Moon, Plane, Users, Sun, Coffee, Camera, Play, Pause, RotateCcw, Maximize, Home, AlertTriangle, CheckCircle, Power, Wifi, WifiOff, Delete, Hash, BarChart3, TrendingUp, Droplets, Wind } from 'lucide-react';
 import { useRealtimeDevice } from '../hooks/useDeviceUpdates';
+import NVRWebRTCSection from './NVRWebRTCSection';
 
 interface InfoRowProps {
   cameras?: any[]; // Keep for backward compatibility but won't use
