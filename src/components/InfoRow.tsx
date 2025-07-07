@@ -462,7 +462,6 @@ const InfoRow: React.FC<InfoRowProps> = () => {
             </button>
           </div>
           <CameraFeedCard />
-          <CameraFeedCard />
         </div>
       </div>
 
