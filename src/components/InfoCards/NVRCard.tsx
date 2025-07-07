@@ -2,34 +2,19 @@ import React, { useState } from 'react';
 import { 
   Camera, 
   HardDrive, 
-  X,
-  AlertTriangle
+  X
 } from 'lucide-react';
-import { useDevices } from '../../context/DeviceContext';
 
 interface NVRCardProps {
   onClick: () => void;
 }
 
 const NVRCard: React.FC<NVRCardProps> = ({ onClick }) => {
-  const { state } = useDevices();
   const [showExpandedView, setShowExpandedView] = useState(false);
 
-  // Get real camera entities from Home Assistant for additional data
-  const realCameras = state.devices.filter(device => device.device_type === 'camera');
-  
-  // Get detection sensors for all cameras
-  const detectionSensors = state.devices.filter(device => 
-    device.device_type === 'binary_sensor' && 
-    (device as any).camera_entity
-  );
-
-  // Get active detections count
-  const activeDetections = detectionSensors.filter(sensor => sensor.state === 'on').length;
-  const onlineCameras = 3; // Simulated
-  const recordingCameras = 2; // Simulated
-
-  // Calculate storage usage (mock data)
+  // Simple mock data for the card
+  const onlineCameras = 3;
+  const recordingCameras = 2;
   const storageUsed = 2.4; // TB
   const storageTotal = 8.0; // TB
   const storagePercentage = (storageUsed / storageTotal) * 100;
@@ -74,16 +59,10 @@ const NVRCard: React.FC<NVRCardProps> = ({ onClick }) => {
               style={{ width: `${storagePercentage}%` }}
             ></div>
           </div>
-          {activeDetections > 0 && (
-            <div className="flex items-center space-x-1 text-xs text-red-600 font-medium">
-              <AlertTriangle className="w-3 h-3" />
-              <span>{activeDetections} active detections</span>
-            </div>
-          )}
         </div>
       </div>
 
-      {/* Expanded NVR View Modal */}
+      {/* Simple Expanded View Modal */}
       {showExpandedView && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl max-w-6xl w-full max-h-[95vh] overflow-hidden shadow-2xl border border-gray-200">
@@ -130,7 +109,6 @@ const NVRCard: React.FC<NVRCardProps> = ({ onClick }) => {
                     <span>Stream Online</span>
                   </div>
                   <div>Source: WebRTC via go2rtc</div>
-                  <div>Resolution: 1080p</div>
                 </div>
                 
                 <button 
