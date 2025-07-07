@@ -1,6 +1,3 @@
-Here's the fixed version with proper closing brackets and structure:
-
-```typescript
 import React, { useState, useEffect } from 'react';
 import { Shield, Lock, Zap, TrendingDown, Thermometer, Activity, Clock, DoorOpen, Lightbulb, User, Bell, X, Settings, Moon, Plane, Users, Sun, Coffee, Camera, Play, Pause, RotateCcw, Maximize, Home, AlertTriangle, CheckCircle, Power, Wifi, WifiOff, Delete, Hash, BarChart3, TrendingUp, Droplets, Wind } from 'lucide-react';
 import { useRealtimeDevice } from '../hooks/useDeviceUpdates';
@@ -35,4 +32,3 @@ const InfoRow: React.FC<InfoRowProps> = () => {
 };
 
 export default InfoRow;
-```
