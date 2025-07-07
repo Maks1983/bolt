@@ -8,9 +8,10 @@ import {
   ExternalLink
 } from 'lucide-react';
 import { useDevices } from '../../context/DeviceContext';
+import CameraWebRTC from '../CameraWebRTC';
 
-// Simplified configuration for single camera
-const CAMERA_STREAM_URL = "https://nvr.alfcent.com/stream.html?src=Backyard";
+// Camera configuration
+const CAMERA_ID = "Backyard";
 
 interface NVRCardProps {
   onClick: () => void;
@@ -19,8 +20,6 @@ interface NVRCardProps {
 const NVRCard: React.FC<NVRCardProps> = ({ onClick }) => {
   const { state } = useDevices();
   const [showExpandedView, setShowExpandedView] = useState(false);
-  const [streamError, setStreamError] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
 
   // Get detection sensors for additional data
   const detectionSensors = state.devices.filter(device => 
@@ -40,35 +39,9 @@ const NVRCard: React.FC<NVRCardProps> = ({ onClick }) => {
     onClick();
   };
 
-  const handleStreamLoad = () => {
-    console.log('📹 Stream loaded successfully');
-    setIsLoading(false);
-    setStreamError(false);
-  };
-
-  const handleStreamError = () => {
-    console.error('❌ Stream failed to load');
-    setStreamError(true);
-    setIsLoading(false);
-  };
-
-  const handleRetry = () => {
-    console.log('🔄 Retrying stream...');
-    setStreamError(false);
-    setIsLoading(true);
-    // Force iframe reload by changing src
-    const iframe = document.querySelector('#backyard-stream') as HTMLIFrameElement;
-    if (iframe) {
-      const currentSrc = iframe.src;
-      iframe.src = '';
-      setTimeout(() => {
-        iframe.src = currentSrc + '?t=' + Date.now();
-      }, 100);
-    }
-  };
-
   const openInNewTab = () => {
-    window.open(CAMERA_STREAM_URL, '_blank');
+    const url = `https://nvr.alfcent.com:8555/stream.html?src=${CAMERA_ID}&video&audio`;
+    window.open(url, '_blank');
   };
 
   return (
@@ -94,7 +67,7 @@ const NVRCard: React.FC<NVRCardProps> = ({ onClick }) => {
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
             <span className="text-slate-600">Camera</span>
-            <span className="font-medium text-slate-900">Backyard</span>
+            <span className="font-medium text-slate-900">{CAMERA_ID}</span>
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-slate-600">Storage</span>
@@ -118,7 +91,7 @@ const NVRCard: React.FC<NVRCardProps> = ({ onClick }) => {
       {/* Expanded NVR View Modal */}
       {showExpandedView && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-5xl w-full max-h-[90vh] overflow-hidden shadow-2xl border border-gray-200">
+          <div className="bg-white rounded-3xl max-w-6xl w-full max-h-[95vh] overflow-hidden shadow-2xl border border-gray-200">
             {/* Header */}
             <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-slate-50 to-slate-100">
               <div className="flex items-center justify-between">
@@ -127,8 +100,8 @@ const NVRCard: React.FC<NVRCardProps> = ({ onClick }) => {
                     <Camera className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h2 className="text-2xl font-bold text-gray-900">Backyard Camera</h2>
-                    <p className="text-gray-600">Live stream from go2rtc</p>
+                    <h2 className="text-2xl font-bold text-gray-900">{CAMERA_ID} Camera</h2>
+                    <p className="text-gray-600">Ultra-low latency WebRTC stream via Go2RTC</p>
                   </div>
                 </div>
                 
@@ -154,106 +127,115 @@ const NVRCard: React.FC<NVRCardProps> = ({ onClick }) => {
 
             {/* Stream Content */}
             <div className="p-6">
-              <div className="space-y-4">
-                {/* Stream Container */}
-                <div className="relative bg-black rounded-xl overflow-hidden" style={{ aspectRatio: '16/9' }}>
-                  {!streamError ? (
-                    <>
-                      <iframe
-                        id="backyard-stream"
-                        src={CAMERA_STREAM_URL}
-                        className="w-full h-full border-0"
-                        allow="autoplay; fullscreen; camera; microphone"
-                        allowFullScreen
-                        onLoad={handleStreamLoad}
-                        onError={handleStreamError}
-                        sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
-                        title="Backyard Camera Stream"
-                      />
-                      
-                      {/* Loading overlay */}
-                      {isLoading && (
-                        <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
-                          <div className="text-white text-center">
-                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
-                            <p className="text-lg font-medium">Loading Backyard Camera...</p>
-                            <p className="text-sm text-gray-300 mt-2">Connecting to go2rtc stream</p>
-                          </div>
-                        </div>
-                      )}
-                      
-                      {/* Stream info overlay */}
-                      {!isLoading && (
-                        <div className="absolute top-4 left-4 flex items-center space-x-2 bg-black/70 rounded-full px-4 py-2">
-                          <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
-                          <span className="text-white text-sm font-medium">LIVE - Backyard</span>
-                        </div>
-                      )}
-                    </>
-                  ) : (
-                    /* Error State */
-                    <div className="flex items-center justify-center h-full text-white bg-gray-800">
-                      <div className="text-center max-w-md">
-                        <Camera className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-                        <h3 className="text-xl font-semibold mb-2">Stream Unavailable</h3>
-                        <p className="text-gray-300 mb-4">
-                          Unable to load the camera stream. This could be due to:
-                        </p>
-                        <ul className="text-sm text-gray-400 text-left mb-6 space-y-1">
-                          <li>• CORS policy restrictions</li>
-                          <li>• Network connectivity issues</li>
-                          <li>• go2rtc server configuration</li>
-                          <li>• Camera offline</li>
-                        </ul>
-                        <div className="flex flex-col space-y-3">
-                          <button 
-                            onClick={handleRetry}
-                            className="flex items-center justify-center space-x-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-                          >
-                            <RotateCcw className="w-4 h-4" />
-                            <span>Retry Stream</span>
-                          </button>
-                          <button 
-                            onClick={openInNewTab}
-                            className="flex items-center justify-center space-x-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
-                          >
-                            <ExternalLink className="w-4 h-4" />
-                            <span>Open Direct Link</span>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  )}
+              <div className="space-y-6">
+                {/* Main Stream Container */}
+                <div className="relative bg-black rounded-xl overflow-hidden shadow-lg" style={{ aspectRatio: '16/9' }}>
+                  <CameraWebRTC 
+                    cameraId={CAMERA_ID}
+                    className="rounded-xl"
+                  />
+                  
+                  {/* Live indicator overlay */}
+                  <div className="absolute top-4 left-4 flex items-center space-x-2 bg-black/70 rounded-full px-4 py-2 backdrop-blur-sm">
+                    <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                    <span className="text-white text-sm font-medium">LIVE - {CAMERA_ID}</span>
+                  </div>
+
+                  {/* WebRTC indicator */}
+                  <div className="absolute top-4 right-4 bg-green-500/90 rounded-full px-3 py-1 backdrop-blur-sm">
+                    <span className="text-white text-xs font-medium">WebRTC</span>
+                  </div>
                 </div>
 
-                {/* Stream Info */}
-                <div className="bg-gray-50 rounded-xl p-4">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                    <div>
-                      <span className="font-medium text-gray-700">Stream URL:</span>
-                      <p className="text-gray-600 break-all">{CAMERA_STREAM_URL}</p>
+                {/* Stream Information Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Technical Details */}
+                  <div className="bg-gray-50 rounded-xl p-4">
+                    <h4 className="font-semibold text-gray-900 mb-3 flex items-center">
+                      <Camera className="w-4 h-4 mr-2" />
+                      Stream Details
+                    </h4>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Camera ID:</span>
+                        <span className="font-medium text-gray-900">{CAMERA_ID}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Protocol:</span>
+                        <span className="font-medium text-gray-900">WebRTC</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Latency:</span>
+                        <span className="font-medium text-green-600">Ultra-Low</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Audio:</span>
+                        <span className="font-medium text-gray-900">Enabled</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Server:</span>
+                        <span className="font-medium text-gray-900">nvr.alfcent.com:8555</span>
+                      </div>
                     </div>
-                    <div>
-                      <span className="font-medium text-gray-700">Protocol:</span>
-                      <p className="text-gray-600">WebRTC via go2rtc</p>
-                    </div>
-                    <div>
-                      <span className="font-medium text-gray-700">Status:</span>
-                      <p className={`font-medium ${streamError ? 'text-red-600' : isLoading ? 'text-yellow-600' : 'text-green-600'}`}>
-                        {streamError ? 'Error' : isLoading ? 'Loading...' : 'Connected'}
-                      </p>
+                  </div>
+
+                  {/* System Status */}
+                  <div className="bg-gray-50 rounded-xl p-4">
+                    <h4 className="font-semibold text-gray-900 mb-3 flex items-center">
+                      <HardDrive className="w-4 h-4 mr-2" />
+                      System Status
+                    </h4>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">NVR Status:</span>
+                        <span className="font-medium text-green-600">Online</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Storage Used:</span>
+                        <span className="font-medium text-gray-900">{storageUsed}TB / {storageTotal}TB</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Storage:</span>
+                        <span className="font-medium text-gray-900">{Math.round(storagePercentage)}%</span>
+                      </div>
+                      {activeDetections > 0 && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Active Detections:</span>
+                          <span className="font-medium text-red-600">{activeDetections}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
 
-                {/* Debug Info */}
+                {/* Controls */}
+                <div className="flex items-center justify-center space-x-4">
+                  <button 
+                    onClick={openInNewTab}
+                    className="flex items-center space-x-2 px-6 py-3 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-colors font-medium"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    <span>Open in New Tab</span>
+                  </button>
+                  
+                  <button 
+                    onClick={() => window.location.reload()}
+                    className="flex items-center space-x-2 px-6 py-3 bg-gray-500 text-white rounded-xl hover:bg-gray-600 transition-colors font-medium"
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                    <span>Refresh Stream</span>
+                  </button>
+                </div>
+
+                {/* Usage Instructions */}
                 <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-                  <h4 className="font-medium text-blue-900 mb-2">Troubleshooting Tips:</h4>
+                  <h4 className="font-medium text-blue-900 mb-2">WebRTC Stream Features:</h4>
                   <ul className="text-sm text-blue-800 space-y-1">
-                    <li>• Check browser console for detailed error messages</li>
-                    <li>• Verify the go2rtc server is running on nvr.alfcent.com</li>
-                    <li>• Try opening the stream URL directly in a new tab</li>
-                    <li>• Ensure your browser allows iframe embedding from the domain</li>
+                    <li>• Ultra-low latency streaming (typically &lt;500ms)</li>
+                    <li>• Full audio and video support</li>
+                    <li>• Automatic quality adaptation based on network conditions</li>
+                    <li>• Click fullscreen button in stream for immersive viewing</li>
+                    <li>• Stream automatically reconnects if connection is lost</li>
                   </ul>
                 </div>
               </div>
@@ -265,10 +247,10 @@ const NVRCard: React.FC<NVRCardProps> = ({ onClick }) => {
                 <div className="flex items-center space-x-6 text-sm text-gray-600">
                   <div className="flex items-center space-x-2">
                     <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span>NVR Online</span>
+                    <span>Go2RTC Online</span>
                   </div>
-                  <div>Storage: {storageUsed}TB / {storageTotal}TB</div>
-                  <div>Camera: Backyard</div>
+                  <div>Camera: {CAMERA_ID}</div>
+                  <div>Protocol: WebRTC</div>
                 </div>
                 
                 <button 
