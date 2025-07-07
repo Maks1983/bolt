@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { Camera, Play, Pause, RotateCcw, Maximize, Wifi, AlertCircle } from 'lucide-react';
+import { Camera, Play, Pause, RotateCcw, Maximize, Wifi, AlertCircle, X } from 'lucide-react';
 
 interface CameraConfig {
   id: string;
