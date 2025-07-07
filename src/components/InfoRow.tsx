@@ -1276,31 +1276,31 @@ const InfoRow: React.FC<InfoRowProps> = () => {
               >
                 Close Actions
               </button>
-            </div>
-          </div>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4">
+          <div className="bg-white rounded-2xl sm:rounded-3xl w-full h-full sm:max-w-5xl sm:max-h-[95vh] sm:h-auto overflow-hidden shadow-2xl border border-gray-200">
         </div>
-      )}
+            <div className="p-3 sm:p-4 lg:p-6 border-b border-gray-200">
 
        {/* NVR Camera System Modal - Updated with WebRTC */}
       {showNVR && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl lg:rounded-3xl w-full max-w-sm sm:max-w-2xl lg:max-w-6xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden shadow-2xl border border-gray-200">
             <div className="bg-gradient-to-r from-green-500 to-emerald-600 p-6">
-              <div className="flex items-center justify-between">
-                <div>
+                    <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">NVR Camera System</h2>
+                    <p className="text-sm sm:text-base text-gray-600">Ultra-low latency WebRTC streaming</p>
                   <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-white">NVR Camera System</h2>
                   <p className="text-green-100 text-sm lg:text-base">Live camera feeds from exterior locations</p>
                 </div>
                 <button 
-                  onClick={() => setShowNVR(false)}
+                  className="p-2 sm:p-3 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
                   className="p-2 bg-white/20 rounded-full hover:bg-white/30 transition-colors"
-                >
+                  <X className="w-5 h-5 sm:w-6 sm:h-6 text-gray-600" />
                   <X className="w-5 h-5 text-white" />
                 </button>
               </div>
             </div>
             
-            <div className="max-h-[calc(95vh-8rem)] sm:max-h-[calc(90vh-8rem)] overflow-y-auto">
+            <div className="h-full sm:max-h-[calc(95vh-5rem)] overflow-y-auto">
               <NVRWebRTCSection />
             </div>
             
