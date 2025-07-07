@@ -9,7 +9,6 @@ import ActivityCard from './InfoCards/ActivityCard';
 import ActionsCard from './InfoCards/ActionsCard';
 import NVRCard from './InfoCards/NVRCard';
 import CameraFeedCard from './InfoCards/CameraFeedCard';
-import CameraFeedCard from './InfoCards/CameraFeedCard';
 
 interface InfoRowProps {
   cameras?: any[]; // Keep for backward compatibility but won't use
