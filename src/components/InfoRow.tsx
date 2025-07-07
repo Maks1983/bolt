@@ -1289,7 +1289,7 @@ const InfoRow: React.FC<InfoRowProps> = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-2xl font-bold text-white">NVR Camera System</h2>
-                  <p className="text-green-100">Live camera feeds from exterior locations</p>
+                  <p className="text-green-100">Ultra-low latency WebRTC streaming</p>
                 </div>
                 <button 
                   onClick={() => setShowNVR(false)}
@@ -1300,146 +1300,15 @@ const InfoRow: React.FC<InfoRowProps> = () => {
               </div>
             </div>
             
-            <div className="p-6">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {realCameras.map((camera) => (
-                  <div key={camera.id} className="bg-gray-50/80 rounded-2xl overflow-hidden border border-gray-200/50 shadow-lg">
-                    {/* Camera Feed Area */}
-                    <div className="relative h-64 bg-gray-900">
-                      <div 
-                        className="absolute inset-0 bg-cover bg-center opacity-80"
-                        style={{ backgroundImage: `url(${camera.backgroundImage})` }}
-                      >
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30"></div>
-                      </div>
-                      
-                      {/* Camera Status Overlay */}
-                      <div className="absolute top-4 left-4 flex items-center space-x-2">
-                        <div className={`w-3 h-3 rounded-full ${camera.recording ? 'bg-red-500 animate-pulse' : 'bg-gray-400'}`}></div>
-                        <span className="text-white text-sm font-medium">
-                          {camera.recording ? 'RECORDING' : 'OFFLINE'}
-                        </span>
-                      </div>
-                      
-                      {/* Active detections indicator */}
-                      {Object.values(camera.detections).some(Boolean) && (
-                        <div className="absolute top-3 right-3 bg-red-500/90 rounded-full px-2 py-1">
-                          <span className="text-white text-xs font-bold">
-                            {Object.values(camera.detections).filter(Boolean).length} ALERTS
-                          </span>
-                        </div>
-                      )}
-                      
-                      {/* Night Vision Indicator */}
-                      {camera.nightVision && (
-                        <div className="absolute top-4 right-4 bg-purple-500/80 px-2 py-1 rounded-lg">
-                          <span className="text-white text-xs font-medium">NIGHT VISION</span>
-                        </div>
-                      )}
-                      
-                      {/* Camera Controls Overlay */}
-                      <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
-                        <div className="flex items-center space-x-2">
-                          <button className="p-2 bg-black/50 rounded-lg hover:bg-black/70 transition-colors">
-                            <Play className="w-4 h-4 text-white" />
-                          </button>
-                          <button className="p-2 bg-black/50 rounded-lg hover:bg-black/70 transition-colors">
-                            <Pause className="w-4 h-4 text-white" />
-                          </button>
-                          <button className="p-2 bg-black/50 rounded-lg hover:bg-black/70 transition-colors">
-                            <RotateCcw className="w-4 h-4 text-white" />
-                          </button>
-                        </div>
-                        <button className="p-2 bg-black/50 rounded-lg hover:bg-black/70 transition-colors">
-                          <Maximize className="w-4 h-4 text-white" />
-                        </button>
-                      </div>
-                    </div>
-                    
-                    {/* Camera Info Panel */}
-                    <div className="p-5">
-                      <div className="flex items-center justify-between mb-4">
-                        <div>
-                          <h3 className="text-lg font-bold text-gray-900">{camera.name}</h3>
-                          <p className="text-sm text-gray-600">{camera.location}</p>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Camera className="w-5 h-5 text-green-600" />
-                          <span className={`text-sm font-medium ${camera.recording ? 'text-green-600' : 'text-gray-500'}`}>
-                            {camera.recording ? 'Active' : 'Inactive'}
-                          </span>
-                        </div>
-                      </div>
-                      
-                      <div className="grid grid-cols-2 gap-4 text-sm mb-4">
-                        <div className="flex items-center justify-between">
-                          <span className="text-gray-600">Temperature</span>
-                          <span className="font-semibold text-gray-900">{camera.temperature}°C</span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-gray-600">Humidity</span>
-                          <span className="font-semibold text-gray-900">{camera.humidity}%</span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-gray-600">Night Vision</span>
-                          <span className={`font-semibold ${camera.nightVision ? 'text-purple-600' : 'text-gray-500'}`}>
-                            {camera.nightVision ? 'Enabled' : 'Disabled'}
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-gray-600">Status</span>
-                          <span className={`font-semibold ${camera.recording ? 'text-green-600' : 'text-red-600'}`}>
-                            {camera.recording ? 'Online' : 'Offline'}
-                          </span>
-                        </div>
-                      </div>
-                      
-                      {/* Detection Status */}
-                      <div className="bg-gray-50 rounded-xl p-4 mb-4">
-                        <h4 className="font-semibold text-gray-900 mb-3">AI Detection Status</h4>
-                        <div className="grid grid-cols-2 gap-3">
-                          {Object.entries(camera.detections).map(([type, active]) => (
-                            <div
-                              key={type}
-                              className={`flex items-center justify-between p-2 rounded-lg border ${
-                                active 
-                                  ? 'bg-red-50 border-red-200 text-red-700' 
-                                  : 'bg-gray-50 border-gray-200 text-gray-600'
-                              }`}
-                            >
-                              <span className="text-sm font-medium capitalize">
-                                {type.replace('_', ' ')}
-                              </span>
-                              <div className={`w-2 h-2 rounded-full ${
-                                active ? 'bg-red-500' : 'bg-gray-300'
-                              }`}></div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                      
-                      <div className="pt-4 border-t border-gray-200">
-                        <div className="flex space-x-2">
-                          <button className="flex-1 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors font-medium text-sm">
-                            View Full Screen
-                          </button>
-                          <button className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium text-sm">
-                            Settings
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+            {/* WebRTC Streaming Section */}
+            <NVRWebRTCSection />
             
             <div className="p-6 border-t border-gray-100 bg-gray-50/50">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4 text-sm text-gray-600">
                   <div className="flex items-center space-x-2">
                     <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span>All cameras online</span>
+                    <span>WebRTC streaming active</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Clock className="w-4 h-4" />
