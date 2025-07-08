@@ -316,7 +316,13 @@ const AppContent: React.FC = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-          return <DeviceControlsSection activeTab={activeTab} />;
+              />
+            ))}
+          </div>
+        </div>
+      </main>
+    </div>
+  );
 };
 
 function App() {
