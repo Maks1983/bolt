@@ -4,6 +4,7 @@ import Header from './components/Header';
 import InfoRow from './components/InfoRow';
 import FloorSection from './components/FloorSection';
 import RoomCard from './components/RoomCard';
+import DeviceControlsSection from './components/DeviceControls/DeviceControlsSection';
 
 // Camera data for NVR system (fallback for display)
 const cameras = [
@@ -30,7 +31,7 @@ const cameras = [
 ];
 
 const AppContent: React.FC = () => {
-  const [activeTab, setActiveTab] = React.useState<'whole-house' | 'upper-floor' | 'lower-floor'>('whole-house');
+  const [activeTab, setActiveTab] = React.useState<'whole-house' | 'upper-floor' | 'lower-floor' | 'apartment'>('whole-house');
   const [activeSection, setActiveSection] = React.useState<'status' | 'controls'>('status');
   
   // Use dynamic room data from DeviceContext instead of hardcoded arrays
@@ -316,9 +317,47 @@ const AppContent: React.FC = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-              />
+                className={`px-6 py-3 font-semibold text-sm rounded-t-xl border-b-2 transition-all duration-200 ${
+                  activeTab === tab.id
+                    ? 'bg-white text-blue-600 border-blue-500 shadow-sm'
+                    : 'bg-gray-50 text-gray-600 border-transparent hover:bg-gray-100 hover:text-gray-800'
+                } ${index === 0 ? 'ml-0' : 'ml-1'}`}
+              >
+                {tab.label}
+              </button>
             ))}
           </div>
+        </div>
+
+        {/* Section Toggle (Status/Controls) */}
+        <div className="px-6 mb-6">
+          <div className="flex bg-gray-100 rounded-lg p-1 w-fit">
+            <button
+              onClick={() => setActiveSection('status')}
+              className={`px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
+                activeSection === 'status'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              Status
+            </button>
+            <button
+              onClick={() => setActiveSection('controls')}
+              className={`px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
+                activeSection === 'controls'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              Controls
+            </button>
+          </div>
+        </div>
+
+        {/* Content Area */}
+        <div className="px-6">
+          {getCurrentContent()}
         </div>
       </main>
     </div>
