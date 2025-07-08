@@ -69,9 +69,148 @@ const AppContent: React.FC = () => {
 
     switch (activeTab) {
       case 'whole-house':
-        rooms = allRooms;
-        title = 'Whole House';
-        break;
+        // Special handling for whole house view with floor sections
+        if (activeSection === 'status') {
+          return (
+            <div className="space-y-8">
+              {/* Upper Floor Section */}
+              {upperFloorRooms.length > 0 && (
+                <div>
+                  <div className="flex items-center mb-6">
+                    <h2 className="text-2xl font-bold text-gray-900">Upper Floor</h2>
+                    <div className="flex-1 ml-4 h-px bg-gradient-to-r from-gray-300 to-transparent"></div>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
+                    {upperFloorRooms.map((room, index) => (
+                      <RoomCard 
+                        key={`upper-${index}`} 
+                        roomName={room.name}
+                        floor={room.floor}
+                        backgroundImage={room.backgroundImage}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* Lower Floor Section */}
+              {lowerFloorRooms.length > 0 && (
+                <div>
+                  <div className="flex items-center mb-6">
+                    <h2 className="text-2xl font-bold text-gray-900">Lower Floor</h2>
+                    <div className="flex-1 ml-4 h-px bg-gradient-to-r from-gray-300 to-transparent"></div>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
+                    {lowerFloorRooms.map((room, index) => (
+                      <RoomCard 
+                        key={`lower-${index}`} 
+                        roomName={room.name}
+                        floor={room.floor}
+                        backgroundImage={room.backgroundImage}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* Apartment Section (if exists) */}
+              {apartmentRooms.length > 0 && (
+                <div>
+                  <div className="flex items-center mb-6">
+                    <h2 className="text-2xl font-bold text-gray-900">Apartment</h2>
+                    <div className="flex-1 ml-4 h-px bg-gradient-to-r from-gray-300 to-transparent"></div>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
+                    {apartmentRooms.map((room, index) => (
+                      <RoomCard 
+                        key={`apartment-${index}`} 
+                        roomName={room.name}
+                        floor={room.floor}
+                        backgroundImage={room.backgroundImage}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* No rooms message */}
+              {allRooms.length === 0 && (
+                <div className="text-center py-12">
+                  <div className="text-gray-400 text-lg font-medium">
+                    No rooms configured
+                  </div>
+                  <div className="text-gray-500 text-sm mt-2">
+                    Add rooms to your configuration to see them here
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        } else {
+          // Controls view for whole house
+          return (
+            <div className="space-y-8">
+              <div className="text-center py-8">
+                <div className="text-gray-600 text-lg font-medium">
+                  Device Controls for Whole House
+                </div>
+                <div className="text-gray-500 text-sm mt-2">
+                  Advanced device control interface coming soon
+                </div>
+              </div>
+              
+              {/* Upper Floor Controls */}
+              {upperFloorRooms.length > 0 && (
+                <div>
+                  <div className="flex items-center mb-6">
+                    <h2 className="text-xl font-bold text-gray-900">Upper Floor Controls</h2>
+                    <div className="flex-1 ml-4 h-px bg-gradient-to-r from-gray-300 to-transparent"></div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {upperFloorRooms.slice(0, 6).map((room, index) => (
+                      <div key={`upper-control-${index}`} className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
+                        <h3 className="font-semibold text-gray-900 mb-2">{room.name}</h3>
+                        <div className="space-y-2">
+                          <button className="w-full px-3 py-2 bg-blue-50 text-blue-700 rounded-lg text-sm font-medium hover:bg-blue-100 transition-colors">
+                            Quick Controls
+                          </button>
+                          <button className="w-full px-3 py-2 bg-gray-50 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors">
+                            Advanced Settings
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* Lower Floor Controls */}
+              {lowerFloorRooms.length > 0 && (
+                <div>
+                  <div className="flex items-center mb-6">
+                    <h2 className="text-xl font-bold text-gray-900">Lower Floor Controls</h2>
+                    <div className="flex-1 ml-4 h-px bg-gradient-to-r from-gray-300 to-transparent"></div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {lowerFloorRooms.slice(0, 6).map((room, index) => (
+                      <div key={`lower-control-${index}`} className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
+                        <h3 className="font-semibold text-gray-900 mb-2">{room.name}</h3>
+                        <div className="space-y-2">
+                          <button className="w-full px-3 py-2 bg-blue-50 text-blue-700 rounded-lg text-sm font-medium hover:bg-blue-100 transition-colors">
+                            Quick Controls
+                          </button>
+                          <button className="w-full px-3 py-2 bg-gray-50 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors">
+                            Advanced Settings
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        }
       case 'upper-floor':
         rooms = upperFloorRooms;
         title = 'Upper Floor';
@@ -82,7 +221,7 @@ const AppContent: React.FC = () => {
         break;
     }
 
-    if (activeSection === 'status') {
+    if (activeSection === 'status' && activeTab !== 'whole-house') {
       // Status view - show room cards
       return rooms.length > 0 ? (
         <FloorSection title={title} rooms={rooms} />
@@ -96,7 +235,7 @@ const AppContent: React.FC = () => {
           </div>
         </div>
       );
-    } else {
+    } else if (activeTab !== 'whole-house') {
       // Controls view - show device controls interface
       return (
         <div className="text-center py-12">
@@ -124,6 +263,8 @@ const AppContent: React.FC = () => {
         </div>
       );
     }
+    
+    return null; // This should never be reached due to whole-house handling above
   };
 
   return (
