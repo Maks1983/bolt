@@ -231,8 +231,7 @@ const AppContent: React.FC = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-import FloorSection from '../FloorSection';
-import RoomCard from '../RoomCard';
+                className={`relative py-3 px-6 text-sm font-medium transition-all duration-200 ${
                   activeTab === tab.id
                     ? 'bg-white text-gray-900 shadow-lg border-t-2 border-l-2 border-r-2 border-gray-200 -mb-px'
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border-2 border-gray-200 border-b-0'
@@ -241,7 +240,6 @@ import RoomCard from '../RoomCard';
                   clipPath: activeTab === tab.id 
                     ? 'polygon(8px 0%, calc(100% - 8px) 0%, 100% 100%, 0% 100%)'
                     : 'polygon(6px 0%, calc(100% - 6px) 0%, 100% 100%, 0% 100%)',
-                  // Equal width distribution across full container
                   width: `${100 / availableTabs.length}%`,
                   marginRight: index < availableTabs.length - 1 ? '2px' : '0'
                 }}
