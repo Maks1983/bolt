@@ -110,7 +110,7 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
   return (
     <>
       <div 
-        className="relative bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:scale-[1.02] w-full aspect-[4/3] border border-gray-200/50"
+        className="relative bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:scale-[1.02] min-w-[320px] border border-gray-200/50"
         onClick={() => setExpanded(true)}
       >
         {/* Background Image */}
@@ -122,41 +122,41 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
         </div>
         
         {/* Content */}
-        <div className="relative p-4 sm:p-6 h-full flex flex-col">
+        <div className="relative p-6 h-44 flex flex-col">
           {/* Header */}
           <div className="flex justify-between items-start mb-4">
             <div>
-              <h3 className="text-lg sm:text-xl font-bold text-white mb-1 leading-tight">{roomName}</h3>
+              <h3 className="text-xl font-bold text-white mb-1">{roomName}</h3>
             </div>
 
             {/* Sensor Icons - Always visible in top right corner */}
-            <div className="flex flex-row items-center space-x-1 sm:space-x-2 flex-shrink-0">
+            <div className="flex flex-row items-center space-x-2">
               {/* Smoke sensor - only show if configured */}
               {roomStats.smokeSensors.length > 0 && (
-                <div className={`p-1.5 sm:p-2 ${roomStats.smokeAlert ? 'bg-red-500/90' : 'bg-gray-500/90'} rounded-full shadow-lg backdrop-blur-sm`}>
-                  <Flame className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
+                <div className={`p-2 ${roomStats.smokeAlert ? 'bg-red-500/90' : 'bg-gray-500/90'} rounded-full shadow-lg backdrop-blur-sm`}>
+                  <Flame className="w-4 h-4 text-white" />
                 </div>
               )}
               {/* Flood sensor - only show if configured */}
               {roomStats.floodSensors.length > 0 && (
-                <div className={`p-1.5 sm:p-2 ${roomStats.floodAlert ? 'bg-red-500/90' : 'bg-gray-500/90'} rounded-full shadow-lg backdrop-blur-sm`}>
-                  <Waves className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
+                <div className={`p-2 ${roomStats.floodAlert ? 'bg-red-500/90' : 'bg-gray-500/90'} rounded-full shadow-lg backdrop-blur-sm`}>
+                  <Waves className="w-4 h-4 text-white" />
                 </div>
               )}
               {/* Lock status - only show if configured */}
               {roomStats.hasLocks && (
-                <div className={`p-1.5 sm:p-2 ${roomStats.isLocked ? 'bg-gray-500/90' : 'bg-red-500/90'} rounded-full shadow-lg backdrop-blur-sm`}>
+                <div className={`p-2 ${roomStats.isLocked ? 'bg-gray-500/90' : 'bg-red-500/90'} rounded-full shadow-lg backdrop-blur-sm`}>
                   {roomStats.isLocked ? (
-                    <Lock className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
+                    <Lock className="w-4 h-4 text-white" />
                   ) : (
-                    <Unlock className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
+                    <Unlock className="w-4 h-4 text-white" />
                   )}
                 </div>
               )}
               {/* Presence sensor - only show if configured */}
               {roomStats.motionSensor && (
-                <div className={`p-1.5 sm:p-2 ${roomStats.presence ? 'bg-green-500/90' : 'bg-gray-500/90'} rounded-full shadow-lg backdrop-blur-sm`}>
-                  <User className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
+                <div className={`p-2 ${roomStats.presence ? 'bg-green-500/90' : 'bg-gray-500/90'} rounded-full shadow-lg backdrop-blur-sm`}>
+                  <User className="w-4 h-4 text-white" />
                 </div>
               )}
             </div>
@@ -169,17 +169,17 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
           {/* Information */}
           <div className="space-y-3">
             {/* Lights and Fans Row */}
-            <div className="flex items-center justify-between flex-wrap gap-2">
-              <div className="flex items-center space-x-3 sm:space-x-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-6">
                 {/* Lights - only show if lights are configured */}
                 {roomStats.totalLights > 0 && (
                   <div className="flex items-center space-x-2">
                     <Lightbulb
-                      className={`w-4 h-4 sm:w-5 sm:h-5 ${
+                      className={`w-5 h-5 ${
                         roomStats.lightsOn > 0 ? 'text-yellow-400' : 'text-gray-400'
                       }`}
                     />
-                    <span className="text-white text-xs sm:text-sm font-semibold">
+                    <span className="text-white text-sm font-semibold">
                       {roomStats.lightsOn}/{roomStats.totalLights} lights
                     </span>
                   </div>
@@ -189,11 +189,11 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
                 {roomStats.totalFans > 0 && (
                   <div className="flex items-center space-x-2">
                     <Fan
-                      className={`w-4 h-4 sm:w-5 sm:h-5 ${
+                      className={`w-5 h-5 ${
                         roomStats.fansOn > 0 ? 'text-cyan-400' : 'text-gray-400'
                       }`}
                     />
-                    <span className="text-white text-xs sm:text-sm font-semibold">
+                    <span className="text-white text-sm font-semibold">
                       {roomStats.fansOn}/{roomStats.totalFans} fans
                     </span>
                   </div>
@@ -203,29 +203,29 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
             
             {/* Temperature, humidity, and window/door status */}
             <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3 sm:space-x-6">
+              <div className="flex items-center space-x-6">
                 {/* Temperature - only show if sensor is configured */}
                 {roomStats.temperature !== null && (
                   <div className="flex items-center space-x-2">
-                    <Thermometer className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400" />
-                    <span className="text-white text-xs sm:text-sm font-semibold">{formatTemperature(roomStats.temperature)}</span>
+                    <Thermometer className="w-5 h-5 text-blue-400" />
+                    <span className="text-white text-sm font-semibold">{formatTemperature(roomStats.temperature)}</span>
                   </div>
                 )}
                 {/* Humidity - only show if sensor is configured */}
                 {roomStats.humidity !== null && (
                   <div className="flex items-center space-x-2">
-                    <Droplets className="w-3 h-3 sm:w-4 sm:h-4 text-blue-300" />
-                    <span className="text-white/90 text-xs sm:text-sm font-medium">{formatHumidity(roomStats.humidity)}</span>
+                    <Droplets className="w-4 h-4 text-blue-300" />
+                    <span className="text-white/90 text-sm font-medium">{formatHumidity(roomStats.humidity)}</span>
                   </div>
                 )}
               </div>
               {/* Window/Door status - only show if sensors are configured */}
               {(roomStats.windowSensors.length > 0 || roomStats.doorSensors.length > 0) && (
-                <div className="flex items-center space-x-1 sm:space-x-2 text-white/80">
+                <div className="flex items-center space-x-2 text-white/80">
                   {React.createElement(getOpenCloseIcon(), { 
-                    className: `w-3 h-3 sm:w-4 sm:h-4 ${roomStats.windowOpen ? 'text-orange-400' : 'text-gray-300'}` 
+                    className: `w-4 h-4 ${roomStats.windowOpen ? 'text-orange-400' : 'text-gray-300'}` 
                   })}
-                  <span className="text-xs sm:text-sm font-medium">{getOpenCloseText()}</span>
+                  <span className="text-sm font-medium">{getOpenCloseText()}</span>
                 </div>
               )}
             </div>
