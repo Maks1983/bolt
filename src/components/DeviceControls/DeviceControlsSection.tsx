@@ -1,282 +1,331 @@
-import React, { useState, useMemo } from 'react';
-import { Lightbulb, Columns2, Volume2, Power, PowerOff, ChevronUp, ChevronDown } from 'lucide-react';
-import { useDevices } from '../../context/DeviceContext';
-import { Device, LightDevice, BlindDevice, MediaPlayerDevice } from '../../types/devices';
-import LightControl from './LightControl';
-import CoverControl from './CoverControl';
-import MediaPlayerControl from './MediaPlayerControl';
+import React from 'react';
+import { DeviceProvider, useDevices } from './context/DeviceContext';
+import Header from './components/Header';
+import InfoRow from './components/InfoRow';
+import FloorSection from './components/FloorSection';
+import RoomCard from './components/RoomCard';
+import DeviceControlsSection from './components/DeviceControls/DeviceControlsSection';
 
-interface DeviceControlsSectionProps {
-  activeTab: 'whole-house' | 'upper-floor' | 'lower-floor' | 'apartment';
-}
+// Camera data for NVR system (fallback for display)
+const cameras = [
+  {
+    id: 1,
+    name: 'Front Yard Camera',
+    location: 'Front Yard',
+    recording: true,
+    nightVision: true,
+    temperature: 15,
+    humidity: 60,
+    backgroundImage: 'https://images.pexels.com/photos/1396122/pexels-photo-1396122.jpeg?auto=compress&cs=tinysrgb&w=800'
+  },
+  {
+    id: 2,
+    name: 'Backyard Camera',
+    location: 'Backyard',
+    recording: true,
+    nightVision: false,
+    temperature: 16,
+    humidity: 58,
+    backgroundImage: 'https://images.pexels.com/photos/1105766/pexels-photo-1105766.jpeg?auto=compress&cs=tinysrgb&w=800'
+  }
+];
 
-const DeviceControlsSection: React.FC<DeviceControlsSectionProps> = ({ activeTab }) => {
-  const { state, controlLight, controlCover, controlMediaPlayer } = useDevices();
-  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({
-    lights: true,
-    covers: true,
-    media: true
-  });
+const AppContent: React.FC = () => {
+  const [activeTab, setActiveTab] = React.useState<'whole-house' | 'upper-floor' | 'lower-floor' | 'apartment'>('whole-house');
+  const [activeSection, setActiveSection] = React.useState<'status' | 'controls'>('status');
+  
+  // Use dynamic room data from DeviceContext instead of hardcoded arrays
+  const { state } = useDevices();
+  
+  // Get floors and their rooms from the context
+  const upperFloor = state.floors.find(floor => floor.name === 'Upper Floor');
+  const lowerFloor = state.floors.find(floor => floor.name === 'Lower Floor');
+  const apartment = state.floors.find(floor => floor.name === 'Apartment');
+  
+  // Dynamic tab configuration - automatically includes floors that have rooms
+  const availableTabs = React.useMemo(() => {
+    const tabs = [
+      { id: 'whole-house' as const, label: 'Whole House', hasContent: true }
+    ];
+    
+    if (upperFloor && upperFloor.rooms.length > 0) {
+      tabs.push({ id: 'upper-floor' as const, label: 'Upper Floor', hasContent: true });
+    }
+    
+    if (lowerFloor && lowerFloor.rooms.length > 0) {
+      tabs.push({ id: 'lower-floor' as const, label: 'Lower Floor', hasContent: true });
+    }
+    
+    if (apartment && apartment.rooms.length > 0) {
+      tabs.push({ id: 'apartment' as const, label: 'Apartment', hasContent: true });
+    }
+    
+    return tabs;
+  }, [upperFloor, lowerFloor, apartment]);
+  
+  // Ensure active tab is valid
+  React.useEffect(() => {
+    const validTabIds = availableTabs.map(tab => tab.id);
+    if (!validTabIds.includes(activeTab)) {
+      setActiveTab('whole-house');
+    }
+  }, [availableTabs, activeTab]);
 
-  // Filter devices based on active tab
-  const getFilteredDevices = useMemo(() => {
-    let devices = state.devices;
+  // Convert rooms to the format expected by FloorSection
+  const upperFloorRooms = upperFloor ? upperFloor.rooms.map(room => ({
+    name: room.name,
+    floor: room.floor,
+    backgroundImage: room.background_image || 'https://images.pexels.com/photos/164595/pexels-photo-164595.jpeg?auto=compress&cs=tinysrgb&w=800'
+  })) : [];
+  
+  const lowerFloorRooms = lowerFloor ? lowerFloor.rooms.map(room => ({
+    name: room.name,
+    floor: room.floor,
+    backgroundImage: room.background_image || 'https://images.pexels.com/photos/1428348/pexels-photo-1428348.jpeg?auto=compress&cs=tinysrgb&w=800'
+  })) : [];
 
-    if (activeTab !== 'whole-house') {
-      const floorName = activeTab === 'upper-floor' ? 'Upper Floor' : 
-                       activeTab === 'lower-floor' ? 'Lower Floor' : 'Apartment';
-      devices = devices.filter(device => device.floor === floorName);
+  const apartmentRooms = apartment ? apartment.rooms.map(room => ({
+    name: room.name,
+    floor: room.floor,
+    backgroundImage: room.background_image || 'https://images.pexels.com/photos/1428348/pexels-photo-1428348.jpeg?auto=compress&cs=tinysrgb&w=800'
+  })) : [];
+
+  // Get all rooms for whole house view
+  const allRooms = [...upperFloorRooms, ...lowerFloorRooms, ...apartmentRooms];
+
+  // Get current content based on active tab and section
+  const getCurrentContent = () => {
+    let rooms: typeof allRooms = [];
+    let title = '';
+
+    switch (activeTab) {
+      case 'whole-house':
+        // Special handling for whole house view
+        if (activeSection === 'status') {
+          return (
+            <div className="space-y-8">
+              {/* Upper Floor Section */}
+              {upperFloorRooms.length > 0 && (
+                <div>
+                  <div className="flex items-center mb-6">
+                    <h2 className="text-2xl font-bold text-gray-900">Upper Floor</h2>
+                    <div className="flex-1 ml-4 h-px bg-gradient-to-r from-gray-300 to-transparent"></div>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
+                    {upperFloorRooms.map((room, index) => (
+                      <RoomCard 
+                        key={`upper-${index}`} 
+                        roomName={room.name}
+                        floor={room.floor}
+                        backgroundImage={room.backgroundImage}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* Lower Floor Section */}
+              {lowerFloorRooms.length > 0 && (
+                <div>
+                  <div className="flex items-center mb-6">
+                    <h2 className="text-2xl font-bold text-gray-900">Lower Floor</h2>
+                    <div className="flex-1 ml-4 h-px bg-gradient-to-r from-gray-300 to-transparent"></div>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
+                    {lowerFloorRooms.map((room, index) => (
+                      <RoomCard 
+                        key={`lower-${index}`} 
+                        roomName={room.name}
+                        floor={room.floor}
+                        backgroundImage={room.backgroundImage}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* Apartment Section (if exists) */}
+              {apartmentRooms.length > 0 && (
+                <div>
+                  <div className="flex items-center mb-6">
+                    <h2 className="text-2xl font-bold text-gray-900">Apartment</h2>
+                    <div className="flex-1 ml-4 h-px bg-gradient-to-r from-gray-300 to-transparent"></div>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
+                    {apartmentRooms.map((room, index) => (
+                      <RoomCard 
+                        key={`apartment-${index}`} 
+                        roomName={room.name}
+                        floor={room.floor}
+                        backgroundImage={room.backgroundImage}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* No rooms message */}
+              {allRooms.length === 0 && (
+                <div className="text-center py-12">
+                  <div className="text-gray-400 text-lg font-medium">
+                    No rooms configured
+                  </div>
+                  <div className="text-gray-500 text-sm mt-2">
+                    Add rooms to your configuration to see them here
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        } else {
+          // Controls view for whole house - use DeviceControlsSection
+          return <DeviceControlsSection activeTab="whole-house" />;
+        }
+      case 'upper-floor':
+        rooms = upperFloorRooms;
+        title = 'Upper Floor';
+        break;
+      case 'lower-floor':
+        rooms = lowerFloorRooms;
+        title = 'Lower Floor';
+        break;
+      case 'apartment':
+        rooms = apartmentRooms;
+        title = 'Apartment';
+        break;
     }
 
-    // Group devices by type (excluding sensors, locks, fans, cameras)
-    const lights = devices.filter(d => d.device_type === 'light') as LightDevice[];
-    const covers = devices.filter(d => d.device_type === 'cover') as BlindDevice[];
-    const mediaPlayers = devices.filter(d => d.device_type === 'media_player') as MediaPlayerDevice[];
-
-    return { lights, covers, mediaPlayers };
-  }, [state.devices, activeTab]);
-
-  const { lights, covers, mediaPlayers } = getFilteredDevices;
-
-  // Quick action handlers
-  const handleLightsAllOn = () => {
-    lights.forEach(light => {
-      if (light.state === 'off') {
-        controlLight(light.entity_id, true, 255);
-      }
-    });
+    if (activeSection === 'status' && activeTab !== 'whole-house') {
+      // Status view - show room cards
+      return rooms.length > 0 ? (
+        <FloorSection title={title} rooms={rooms} />
+      ) : (
+        <div className="text-center py-12">
+          <div className="text-gray-400 text-lg font-medium">
+            No rooms configured for {title}
+          </div>
+          <div className="text-gray-500 text-sm mt-2">
+            Add rooms to this area in your configuration
+          </div>
+        </div>
+      );
+    } else if (activeTab !== 'whole-house') {
+      // Controls view - show device controls interface
+      return <DeviceControlsSection activeTab={activeTab} />;
+    }
+    
+    return null; // This should never be reached due to whole-house handling above
   };
 
-  const handleLightsAllOff = () => {
-    lights.forEach(light => {
-      if (light.state === 'on') {
-        controlLight(light.entity_id, false);
-      }
-    });
-  };
-
-  const handleCoversOpenAll = () => {
-    covers.forEach(cover => {
-      if (cover.state !== 'open') {
-        controlCover(cover.entity_id, 'open');
-      }
-    });
-  };
-
-  const handleCoversCloseAll = () => {
-    covers.forEach(cover => {
-      if (cover.state !== 'closed') {
-        controlCover(cover.entity_id, 'close');
-      }
-    });
-  };
-
-  const handleMediaPauseAll = () => {
-    mediaPlayers.forEach(player => {
-      if (player.state === 'playing') {
-        controlMediaPlayer(player.entity_id, 'pause');
-      }
-    });
-  };
-
-  const handleMediaPlayAll = () => {
-    mediaPlayers.forEach(player => {
-      if (player.state === 'paused') {
-        controlMediaPlayer(player.entity_id, 'play');
-      }
-    });
-  };
-
-  const toggleGroupExpansion = (groupKey: string) => {
-    setExpandedGroups(prev => ({
-      ...prev,
-      [groupKey]: !prev[groupKey]
-    }));
-  };
-
-  // Device group component
-  const DeviceGroup: React.FC<{
-    title: string;
-    icon: React.ReactNode;
-    devices: Device[];
-    quickActions: Array<{ label: string; action: () => void; variant: 'primary' | 'secondary' }>;
-    groupKey: string;
-    children: React.ReactNode;
-  }> = ({ title, icon, devices, quickActions, groupKey, children }) => {
-    const isExpanded = expandedGroups[groupKey];
-    const deviceCount = devices.length;
-
-    if (deviceCount === 0) return null;
-
-    return (
-      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-        {/* Sticky Header */}
-        <div className="sticky top-0 z-10 bg-white border-b border-gray-200 shadow-sm">
-          <div className="p-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <div className="p-3 bg-blue-50 rounded-xl">
-                  {icon}
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-gray-900">{title}</h3>
-                  <p className="text-sm text-gray-500">{deviceCount} device{deviceCount !== 1 ? 's' : ''}</p>
-                </div>
-              </div>
-
-              <div className="flex items-center space-x-3">
-                {/* Quick Actions */}
-                <div className="flex space-x-2">
-                  {quickActions.map((action, index) => (
-                    <button
-                      key={index}
-                      onClick={action.action}
-                      className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 transform hover:scale-105 active:scale-95 ${
-                        action.variant === 'primary'
-                          ? 'bg-blue-500 text-white hover:bg-blue-600 shadow-md hover:shadow-lg'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      }`}
-                    >
-                      {action.label}
-                    </button>
-                  ))}
-                </div>
-
-                {/* Expand/Collapse Button */}
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
+      <Header />
+      <InfoRow cameras={cameras} />
+      
+      <main className="py-4 pb-8">
+        {/* Top-level Tab Navigation */}
+        <div className="px-6 mb-6">
+          {/* Dynamic Tab Navigation */}
+          <div className="flex items-end">
+            {availableTabs.map((tab, index) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`relative px-6 py-3 rounded-t-2xl font-semibold text-sm transition-all duration-200 transform ${
+                  activeTab === tab.id
+                    ? 'bg-white text-gray-900 shadow-lg border-t-2 border-l-2 border-r-2 border-gray-200 -mb-px'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border-2 border-gray-200 border-b-0'
+                }`}
+                style={{
+                  clipPath: activeTab === tab.id 
+                    ? 'polygon(8px 0%, calc(100% - 8px) 0%, 100% 100%, 0% 100%)'
+                    : 'polygon(6px 0%, calc(100% - 6px) 0%, 100% 100%, 0% 100%)',
+                  // Equal width distribution across full container
+                  width: `${100 / availableTabs.length}%`,
+                  marginRight: index < availableTabs.length - 1 ? '2px' : '0'
+                }}
+              >
+                <span className="relative whitespace-nowrap">{tab.label}</span>
+                {activeTab === tab.id && (
+                  <div className="absolute inset-x-0 bottom-0 h-0.5 bg-white"></div>
+                )}
+              </button>
+            ))}
+          </div>
+          
+          {/* Tab Content Background with Sidebar */}
+          <div className="bg-white border-2 border-gray-200 rounded-2xl rounded-tl-none shadow-lg -mt-px relative min-h-[600px]">
+            {/* Unified Content Area with Sidebar and Content */}
+            <div className="flex h-full max-h-[calc(100vh-200px)] overflow-hidden">
+              {/* Vertical Sidebar Navigation */}
+              <div className="flex flex-col w-16 border-r border-gray-200 flex-shrink-0 h-full">
+                {/* Status Tab */}
                 <button
-                  onClick={() => toggleGroupExpansion(groupKey)}
-                  className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                  onClick={() => setActiveSection('status')}
+                  className={`relative flex items-center justify-center py-8 h-32 flex-shrink-0 transition-all duration-200 ${
+                    activeSection === 'status'
+                      ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-500'
+                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                  }`}
                 >
-                  {isExpanded ? (
-                    <ChevronUp className="w-5 h-5 text-gray-600" />
-                  ) : (
-                    <ChevronDown className="w-5 h-5 text-gray-600" />
+                  <div 
+                    className="font-semibold text-sm tracking-wider"
+                    style={{ 
+                      writingMode: 'vertical-rl',
+                      textOrientation: 'mixed',
+                      transform: 'rotate(180deg)'
+                    }}
+                  >
+                    STATUS
+                  </div>
+                  {activeSection === 'status' && (
+                    <div className="absolute right-0 top-0 bottom-0 w-0.5 bg-blue-500"></div>
+                  )}
+                </button>
+
+                {/* Controls Tab */}
+                <button
+                  onClick={() => setActiveSection('controls')}
+                  className={`relative flex items-center justify-center py-8 h-32 flex-shrink-0 transition-all duration-200 ${
+                    activeSection === 'controls'
+                      ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-500'
+                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                  }`}
+                >
+                  <div 
+                    className="font-semibold text-sm tracking-wider"
+                    style={{ 
+                      writingMode: 'vertical-rl',
+                      textOrientation: 'mixed',
+                      transform: 'rotate(180deg)'
+                    }}
+                  >
+                    CONTROLS
+                  </div>
+                  {activeSection === 'controls' && (
+                    <div className="absolute right-0 top-0 bottom-0 w-0.5 bg-blue-500"></div>
                   )}
                 </button>
               </div>
+
+              {/* Main Content Area */}
+              <div className="flex-1 p-4 lg:p-6 overflow-y-auto overflow-x-hidden">
+                {getCurrentContent()}
+              </div>
             </div>
           </div>
         </div>
-
-        {/* Expandable Content */}
-        <div className={`transition-all duration-300 ease-in-out overflow-hidden ${
-          isExpanded ? 'max-h-none opacity-100' : 'max-h-0 opacity-0'
-        }`}>
-          <div className="p-6 pt-0">
-            {children}
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  const getTabTitle = () => {
-    switch (activeTab) {
-      case 'whole-house': return 'Whole House';
-      case 'upper-floor': return 'Upper Floor';
-      case 'lower-floor': return 'Lower Floor';
-      case 'apartment': return 'Apartment';
-      default: return 'Device Controls';
-    }
-  };
-
-  const totalDevices = lights.length + covers.length + mediaPlayers.length;
-
-  if (totalDevices === 0) {
-    return (
-      <div className="text-center py-12">
-        <div className="text-gray-400 text-lg font-medium">
-          No controllable devices found
-        </div>
-        <div className="text-gray-500 text-sm mt-2">
-          {activeTab === 'whole-house' 
-            ? 'Add lights, covers, or media players to see controls here'
-            : `No devices configured for ${getTabTitle()}`
-          }
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">
-          Device Controls - {getTabTitle()}
-        </h2>
-        <p className="text-gray-600">
-          Control {totalDevices} device{totalDevices !== 1 ? 's' : ''} across {
-            [lights.length > 0 && 'lights', covers.length > 0 && 'covers', mediaPlayers.length > 0 && 'media players']
-              .filter(Boolean).join(', ')
-          }
-        </p>
-      </div>
-
-      {/* Lights Group */}
-      <DeviceGroup
-        title="Lights"
-        icon={<Lightbulb className="w-6 h-6 text-blue-600" />}
-        devices={lights}
-        groupKey="lights"
-        quickActions={[
-          { label: 'All On', action: handleLightsAllOn, variant: 'primary' },
-          { label: 'All Off', action: handleLightsAllOff, variant: 'secondary' }
-        ]}
-      >
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
-          {lights.map((light) => (
-            <div key={light.entity_id} className="transform transition-all duration-200 hover:scale-[1.02]">
-              <LightControl device={light} />
-            </div>
-          ))}
-        </div>
-      </DeviceGroup>
-
-      {/* Blinds & Curtains Group */}
-      <DeviceGroup
-        title="Blinds & Curtains"
-        icon={<Columns2 className="w-6 h-6 text-blue-600" />}
-        devices={covers}
-        groupKey="covers"
-        quickActions={[
-          { label: 'Open All', action: handleCoversOpenAll, variant: 'primary' },
-          { label: 'Close All', action: handleCoversCloseAll, variant: 'secondary' }
-        ]}
-      >
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
-          {covers.map((cover) => (
-            <div key={cover.entity_id} className="transform transition-all duration-200 hover:scale-[1.02]">
-              <CoverControl 
-                device={cover} 
-                type={cover.friendly_name.toLowerCase().includes('curtain') ? 'curtain' : 'blind'}
-              />
-            </div>
-          ))}
-        </div>
-      </DeviceGroup>
-
-      {/* Speakers & Media Group */}
-      <DeviceGroup
-        title="Speakers & Media"
-        icon={<Volume2 className="w-6 h-6 text-blue-600" />}
-        devices={mediaPlayers}
-        groupKey="media"
-        quickActions={[
-          { label: 'Play All', action: handleMediaPlayAll, variant: 'primary' },
-          { label: 'Pause All', action: handleMediaPauseAll, variant: 'secondary' }
-        ]}
-      >
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {mediaPlayers.map((player) => (
-            <div key={player.entity_id} className="transform transition-all duration-200 hover:scale-[1.02]">
-              <MediaPlayerControl device={player} />
-            </div>
-          ))}
-        </div>
-      </DeviceGroup>
+      </main>
     </div>
   );
 };
 
-export default DeviceControlsSection;
+function App() {
+  return (
+    <DeviceProvider>
+      <AppContent />
+    </DeviceProvider>
+  );
+}
+
+export default App;
