@@ -108,23 +108,11 @@ export class WebSocketService {
     try {
       console.log(`🔌 Attempting to connect to Home Assistant at: ${WEBSOCKET_URL}`);
       
-      // Additional connection diagnostics
-      console.log('🔍 Connection diagnostics:');
-      console.log(`   - URL: ${WEBSOCKET_URL}`);
-      console.log(`   - Protocol: ${WEBSOCKET_URL.startsWith('wss://') ? 'Secure WebSocket (WSS)' : 'WebSocket (WS)'}`);
-      console.log(`   - Token configured: ${ACCESS_TOKEN ? 'Yes' : 'No'}`);
-      
       this.ws = new WebSocket(WEBSOCKET_URL);
       this.setupEventListeners();
     } catch (error) {
       console.error('❌ Failed to create WebSocket connection:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Connection failed';
-      console.error('🔍 Connection error details:', {
-        error: errorMessage,
-        url: WEBSOCKET_URL,
-        timestamp: new Date().toISOString()
-      });
-      this.setConnectionState('error', `Connection failed: ${errorMessage}. Please check if Home Assistant is running and accessible.`);
+      this.setConnectionState('error', error instanceof Error ? error.message : 'Connection failed');
       this.scheduleReconnect();
     }
   }
@@ -165,41 +153,7 @@ export class WebSocketService {
     };
 
     this.ws.onclose = (event) => {
-      console.log('🔌 WebSocket connection closed:', {
-        code: event.code,
-        reason: event.reason || 'No reason provided',
-        wasClean: event.wasClean,
-        timestamp: new Date().toISOString()
-      });
-      
-      // Provide more specific error messages based on close codes
-      let closeReason = 'Connection closed';
-      switch (event.code) {
-        case 1000:
-          closeReason = 'Normal closure';
-          break;
-        case 1001:
-          closeReason = 'Going away (server shutdown or browser navigation)';
-          break;
-        case 1002:
-          closeReason = 'Protocol error';
-          break;
-        case 1003:
-          closeReason = 'Unsupported data type';
-          break;
-        case 1006:
-          closeReason = 'Connection lost (no close frame received) - Check network connectivity';
-          break;
-        case 1011:
-          closeReason = 'Server error';
-          break;
-        case 1015:
-          closeReason = 'TLS handshake failure - Check SSL certificate';
-          break;
-        default:
-          closeReason = `Connection closed with code ${event.code}`;
-      }
-      
+      console.log('🔌 WebSocket connection closed:', event.code, event.reason);
       this.setConnectionState('disconnected');
       
       // Clear pending messages and subscriptions
@@ -208,33 +162,13 @@ export class WebSocketService {
       
       // Auto-reconnect unless manually disconnected
       if (!this.isManuallyDisconnected) {
-        console.log(`🔄 Connection lost: ${closeReason}. Attempting to reconnect...`);
         this.scheduleReconnect();
-      } else {
-        console.log(`✅ Manual disconnect: ${closeReason}`);
       }
     };
 
     this.ws.onerror = (error) => {
-      console.error('❌ WebSocket error occurred:', {
-        error,
-        url: WEBSOCKET_URL,
-        readyState: this.ws?.readyState,
-        timestamp: new Date().toISOString()
-      });
-      
-      // Provide helpful error message based on common issues
-      let errorMessage = 'WebSocket connection error';
-      
-      if (WEBSOCKET_URL.startsWith('wss://')) {
-        errorMessage += '. If using HTTPS/WSS, ensure your Home Assistant has a valid SSL certificate. For local development, try using ws:// instead of wss://';
-      } else if (WEBSOCKET_URL.includes('localhost') || WEBSOCKET_URL.includes('127.0.0.1')) {
-        errorMessage += '. Ensure Home Assistant is running locally on the specified port';
-      } else {
-        errorMessage += '. Check if Home Assistant is accessible and running on the specified URL';
-      }
-      
-      this.setConnectionState('error', errorMessage);
+      console.error('❌ WebSocket error:', error);
+      this.setConnectionState('error', 'WebSocket connection error');
     };
   }
 
