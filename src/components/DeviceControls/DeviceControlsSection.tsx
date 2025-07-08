@@ -226,12 +226,11 @@ const AppContent: React.FC = () => {
         {/* Top-level Tab Navigation */}
         <div className="px-6 mb-6">
           {/* Dynamic Tab Navigation */}
-          <div className="flex items-end">
+          <div className="flex items-end w-full">
             {availableTabs.map((tab, index) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`relative px-6 py-3 rounded-t-2xl font-semibold text-sm transition-all duration-200 transform ${
                   activeTab === tab.id
                     ? 'bg-white text-gray-900 shadow-lg border-t-2 border-l-2 border-r-2 border-gray-200 -mb-px'
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border-2 border-gray-200 border-b-0'
