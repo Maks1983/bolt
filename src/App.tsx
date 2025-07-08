@@ -41,6 +41,35 @@ const AppContent: React.FC = () => {
   const lowerFloor = state.floors.find(floor => floor.name === 'Lower Floor');
   const apartment = state.floors.find(floor => floor.name === 'Apartment');
   
+  // Dynamic tab configuration - automatically includes floors that have rooms
+  const availableTabs = React.useMemo(() => {
+    const tabs = [
+      { id: 'whole-house' as const, label: 'Whole House', hasContent: true }
+    ];
+    
+    if (upperFloor && upperFloor.rooms.length > 0) {
+      tabs.push({ id: 'upper-floor' as const, label: 'Upper Floor', hasContent: true });
+    }
+    
+    if (lowerFloor && lowerFloor.rooms.length > 0) {
+      tabs.push({ id: 'lower-floor' as const, label: 'Lower Floor', hasContent: true });
+    }
+    
+    if (apartment && apartment.rooms.length > 0) {
+      tabs.push({ id: 'apartment' as const, label: 'Apartment', hasContent: true });
+    }
+    
+    return tabs;
+  }, [upperFloor, lowerFloor, apartment]);
+  
+  // Ensure active tab is valid
+  React.useEffect(() => {
+    const validTabIds = availableTabs.map(tab => tab.id);
+    if (!validTabIds.includes(activeTab)) {
+      setActiveTab('whole-house');
+    }
+  }, [availableTabs, activeTab]);
+
   // Convert rooms to the format expected by FloorSection
   const upperFloorRooms = upperFloor ? upperFloor.rooms.map(room => ({
     name: room.name,
@@ -209,6 +238,31 @@ const AppContent: React.FC = () => {
                   </div>
                 </div>
               )}
+              
+              {/* Apartment Controls */}
+              {apartmentRooms.length > 0 && (
+                <div>
+                  <div className="flex items-center mb-6">
+                    <h2 className="text-xl font-bold text-gray-900">Apartment Controls</h2>
+                    <div className="flex-1 ml-4 h-px bg-gradient-to-r from-gray-300 to-transparent"></div>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    {apartmentRooms.slice(0, 6).map((room, index) => (
+                      <div key={`apartment-control-${index}`} className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
+                        <h3 className="font-semibold text-gray-900 mb-2">{room.name}</h3>
+                        <div className="space-y-2">
+                          <button className="w-full px-3 py-2 bg-blue-50 text-blue-700 rounded-lg text-sm font-medium hover:bg-blue-100 transition-colors">
+                            Quick Controls
+                          </button>
+                          <button className="w-full px-3 py-2 bg-gray-50 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors">
+                            Advanced Settings
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           );
         }
@@ -219,6 +273,10 @@ const AppContent: React.FC = () => {
       case 'lower-floor':
         rooms = lowerFloorRooms;
         title = 'Lower Floor';
+        break;
+      case 'apartment':
+        rooms = apartmentRooms;
+        title = 'Apartment';
         break;
     }
 
@@ -276,66 +334,39 @@ const AppContent: React.FC = () => {
       <main className="py-4 pb-8">
         {/* Top-level Tab Navigation */}
         <div className="px-6 mb-6">
+          {/* Dynamic Tab Navigation */}
           <div className="flex items-end">
-            {/* Whole House Tab */}
-            <button
-              onClick={() => setActiveTab('whole-house')}
-              className={`relative px-6 py-3 rounded-t-2xl font-semibold text-sm transition-all duration-200 transform mr-1 ${
-                activeTab === 'whole-house'
-                  ? 'bg-white text-gray-900 shadow-lg border-t-2 border-l-2 border-r-2 border-gray-200 -mb-px'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border-2 border-gray-200 border-b-0'
-              }`}
-              style={{
-                clipPath: activeTab === 'whole-house' 
-                  ? 'polygon(8px 0%, calc(100% - 8px) 0%, 100% 100%, 0% 100%)'
-                  : 'polygon(6px 0%, calc(100% - 6px) 0%, 100% 100%, 0% 100%)'
-              }}
-            >
-              <span className="relative">Whole House</span>
-              {activeTab === 'whole-house' && (
-                <div className="absolute inset-x-0 bottom-0 h-0.5 bg-white"></div>
-              )}
-            </button>
-
-            {/* Upper Floor Tab */}
-            <button
-              onClick={() => setActiveTab('upper-floor')}
-              className={`relative px-6 py-3 rounded-t-2xl font-semibold text-sm transition-all duration-200 transform mr-1 ${
-                activeTab === 'upper-floor'
-                  ? 'bg-white text-gray-900 shadow-lg border-t-2 border-l-2 border-r-2 border-gray-200 -mb-px'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border-2 border-gray-200 border-b-0'
-              }`}
-              style={{
-                clipPath: activeTab === 'upper-floor' 
-                  ? 'polygon(8px 0%, calc(100% - 8px) 0%, 100% 100%, 0% 100%)'
-                  : 'polygon(6px 0%, calc(100% - 6px) 0%, 100% 100%, 0% 100%)'
-              }}
-            >
-              <span className="relative">Upper Floor</span>
-              {activeTab === 'upper-floor' && (
-                <div className="absolute inset-x-0 bottom-0 h-0.5 bg-white"></div>
-              )}
-            </button>
-
-            {/* Lower Floor Tab */}
-            <button
-              onClick={() => setActiveTab('lower-floor')}
-              className={`relative px-6 py-3 rounded-t-2xl font-semibold text-sm transition-all duration-200 transform ${
-                activeTab === 'lower-floor'
-                  ? 'bg-white text-gray-900 shadow-lg border-t-2 border-l-2 border-r-2 border-gray-200 -mb-px'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border-2 border-gray-200 border-b-0'
-              }`}
-              style={{
-                clipPath: activeTab === 'lower-floor' 
-                  ? 'polygon(8px 0%, calc(100% - 8px) 0%, 100% 100%, 0% 100%)'
-                  : 'polygon(6px 0%, calc(100% - 6px) 0%, 100% 100%, 0% 100%)'
-              }}
-            >
-              <span className="relative">Lower Floor</span>
-              {activeTab === 'lower-floor' && (
-                <div className="absolute inset-x-0 bottom-0 h-0.5 bg-white"></div>
-              )}
-            </button>
+            {availableTabs.map((tab, index) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`relative px-6 py-3 rounded-t-2xl font-semibold text-sm transition-all duration-200 transform ${
+                  index < availableTabs.length - 1 ? 'mr-1' : ''
+                } ${
+                  activeTab === tab.id
+                    ? 'bg-white text-gray-900 shadow-lg border-t-2 border-l-2 border-r-2 border-gray-200 -mb-px'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border-2 border-gray-200 border-b-0'
+                }`}
+                style={{
+                  clipPath: activeTab === tab.id 
+                    ? 'polygon(8px 0%, calc(100% - 8px) 0%, 100% 100%, 0% 100%)'
+                    : 'polygon(6px 0%, calc(100% - 6px) 0%, 100% 100%, 0% 100%)',
+                  // Dynamic width distribution
+                  minWidth: `${Math.max(120, Math.floor(600 / availableTabs.length))}px`,
+                  flex: availableTabs.length <= 4 ? '0 0 auto' : '1 1 0%'
+                }}
+              >
+                <span className="relative whitespace-nowrap">{tab.label}</span>
+                {activeTab === tab.id && (
+                  <div className="absolute inset-x-0 bottom-0 h-0.5 bg-white"></div>
+                )}
+              </button>
+            ))}
+            
+            {/* Flexible spacer to push tabs to the left if needed */}
+            {availableTabs.length <= 4 && (
+              <div className="flex-1"></div>
+            )}
           </div>
           
           {/* Tab Content Background with Sidebar */}

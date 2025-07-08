@@ -65,13 +65,13 @@ export const roomConfigs: Room[] = [
     background_image: 'https://images.pexels.com/photos/4993073/pexels-photo-4993073.jpeg?auto=compress&cs=tinysrgb&w=800',
     devices: []
   },
-  /*{
+  {
     id: 'ap_living_room',
     name: 'Ap Living Room',
     floor: 'Apartment',
     background_image: 'https://images.pexels.com/photos/1571453/pexels-photo-1571453.jpeg?auto=compress&cs=tinysrgb&w=800',
     devices: []
-  }*/
+  }
 ];
 
 // Floor configurations
