@@ -223,6 +223,9 @@ export class WebSocketService {
           errorMessage = `Cannot connect to secure WebSocket (wss://) from insecure page (http://). Either:\n• Access this page via HTTPS, or\n• Use ws:// instead of wss:// in VITE_HA_WEBSOCKET_URL`;
         } else if (!isSecure && currentProtocol === 'https:') {
           errorMessage = `Cannot connect to insecure WebSocket (ws://) from secure page (https://). Use wss:// in VITE_HA_WEBSOCKET_URL`;
+        } else if (isSecure) {
+          // Specific guidance for wss:// connection failures
+          errorMessage = `Cannot connect to Home Assistant at ${WEBSOCKET_URL}. This is likely due to SSL/TLS certificate issues. Please check:\n• Home Assistant is running and accessible at ${url.host}\n• If using an IP address with wss://, your browser may block the connection due to certificate trust issues\n• Consider using a valid domain with a trusted certificate for Home Assistant\n• If running the dashboard over HTTP, you can switch to ws:// in VITE_HA_WEBSOCKET_URL\n• For self-signed certificates, you may need to manually accept the certificate in your browser first`;
         } else {
           errorMessage = `Cannot connect to Home Assistant at ${WEBSOCKET_URL}. Please check:\n• Home Assistant is running and accessible\n• WebSocket URL is correct\n• Network connectivity\n• Firewall settings`;
         }
