@@ -167,7 +167,7 @@ const AppContent: React.FC = () => {
                     <h2 className="text-xl font-bold text-gray-900">Upper Floor Controls</h2>
                     <div className="flex-1 ml-4 h-px bg-gradient-to-r from-gray-300 to-transparent"></div>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                     {upperFloorRooms.slice(0, 6).map((room, index) => (
                       <div key={`upper-control-${index}`} className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
                         <h3 className="font-semibold text-gray-900 mb-2">{room.name}</h3>
@@ -192,7 +192,7 @@ const AppContent: React.FC = () => {
                     <h2 className="text-xl font-bold text-gray-900">Lower Floor Controls</h2>
                     <div className="flex-1 ml-4 h-px bg-gradient-to-r from-gray-300 to-transparent"></div>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                     {lowerFloorRooms.slice(0, 6).map((room, index) => (
                       <div key={`lower-control-${index}`} className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
                         <h3 className="font-semibold text-gray-900 mb-2">{room.name}</h3>
@@ -339,7 +339,7 @@ const AppContent: React.FC = () => {
           </div>
           
           {/* Tab Content Background with Sidebar */}
-          <div className="bg-white border-2 border-gray-200 rounded-2xl rounded-tl-none shadow-lg -mt-px relative flex min-h-[600px]">
+          <div className="bg-white border-2 border-gray-200 rounded-2xl rounded-tl-none shadow-lg -mt-px relative flex min-h-[600px] max-h-[calc(100vh-200px)]">
             {/* Vertical Sidebar Navigation */}
             <div className="flex flex-col w-16 border-r border-gray-200">
               {/* Status Tab */}
@@ -392,7 +392,7 @@ const AppContent: React.FC = () => {
             </div>
 
             {/* Main Content Area */}
-            <div className="flex-1 p-6 overflow-y-auto">
+            <div className="flex-1 p-4 lg:p-6 overflow-y-auto overflow-x-hidden">
               {getCurrentContent()}
             </div>
           </div>

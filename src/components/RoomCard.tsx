@@ -110,7 +110,7 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
   return (
     <>
       <div 
-        className="relative bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:scale-[1.02] min-w-[320px] border border-gray-200/50"
+        className="relative bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:scale-[1.02] w-full max-w-sm mx-auto border border-gray-200/50"
         onClick={() => setExpanded(true)}
       >
         {/* Background Image */}
