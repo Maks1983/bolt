@@ -29,7 +29,8 @@ const cameras = [
 ];
 
 const AppContent: React.FC = () => {
-  const [activeFloor, setActiveFloor] = React.useState<'Upper Floor' | 'Lower Floor'>('Upper Floor');
+  const [activeTab, setActiveTab] = React.useState<'whole-house' | 'upper-floor' | 'lower-floor'>('whole-house');
+  const [activeSection, setActiveSection] = React.useState<'status' | 'controls'>('status');
   
   // Use dynamic room data from DeviceContext instead of hardcoded arrays
   const { state } = useDevices();
@@ -58,93 +59,202 @@ const AppContent: React.FC = () => {
     backgroundImage: room.background_image || 'https://images.pexels.com/photos/1428348/pexels-photo-1428348.jpeg?auto=compress&cs=tinysrgb&w=800'
   })) : [];
 
-  // Get current floor rooms based on active tab
-  const getCurrentFloorRooms = () => {
-    switch (activeFloor) {
-      case 'Upper Floor':
-        return upperFloorRooms;
-      case 'Lower Floor':
-        return lowerFloorRooms;
-      default:
-        return upperFloorRooms;
+  // Get all rooms for whole house view
+  const allRooms = [...upperFloorRooms, ...lowerFloorRooms, ...apartmentRooms];
+
+  // Get current content based on active tab and section
+  const getCurrentContent = () => {
+    let rooms: typeof allRooms = [];
+    let title = '';
+
+    switch (activeTab) {
+      case 'whole-house':
+        rooms = allRooms;
+        title = 'Whole House';
+        break;
+      case 'upper-floor':
+        rooms = upperFloorRooms;
+        title = 'Upper Floor';
+        break;
+      case 'lower-floor':
+        rooms = lowerFloorRooms;
+        title = 'Lower Floor';
+        break;
+    }
+
+    if (activeSection === 'status') {
+      // Status view - show room cards
+      return rooms.length > 0 ? (
+        <FloorSection title={title} rooms={rooms} />
+      ) : (
+        <div className="text-center py-12">
+          <div className="text-gray-400 text-lg font-medium">
+            No rooms configured for {title}
+          </div>
+          <div className="text-gray-500 text-sm mt-2">
+            Add rooms to this area in your configuration
+          </div>
+        </div>
+      );
+    } else {
+      // Controls view - show device controls interface
+      return (
+        <div className="text-center py-12">
+          <div className="text-gray-600 text-lg font-medium">
+            Device Controls for {title}
+          </div>
+          <div className="text-gray-500 text-sm mt-2">
+            Advanced device control interface coming soon
+          </div>
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {rooms.slice(0, 6).map((room, index) => (
+              <div key={index} className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
+                <h3 className="font-semibold text-gray-900 mb-2">{room.name}</h3>
+                <div className="space-y-2">
+                  <button className="w-full px-3 py-2 bg-blue-50 text-blue-700 rounded-lg text-sm font-medium hover:bg-blue-100 transition-colors">
+                    Quick Controls
+                  </button>
+                  <button className="w-full px-3 py-2 bg-gray-50 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors">
+                    Advanced Settings
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
     }
   };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
       <Header />
       <InfoRow cameras={cameras} />
       
       <main className="py-4 pb-8">
-        {/* Tab Navigation */}
+        {/* Top-level Tab Navigation */}
         <div className="px-6 mb-6">
           <div className="flex items-end">
-            {/* Upper Floor Tab */}
+            {/* Whole House Tab */}
             <button
-              onClick={() => setActiveFloor('Upper Floor')}
-              className={`relative flex-1 px-6 py-3 rounded-t-2xl font-semibold text-sm transition-all duration-200 transform mr-1 ${
-                activeFloor === 'Upper Floor'
-                  ? 'bg-white text-gray-900 shadow-lg border-t-2 border-l-2 border-r-2 border-gray-200  -mb-px'
+              onClick={() => setActiveTab('whole-house')}
+              className={`relative px-6 py-3 rounded-t-2xl font-semibold text-sm transition-all duration-200 transform mr-1 ${
+                activeTab === 'whole-house'
+                  ? 'bg-white text-gray-900 shadow-lg border-t-2 border-l-2 border-r-2 border-gray-200 -mb-px'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border-2 border-gray-200 border-b-0'
               }`}
               style={{
-                clipPath: activeFloor === 'Upper Floor' 
+                clipPath: activeTab === 'whole-house' 
                   ? 'polygon(8px 0%, calc(100% - 8px) 0%, 100% 100%, 0% 100%)'
                   : 'polygon(6px 0%, calc(100% - 6px) 0%, 100% 100%, 0% 100%)'
               }}
             >
-              <span className="relative text-center w-full">Upper Floor</span>
-              {activeFloor === 'Upper Floor' && (
+              <span className="relative">Whole House</span>
+              {activeTab === 'whole-house' && (
+                <div className="absolute inset-x-0 bottom-0 h-0.5 bg-white"></div>
+              )}
+            </button>
+
+            {/* Upper Floor Tab */}
+            <button
+              onClick={() => setActiveTab('upper-floor')}
+              className={`relative px-6 py-3 rounded-t-2xl font-semibold text-sm transition-all duration-200 transform mr-1 ${
+                activeTab === 'upper-floor'
+                  ? 'bg-white text-gray-900 shadow-lg border-t-2 border-l-2 border-r-2 border-gray-200 -mb-px'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border-2 border-gray-200 border-b-0'
+              }`}
+              style={{
+                clipPath: activeTab === 'upper-floor' 
+                  ? 'polygon(8px 0%, calc(100% - 8px) 0%, 100% 100%, 0% 100%)'
+                  : 'polygon(6px 0%, calc(100% - 6px) 0%, 100% 100%, 0% 100%)'
+              }}
+            >
+              <span className="relative">Upper Floor</span>
+              {activeTab === 'upper-floor' && (
                 <div className="absolute inset-x-0 bottom-0 h-0.5 bg-white"></div>
               )}
             </button>
 
             {/* Lower Floor Tab */}
             <button
-              onClick={() => setActiveFloor('Lower Floor')}
-              className={`relative flex-1 px-6 py-3 rounded-t-2xl font-semibold text-sm transition-all duration-200 transform ${
-                activeFloor === 'Lower Floor'
+              onClick={() => setActiveTab('lower-floor')}
+              className={`relative px-6 py-3 rounded-t-2xl font-semibold text-sm transition-all duration-200 transform ${
+                activeTab === 'lower-floor'
                   ? 'bg-white text-gray-900 shadow-lg border-t-2 border-l-2 border-r-2 border-gray-200 -mb-px'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border-2 border-gray-200 border-b-0 '
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border-2 border-gray-200 border-b-0'
               }`}
               style={{
-                clipPath: activeFloor === 'Lower Floor' 
+                clipPath: activeTab === 'lower-floor' 
                   ? 'polygon(8px 0%, calc(100% - 8px) 0%, 100% 100%, 0% 100%)'
                   : 'polygon(6px 0%, calc(100% - 6px) 0%, 100% 100%, 0% 100%)'
               }}
             >
-              <span className="relative text-center w-full">Lower Floor</span>
-              {activeFloor === 'Lower Floor' && (
+              <span className="relative">Lower Floor</span>
+              {activeTab === 'lower-floor' && (
                 <div className="absolute inset-x-0 bottom-0 h-0.5 bg-white"></div>
               )}
             </button>
           </div>
           
-          {/* Tab Content Background */}
-          <div className="bg-white border-2 border-gray-200 rounded-2xl rounded-tl-none shadow-lg p-6 -mt-px relative">
-            {/* Current Floor Content */}
-            <div className="space-y-6">
-              {getCurrentFloorRooms().length > 0 ? (
-                <FloorSection title={activeFloor} rooms={getCurrentFloorRooms()} />
-              ) : (
-                <div className="text-center py-12">
-                  <div className="text-gray-400 text-lg font-medium">
-                    No rooms configured for {activeFloor}
-                  </div>
-                  <div className="text-gray-500 text-sm mt-2">
-                    Add rooms to this floor in your configuration
-                  </div>
+          {/* Tab Content Background with Sidebar */}
+          <div className="bg-white border-2 border-gray-200 rounded-2xl rounded-tl-none shadow-lg -mt-px relative flex min-h-[600px]">
+            {/* Vertical Sidebar Navigation */}
+            <div className="flex flex-col w-16 border-r border-gray-200">
+              {/* Status Tab */}
+              <button
+                onClick={() => setActiveSection('status')}
+                className={`relative flex-1 flex items-center justify-center py-8 transition-all duration-200 ${
+                  activeSection === 'status'
+                    ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-500'
+                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                }`}
+              >
+                <div 
+                  className="font-semibold text-sm tracking-wider"
+                  style={{ 
+                    writingMode: 'vertical-rl',
+                    textOrientation: 'mixed',
+                    transform: 'rotate(180deg)'
+                  }}
+                >
+                  STATUS
                 </div>
-              )}
+                {activeSection === 'status' && (
+                  <div className="absolute right-0 top-0 bottom-0 w-0.5 bg-blue-500"></div>
+                )}
+              </button>
+
+              {/* Controls Tab */}
+              <button
+                onClick={() => setActiveSection('controls')}
+                className={`relative flex-1 flex items-center justify-center py-8 transition-all duration-200 ${
+                  activeSection === 'controls'
+                    ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-500'
+                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                }`}
+              >
+                <div 
+                  className="font-semibold text-sm tracking-wider"
+                  style={{ 
+                    writingMode: 'vertical-rl',
+                    textOrientation: 'mixed',
+                    transform: 'rotate(180deg)'
+                  }}
+                >
+                  CONTROLS
+                </div>
+                {activeSection === 'controls' && (
+                  <div className="absolute right-0 top-0 bottom-0 w-0.5 bg-blue-500"></div>
+                )}
+              </button>
+            </div>
+
+            {/* Main Content Area */}
+            <div className="flex-1 p-6 overflow-y-auto">
+              {getCurrentContent()}
             </div>
           </div>
         </div>
-        
-        {/* Apartment Section (if exists) - Outside of tabs */}
-        {apartmentRooms.length > 0 && (
-          <div className="mt-8">
-            <FloorSection title="Apartment" rooms={apartmentRooms} />
-          </div>
-        )}
       </main>
     </div>
   );
