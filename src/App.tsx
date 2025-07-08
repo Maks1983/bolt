@@ -296,31 +296,7 @@ const AppContent: React.FC = () => {
       );
     } else if (activeTab !== 'whole-house') {
       // Controls view - show device controls interface
-      return (
-        <div className="text-center py-12">
-          <div className="text-gray-600 text-lg font-medium">
-            Device Controls for {title}
-          </div>
-          <div className="text-gray-500 text-sm mt-2">
-            Advanced device control interface coming soon
-          </div>
-          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {rooms.slice(0, 6).map((room, index) => (
-              <div key={index} className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
-                <h3 className="font-semibold text-gray-900 mb-2">{room.name}</h3>
-                <div className="space-y-2">
-                  <button className="w-full px-3 py-2 bg-blue-50 text-blue-700 rounded-lg text-sm font-medium hover:bg-blue-100 transition-colors">
-                    Quick Controls
-                  </button>
-                  <button className="w-full px-3 py-2 bg-gray-50 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors">
-                    Advanced Settings
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      );
+      return <DeviceControlsSection activeTab={activeTab} />;
     }
     
     return null; // This should never be reached due to whole-house handling above
@@ -335,98 +311,12 @@ const AppContent: React.FC = () => {
         {/* Top-level Tab Navigation */}
         <div className="px-6 mb-6">
           {/* Dynamic Tab Navigation */}
-          <div className="flex items-end">
+          <div className="flex items-end w-full">
             {availableTabs.map((tab, index) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`relative px-6 py-3 rounded-t-2xl font-semibold text-sm transition-all duration-200 transform ${
-                  activeTab === tab.id
-                    ? 'bg-white text-gray-900 shadow-lg border-t-2 border-l-2 border-r-2 border-gray-200 -mb-px'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border-2 border-gray-200 border-b-0'
-                }`}
-                style={{
-                  clipPath: activeTab === tab.id 
-                    ? 'polygon(8px 0%, calc(100% - 8px) 0%, 100% 100%, 0% 100%)'
-                    : 'polygon(6px 0%, calc(100% - 6px) 0%, 100% 100%, 0% 100%)',
-                  // Equal width distribution across full container
-                  width: `${100 / availableTabs.length}%`,
-                  marginRight: index < availableTabs.length - 1 ? '2px' : '0'
-                }}
-              >
-                <span className="relative whitespace-nowrap">{tab.label}</span>
-                {activeTab === tab.id && (
-                  <div className="absolute inset-x-0 bottom-0 h-0.5 bg-white"></div>
-                )}
-              </button>
-            ))}
-          </div>
-          
-          {/* Tab Content Background with Sidebar */}
-          <div className="bg-white border-2 border-gray-200 rounded-2xl rounded-tl-none shadow-lg -mt-px relative min-h-[600px]">
-            {/* Unified Content Area with Sidebar and Content */}
-            <div className="flex h-full max-h-[calc(100vh-200px)] overflow-hidden">
-              {/* Vertical Sidebar Navigation */}
-              <div className="flex flex-col w-16 border-r border-gray-200 flex-shrink-0 h-full">
-                {/* Status Tab */}
-                <button
-                  onClick={() => setActiveSection('status')}
-                  className={`relative flex items-center justify-center py-8 h-32 flex-shrink-0 transition-all duration-200 ${
-                    activeSection === 'status'
-                      ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-500'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                  }`}
-                >
-                  <div 
-                    className="font-semibold text-sm tracking-wider"
-                    style={{ 
-                      writingMode: 'vertical-rl',
-                      textOrientation: 'mixed',
-                      transform: 'rotate(180deg)'
-                    }}
-                  >
-                    STATUS
-                  </div>
-                  {activeSection === 'status' && (
-                    <div className="absolute right-0 top-0 bottom-0 w-0.5 bg-blue-500"></div>
-                  )}
-                </button>
-
-                {/* Controls Tab */}
-                <button
-                  onClick={() => setActiveSection('controls')}
-                  className={`relative flex items-center justify-center py-8 h-32 flex-shrink-0 transition-all duration-200 ${
-                    activeSection === 'controls'
-                      ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-500'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                  }`}
-                >
-                  <div 
-                    className="font-semibold text-sm tracking-wider"
-                    style={{ 
-                      writingMode: 'vertical-rl',
-                      textOrientation: 'mixed',
-                      transform: 'rotate(180deg)'
-                    }}
-                  >
-                    CONTROLS
-                  </div>
-                  {activeSection === 'controls' && (
-                    <div className="absolute right-0 top-0 bottom-0 w-0.5 bg-blue-500"></div>
-                  )}
-                </button>
-              </div>
-
-              {/* Main Content Area */}
-              <div className="flex-1 p-4 lg:p-6 overflow-y-auto overflow-x-hidden">
-                {getCurrentContent()}
-              </div>
-            </div>
-          </div>
-        </div>
-      </main>
-    </div>
-  );
+          return <DeviceControlsSection activeTab={activeTab} />;
 };
 
 function App() {
