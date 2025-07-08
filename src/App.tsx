@@ -3,6 +3,7 @@ import { DeviceProvider, useDevices } from './context/DeviceContext';
 import Header from './components/Header';
 import InfoRow from './components/InfoRow';
 import FloorSection from './components/FloorSection';
+import RoomCard from './components/RoomCard';
 
 // Camera data for NVR system (fallback for display)
 const cameras = [
