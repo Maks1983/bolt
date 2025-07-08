@@ -194,6 +194,25 @@ const AppContent: React.FC = () => {
         title = 'Apartment';
         break;
     }
+
+    if (activeSection === 'status' && activeTab !== 'whole-house') {
+      // Status view - show room cards
+      return rooms.length > 0 ? (
+        <FloorSection title={title} rooms={rooms} />
+      ) : (
+        <div className="text-center py-12">
+          <div className="text-gray-400 text-lg font-medium">
+            No rooms configured for {title}
+          </div>
+          <div className="text-gray-500 text-sm mt-2">
+            Add rooms to this area in your configuration
+          </div>
+        </div>
+      );
+    } else if (activeTab !== 'whole-house') {
+      // Controls view - show device controls interface
+      return <DeviceControlsSection activeTab={activeTab} />;
+    }
     
     return null; // This should never be reached due to whole-house handling above
   };
@@ -212,20 +231,25 @@ const AppContent: React.FC = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`relative py-3 px-6 text-sm font-medium transition-all duration-200 ${
+import Header from '../Header';
+import InfoRow from '../InfoRow';
+import FloorSection from '../FloorSection';
+import RoomCard from '../RoomCard';
+import DeviceControlsSection from './DeviceControlsSection';
                   activeTab === tab.id
                     ? 'bg-white text-gray-900 shadow-lg border-t-2 border-l-2 border-r-2 border-gray-200 -mb-px'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-50'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border-2 border-gray-200 border-b-0'
                 }`}
                 style={{
                   clipPath: activeTab === tab.id 
                     ? 'polygon(8px 0%, calc(100% - 8px) 0%, 100% 100%, 0% 100%)'
-                    : 'none',
+                    : 'polygon(6px 0%, calc(100% - 6px) 0%, 100% 100%, 0% 100%)',
+                  // Equal width distribution across full container
                   width: `${100 / availableTabs.length}%`,
                   marginRight: index < availableTabs.length - 1 ? '2px' : '0'
                 }}
               >
-                {tab.label}
+                <span className="relative whitespace-nowrap">{tab.label}</span>
                 {activeTab === tab.id && (
                   <div className="absolute inset-x-0 bottom-0 h-0.5 bg-white"></div>
                 )}
@@ -289,7 +313,7 @@ const AppContent: React.FC = () => {
               </div>
 
               {/* Main Content Area */}
-              <div className="flex-1 overflow-y-auto p-6">
+              <div className="flex-1 p-4 lg:p-6 overflow-y-auto overflow-x-hidden">
                 {getCurrentContent()}
               </div>
             </div>
