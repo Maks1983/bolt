@@ -112,7 +112,7 @@ export class WebSocketService {
       this.setupEventListeners();
     } catch (error) {
       console.error('❌ Failed to create WebSocket connection:', error);
-      this.setConnectionState('error', this.getConnectionErrorMessage(error));
+      this.setConnectionState('error', error instanceof Error ? error.message : 'Connection failed');
       this.scheduleReconnect();
     }
   }
@@ -167,15 +167,8 @@ export class WebSocketService {
     };
 
     this.ws.onerror = (error) => {
-      const errorDetails = {
-        error,
-        url: WEBSOCKET_URL,
-        timestamp: new Date().toISOString()
-      };
-      console.error('❌ WebSocket error occurred:', errorDetails);
-      
-      const errorMessage = this.getConnectionErrorMessage(error);
-      this.setConnectionState('error', errorMessage);
+      console.error('❌ WebSocket error:', error);
+      this.setConnectionState('error', 'WebSocket connection error');
     };
   }
 
@@ -379,64 +372,6 @@ export class WebSocketService {
         this.connect();
       }
     }, delay);
-  }
-
-  /**
-   * Get user-friendly error message based on connection error
-   */
-  private getConnectionErrorMessage(error: any): string {
-    const url = WEBSOCKET_URL;
-    const isHttpsPage = window.location.protocol === 'https:';
-    const isInsecureWs = url.startsWith('ws://');
-    
-    // Check for mixed content security error (HTTPS page trying to connect to WS)
-    if (isHttpsPage && isInsecureWs) {
-      return `🔒 Security Error: Cannot connect to insecure WebSocket from HTTPS page
-      
-Your page is loaded over HTTPS but trying to connect to an insecure WebSocket (ws://).
-
-Solutions:
-1. ✅ RECOMMENDED: Use secure WebSocket (wss://) - Update your .env file:
-   VITE_HA_WEBSOCKET_URL=wss://your-home-assistant-domain:8123/api/websocket
-   
-   Note: Your Home Assistant must have SSL/HTTPS configured for this to work.
-
-2. 🔧 DEVELOPMENT ONLY: Serve your app over HTTP instead of HTTPS
-   (Not recommended for production)
-
-Current configuration:
-• Page protocol: ${window.location.protocol}
-• WebSocket URL: ${url}`;
-    }
-    
-    // Check if it's a secure WebSocket (WSS) connection issue
-    if (url.startsWith('wss://')) {
-      return `Cannot connect to Home Assistant via secure WebSocket (${url}). This may be due to:
-      
-• SSL certificate issues with the domain
-• Network connectivity problems
-• Incorrect WebSocket URL
-
-Try these solutions:
-1. If using a local Home Assistant, change to ws:// instead of wss:// in your .env file
-2. Verify the domain and SSL certificate are properly configured
-3. Check if Home Assistant is accessible from your network
-
-Example local configuration:
-VITE_HA_WEBSOCKET_URL=ws://192.168.1.100:8123/api/websocket`;
-    }
-    
-    // For non-secure connections
-    if (url.startsWith('ws://')) {
-      return `Cannot connect to Home Assistant (${url}). Please verify:
-      
-• Home Assistant is running and accessible
-• The IP address and port are correct
-• WebSocket API is enabled in Home Assistant
-• Network connectivity is working`;
-    }
-    
-    return `WebSocket connection failed to ${url}. Please check your Home Assistant configuration.`;
   }
 
   /**
