@@ -13,8 +13,8 @@ interface FloorSectionProps {
 const FloorSection: React.FC<FloorSectionProps> = ({ title, rooms }) => {
   return (
     <div>
-      <div className="overflow-x-auto scrollbar-hide">
-        <div className="flex space-x-4 pb-2">
+      <div className="w-full">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
           {rooms.map((room, index) => (
             <RoomCard 
               key={index} 
