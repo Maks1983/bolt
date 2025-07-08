@@ -236,30 +236,48 @@ const AppContent: React.FC = () => {
           <div className="bg-white border-2 border-gray-200 rounded-2xl rounded-tl-none shadow-lg -mt-px relative">
             <div className="flex min-h-[500px]">
               {/* Left Side Navigation */}
-              <div className="w-20 border-r border-gray-200 p-3 bg-gray-50/50 rounded-l-2xl">
+              <div className="w-16 border-r border-gray-200 p-2 bg-gray-50/50 rounded-l-2xl">
                 <div className="space-y-3">
                   <button
                     onClick={() => setActiveContent('status')}
-                    className={`w-full flex flex-col items-center space-y-2 px-2 py-3 rounded-xl transition-all duration-200 ${
+                    className={`w-full flex flex-col items-center justify-center px-1 py-6 rounded-xl transition-all duration-200 ${
                       activeContent === 'status'
                         ? 'bg-blue-500 text-white shadow-md'
                         : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
                     }`}
                   >
-                    <BarChart3 className="w-6 h-6" />
-                    <span className="text-xs font-medium">Status</span>
+                    <BarChart3 className="w-5 h-5 mb-2" />
+                    <span 
+                      className="text-xs font-medium whitespace-nowrap"
+                      style={{ 
+                        writingMode: 'vertical-rl',
+                        textOrientation: 'mixed',
+                        transform: 'rotate(180deg)'
+                      }}
+                    >
+                      Status
+                    </span>
                   </button>
                   
                   <button
                     onClick={() => setActiveContent('controls')}
-                    className={`w-full flex flex-col items-center space-y-2 px-2 py-3 rounded-xl transition-all duration-200 ${
+                    className={`w-full flex flex-col items-center justify-center px-1 py-6 rounded-xl transition-all duration-200 ${
                       activeContent === 'controls'
                         ? 'bg-blue-500 text-white shadow-md'
                         : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
                     }`}
                   >
-                    <Settings className="w-6 h-6" />
-                    <span className="text-xs font-medium">Controls</span>
+                    <Settings className="w-5 h-5 mb-2" />
+                    <span 
+                      className="text-xs font-medium whitespace-nowrap"
+                      style={{ 
+                        writingMode: 'vertical-rl',
+                        textOrientation: 'mixed',
+                        transform: 'rotate(180deg)'
+                      }}
+                    >
+                      Controls
+                    </span>
                   </button>
                 </div>
               </div>
