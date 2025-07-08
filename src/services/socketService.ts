@@ -102,17 +102,40 @@ export class WebSocketService {
       return;
     }
 
+    // Additional URL validation
+    try {
+      const url = new URL(WEBSOCKET_URL);
+      if (!['ws:', 'wss:'].includes(url.protocol)) {
+        this.setConnectionState('error', 'Invalid WebSocket URL protocol. Must start with ws:// or wss://');
+        return;
+      }
+      
+      // Check protocol compatibility
+      const isSecure = url.protocol === 'wss:';
+      const currentProtocol = window.location.protocol;
+      
+      if (isSecure && currentProtocol === 'http:') {
+        console.warn('⚠️ Attempting secure WebSocket (wss://) from insecure page (http://). This may fail.');
+      } else if (!isSecure && currentProtocol === 'https:') {
+        this.setConnectionState('error', 'Cannot connect to insecure WebSocket (ws://) from secure page (https://). Use wss:// in VITE_HA_WEBSOCKET_URL');
+        return;
+      }
+    } catch (error) {
+      this.setConnectionState('error', `Invalid WebSocket URL format: ${WEBSOCKET_URL}`);
+      return;
+    }
     this.isManuallyDisconnected = false;
     this.setConnectionState('connecting');
 
     try {
       console.log(`🔌 Attempting to connect to Home Assistant at: ${WEBSOCKET_URL}`);
+      console.log(`📊 Connection details: Protocol=${new URL(WEBSOCKET_URL).protocol}, Host=${new URL(WEBSOCKET_URL).host}`);
       
       this.ws = new WebSocket(WEBSOCKET_URL);
       this.setupEventListeners();
     } catch (error) {
       console.error('❌ Failed to create WebSocket connection:', error);
-      this.setConnectionState('error', error instanceof Error ? error.message : 'Connection failed');
+      this.setConnectionState('error', `Failed to create WebSocket connection: ${error instanceof Error ? error.message : 'Unknown error'}`);
       this.scheduleReconnect();
     }
   }
@@ -154,6 +177,24 @@ export class WebSocketService {
 
     this.ws.onclose = (event) => {
       console.log('🔌 WebSocket connection closed:', event.code, event.reason);
+      
+      // Log more detailed close information for debugging
+      const closeReasons: Record<number, string> = {
+        1000: 'Normal closure',
+        1001: 'Going away',
+        1002: 'Protocol error',
+        1003: 'Unsupported data',
+        1006: 'Abnormal closure (no close frame)',
+        1011: 'Server error',
+        1012: 'Service restart',
+        1013: 'Try again later',
+        1014: 'Bad gateway',
+        1015: 'TLS handshake failure'
+      };
+      
+      const closeReason = closeReasons[event.code] || `Unknown (${event.code})`;
+      console.log(`📊 Close details: ${closeReason}${event.reason ? ` - ${event.reason}` : ''}`);
+      
       this.setConnectionState('disconnected');
       
       // Clear pending messages and subscriptions
@@ -168,7 +209,26 @@ export class WebSocketService {
 
     this.ws.onerror = (error) => {
       console.error('❌ WebSocket error:', error);
-      this.setConnectionState('error', 'WebSocket connection error');
+      
+      // Provide more specific error information
+      let errorMessage = 'WebSocket connection failed';
+      
+      if (this.ws) {
+        const url = new URL(WEBSOCKET_URL);
+        const isSecure = url.protocol === 'wss:';
+        const currentProtocol = window.location.protocol;
+        
+        // Check for common configuration issues
+        if (isSecure && currentProtocol === 'http:') {
+          errorMessage = `Cannot connect to secure WebSocket (wss://) from insecure page (http://). Either:\n• Access this page via HTTPS, or\n• Use ws:// instead of wss:// in VITE_HA_WEBSOCKET_URL`;
+        } else if (!isSecure && currentProtocol === 'https:') {
+          errorMessage = `Cannot connect to insecure WebSocket (ws://) from secure page (https://). Use wss:// in VITE_HA_WEBSOCKET_URL`;
+        } else {
+          errorMessage = `Cannot connect to Home Assistant at ${WEBSOCKET_URL}. Please check:\n• Home Assistant is running and accessible\n• WebSocket URL is correct\n• Network connectivity\n• Firewall settings`;
+        }
+      }
+      
+      this.setConnectionState('error', errorMessage);
     };
   }
 
