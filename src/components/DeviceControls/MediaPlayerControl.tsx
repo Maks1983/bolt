@@ -208,6 +208,10 @@ const AppContent: React.FC = () => {
             Add rooms to this area in your configuration
           </div>
         </div>
+      );
+    }
+  };
+
   const handleToggle = () => {
     if (currentDevice.state === 'playing') {
       controlMediaPlayer(currentDevice.entity_id, 'pause');
@@ -230,6 +234,7 @@ const AppContent: React.FC = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
+                className={`relative py-3 px-6 text-sm font-medium transition-all duration-200 ${
                   activeTab === tab.id
                     ? 'bg-white text-gray-900 shadow-lg border-t-2 border-l-2 border-r-2 border-gray-200 -mb-px'
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border-2 border-gray-200 border-b-0'
@@ -238,7 +243,6 @@ const AppContent: React.FC = () => {
                   clipPath: activeTab === tab.id 
                     ? 'polygon(8px 0%, calc(100% - 8px) 0%, 100% 100%, 0% 100%)'
                     : 'polygon(6px 0%, calc(100% - 6px) 0%, 100% 100%, 0% 100%)',
-                  // Equal width distribution across full container
                   width: `${100 / availableTabs.length}%`,
                   marginRight: index < availableTabs.length - 1 ? '2px' : '0'
                 }}
@@ -283,16 +287,29 @@ const AppContent: React.FC = () => {
 
                 {/* Controls Tab */}
                 <button
-          onClick={handleToggle}
-          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors flex-shrink-0 ml-3 ${
-            isPlaying ? 'bg-green-500' : 'bg-gray-300'
+                  onClick={() => setActiveSection('controls')}
+                  className={`relative flex items-center justify-center py-8 h-32 flex-shrink-0 transition-all duration-200 ${
+                    activeSection === 'controls'
                       ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-500'
                       : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-          <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-            isPlaying ? 'translate-x-6' : 'translate-x-1'
-          }`} />
+                  }`}
                 >
                   <div 
+                    className="font-semibold text-sm tracking-wider"
+                    style={{ 
+                      writingMode: 'vertical-rl',
+                      textOrientation: 'mixed',
+                      transform: 'rotate(180deg)'
+                    }}
+                  >
+                    CONTROLS
+                  </div>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
     </div>
   );
 };
