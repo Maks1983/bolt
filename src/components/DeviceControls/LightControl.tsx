@@ -171,6 +171,13 @@ const AppContent: React.FC = () => {
                     No rooms configured
                   </div>
                   <div className="text-gray-500 text-sm mt-2">
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        }
+    }
     
     return null; // This should never be reached due to whole-house handling above
   };
@@ -189,22 +196,33 @@ const AppContent: React.FC = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
+                className={`px-6 py-3 text-sm font-medium rounded-t-lg transition-all duration-200 ${
                   activeTab === tab.id
                     ? 'bg-white text-gray-900 shadow-lg border-t-2 border-l-2 border-r-2 border-gray-200 -mb-px'
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border-2 border-gray-200 border-b-0'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
           
           {/* Tab Content Background with Sidebar */}
+          <div className="bg-white rounded-lg rounded-tl-none shadow-lg border-2 border-gray-200">
             {/* Unified Content Area with Sidebar and Content */}
             <div className="flex h-full max-h-[calc(100vh-200px)] overflow-hidden">
               {/* Vertical Sidebar Navigation */}
               <div className="flex flex-col w-16 border-r border-gray-200 flex-shrink-0 h-full">
                 {/* Status Tab */}
-      <div className="bg-gray-50/80 rounded-xl p-4 border border-gray-200/50">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3 flex-1 min-w-0">
-            <Lightbulb className={`w-5 h-5 flex-shrink-0 ${isOn ? 'text-yellow-500' : 'text-gray-400'}`} />
-            <h4 className="font-medium text-gray-900 truncate">{currentDevice.friendly_name}</h4>
-          </div>
+                <button
+                  onClick={() => setActiveSection('status')}
+                  className={`relative flex items-center justify-center py-8 h-32 flex-shrink-0 transition-all duration-200 ${
+                    activeSection === 'status'
+                      ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-500'
+                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                  }`}
+                >
+                  <div 
                     className="font-semibold text-sm tracking-wider"
                     style={{ 
                       writingMode: 'vertical-rl',
@@ -242,7 +260,7 @@ const AppContent: React.FC = () => {
                     <div className="absolute right-0 top-0 bottom-0 w-0.5 bg-blue-500"></div>
                   )}
                 </button>
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors flex-shrink-0 ml-3 ${
+              </div>
 
               {/* Main Content Area */}
               <div className="flex-1 p-4 lg:p-6 overflow-y-auto overflow-x-hidden">
