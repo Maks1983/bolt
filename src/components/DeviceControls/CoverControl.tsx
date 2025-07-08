@@ -231,14 +231,11 @@ const AppContent: React.FC = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
+                className={
                   activeTab === tab.id
                     ? 'bg-white text-gray-900 shadow-lg border-t-2 border-l-2 border-r-2 border-gray-200 -mb-px'
-  const handleToggle = () => {
-    if (currentDevice.state === 'open' || (currentDevice.position && currentDevice.position > 50)) {
-      controlCover(currentDevice.entity_id, 'close');
-    } else {
-      controlCover(currentDevice.entity_id, 'open');
-    }
+                    : 'bg-transparent text-gray-600'
+                }
               >
                 <span className="relative whitespace-nowrap">{tab.label}</span>
                 {activeTab === tab.id && (
@@ -263,26 +260,40 @@ const AppContent: React.FC = () => {
                       : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                   }`}
                 >
-                  <div 
-    <div className="bg-gray-50/80 rounded-xl p-4 border border-gray-200/50">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-3 flex-1 min-w-0">
-          <Columns2 className={`w-5 h-5 flex-shrink-0 ${isOpen ? 'text-blue-500' : 'text-gray-400'}`} />
-          <h4 className="font-medium text-gray-900 truncate">{currentDevice.friendly_name}</h4>
+                  <div className="bg-gray-50/80 rounded-xl p-4 border border-gray-200/50">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3 flex-1 min-w-0">
+                        <Columns2 className={`w-5 h-5 flex-shrink-0 ${isOpen ? 'text-blue-500' : 'text-gray-400'}`} />
+                        <h4 className="font-medium text-gray-900 truncate">{currentDevice.friendly_name}</h4>
+                      </div>
+                      <button
+                        onClick={handleToggle}
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors flex-shrink-0 ml-3 ${
+                          isOpen ? 'bg-blue-500' : 'bg-gray-300'
+                        }`}
+                      >
+                        <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                          isOpen ? 'translate-x-6' : 'translate-x-1'
+                        }`} />
+                      </button>
+                    </div>
+                  </div>
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-        <button
-          onClick={handleToggle}
-          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors flex-shrink-0 ml-3 ${
-            isOpen ? 'bg-blue-500' : 'bg-gray-300'
-          }`}
-        >
-          <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-            isOpen ? 'translate-x-6' : 'translate-x-1'
-          }`} />
-        </button>
-      </div>
+      </main>
+    </div>
+  );
+};
+
+const App: React.FC = () => {
+  return (
+    <DeviceProvider>
+      <AppContent />
     </DeviceProvider>
   );
-}
+};
 
 export default App;
