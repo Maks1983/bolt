@@ -171,12 +171,47 @@ const AppContent: React.FC = () => {
                     No rooms configured
                   </div>
                   <div className="text-gray-500 text-sm mt-2">
+                    Add rooms to your configuration to see them here
                   </div>
                 </div>
               )}
             </div>
           );
+        } else {
+          // Controls view for whole house - use DeviceControlsSection
+          return <DeviceControlsSection activeTab="whole-house" />;
         }
+      case 'upper-floor':
+        rooms = upperFloorRooms;
+        title = 'Upper Floor';
+        break;
+      case 'lower-floor':
+        rooms = lowerFloorRooms;
+        title = 'Lower Floor';
+        break;
+      case 'apartment':
+        rooms = apartmentRooms;
+        title = 'Apartment';
+        break;
+    }
+
+    if (activeSection === 'status' && activeTab !== 'whole-house') {
+      // Status view - show room cards
+      return rooms.length > 0 ? (
+        <FloorSection title={title} rooms={rooms} />
+      ) : (
+        <div className="text-center py-12">
+          <div className="text-gray-400 text-lg font-medium">
+            No rooms configured for {title}
+          </div>
+          <div className="text-gray-500 text-sm mt-2">
+            Add rooms to this area in your configuration
+          </div>
+        </div>
+      );
+    } else if (activeTab !== 'whole-house') {
+      // Controls view - show device controls interface
+      return <DeviceControlsSection activeTab={activeTab} />;
     }
     
     return null; // This should never be reached due to whole-house handling above
@@ -196,19 +231,34 @@ const AppContent: React.FC = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`px-6 py-3 text-sm font-medium rounded-t-lg transition-all duration-200 ${
+import Header from '../Header';
+import InfoRow from '../InfoRow';
+import FloorSection from '../FloorSection';
+import RoomCard from '../RoomCard';
+import DeviceControlsSection from './DeviceControlsSection';
                   activeTab === tab.id
                     ? 'bg-white text-gray-900 shadow-lg border-t-2 border-l-2 border-r-2 border-gray-200 -mb-px'
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border-2 border-gray-200 border-b-0'
                 }`}
+                style={{
+                  clipPath: activeTab === tab.id 
+                    ? 'polygon(8px 0%, calc(100% - 8px) 0%, 100% 100%, 0% 100%)'
+                    : 'polygon(6px 0%, calc(100% - 6px) 0%, 100% 100%, 0% 100%)',
+                  // Equal width distribution across full container
+                  width: `${100 / availableTabs.length}%`,
+                  marginRight: index < availableTabs.length - 1 ? '2px' : '0'
+                }}
               >
-                {tab.label}
+                <span className="relative whitespace-nowrap">{tab.label}</span>
+                {activeTab === tab.id && (
+                  <div className="absolute inset-x-0 bottom-0 h-0.5 bg-white"></div>
+                )}
               </button>
             ))}
           </div>
           
           {/* Tab Content Background with Sidebar */}
-          <div className="bg-white rounded-lg rounded-tl-none shadow-lg border-2 border-gray-200">
+          <div className="bg-white border-2 border-gray-200 rounded-2xl rounded-tl-none shadow-lg -mt-px relative min-h-[600px]">
             {/* Unified Content Area with Sidebar and Content */}
             <div className="flex h-full max-h-[calc(100vh-200px)] overflow-hidden">
               {/* Vertical Sidebar Navigation */}

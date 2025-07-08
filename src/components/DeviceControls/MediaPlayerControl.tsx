@@ -209,15 +209,12 @@ const AppContent: React.FC = () => {
           </div>
         </div>
       );
+    } else if (activeTab !== 'whole-house') {
+      // Controls view - show device controls interface
+      return <DeviceControlsSection activeTab={activeTab} />;
     }
-  };
-
-  const handleToggle = () => {
-    if (currentDevice.state === 'playing') {
-      controlMediaPlayer(currentDevice.entity_id, 'pause');
-    } else {
-      controlMediaPlayer(currentDevice.entity_id, 'play');
-    }
+    
+    return null; // This should never be reached due to whole-house handling above
   };
 
   return (
@@ -234,7 +231,11 @@ const AppContent: React.FC = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`relative py-3 px-6 text-sm font-medium transition-all duration-200 ${
+import Header from '../Header';
+import InfoRow from '../InfoRow';
+import FloorSection from '../FloorSection';
+import RoomCard from '../RoomCard';
+import DeviceControlsSection from './DeviceControlsSection';
                   activeTab === tab.id
                     ? 'bg-white text-gray-900 shadow-lg border-t-2 border-l-2 border-r-2 border-gray-200 -mb-px'
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border-2 border-gray-200 border-b-0'
@@ -243,6 +244,7 @@ const AppContent: React.FC = () => {
                   clipPath: activeTab === tab.id 
                     ? 'polygon(8px 0%, calc(100% - 8px) 0%, 100% 100%, 0% 100%)'
                     : 'polygon(6px 0%, calc(100% - 6px) 0%, 100% 100%, 0% 100%)',
+                  // Equal width distribution across full container
                   width: `${100 / availableTabs.length}%`,
                   marginRight: index < availableTabs.length - 1 ? '2px' : '0'
                 }}
@@ -304,7 +306,15 @@ const AppContent: React.FC = () => {
                   >
                     CONTROLS
                   </div>
+                  {activeSection === 'controls' && (
+                    <div className="absolute right-0 top-0 bottom-0 w-0.5 bg-blue-500"></div>
+                  )}
                 </button>
+              </div>
+
+              {/* Main Content Area */}
+              <div className="flex-1 p-4 lg:p-6 overflow-y-auto overflow-x-hidden">
+                {getCurrentContent()}
               </div>
             </div>
           </div>

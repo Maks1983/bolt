@@ -231,11 +231,24 @@ const AppContent: React.FC = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={
+import Header from '../Header';
+import InfoRow from '../InfoRow';
+import FloorSection from '../FloorSection';
+import RoomCard from '../RoomCard';
+import DeviceControlsSection from './DeviceControlsSection';
+import { Columns2 } from 'lucide-react';
                   activeTab === tab.id
                     ? 'bg-white text-gray-900 shadow-lg border-t-2 border-l-2 border-r-2 border-gray-200 -mb-px'
-                    : 'bg-transparent text-gray-600'
-                }
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border-2 border-gray-200 border-b-0'
+                }`}
+                style={{
+                  clipPath: activeTab === tab.id 
+                    ? 'polygon(8px 0%, calc(100% - 8px) 0%, 100% 100%, 0% 100%)'
+                    : 'polygon(6px 0%, calc(100% - 6px) 0%, 100% 100%, 0% 100%)',
+                  // Equal width distribution across full container
+                  width: `${100 / availableTabs.length}%`,
+                  marginRight: index < availableTabs.length - 1 ? '2px' : '0'
+                }}
               >
                 <span className="relative whitespace-nowrap">{tab.label}</span>
                 {activeTab === tab.id && (
@@ -260,25 +273,49 @@ const AppContent: React.FC = () => {
                       : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                   }`}
                 >
-                  <div className="bg-gray-50/80 rounded-xl p-4 border border-gray-200/50">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3 flex-1 min-w-0">
-                        <Columns2 className={`w-5 h-5 flex-shrink-0 ${isOpen ? 'text-blue-500' : 'text-gray-400'}`} />
-                        <h4 className="font-medium text-gray-900 truncate">{currentDevice.friendly_name}</h4>
-                      </div>
-                      <button
-                        onClick={handleToggle}
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors flex-shrink-0 ml-3 ${
-                          isOpen ? 'bg-blue-500' : 'bg-gray-300'
-                        }`}
-                      >
-                        <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                          isOpen ? 'translate-x-6' : 'translate-x-1'
-                        }`} />
-                      </button>
-                    </div>
+                  <div 
+                    className="font-semibold text-sm tracking-wider"
+                    style={{ 
+                      writingMode: 'vertical-rl',
+                      textOrientation: 'mixed',
+                      transform: 'rotate(180deg)'
+                    }}
+                  >
+                    STATUS
                   </div>
+                  {activeSection === 'status' && (
+                    <div className="absolute right-0 top-0 bottom-0 w-0.5 bg-blue-500"></div>
+                  )}
                 </button>
+
+                {/* Controls Tab */}
+                <button
+                  onClick={() => setActiveSection('controls')}
+                  className={`relative flex items-center justify-center py-8 h-32 flex-shrink-0 transition-all duration-200 ${
+                    activeSection === 'controls'
+                      ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-500'
+                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                  }`}
+                >
+                  <div 
+                    className="font-semibold text-sm tracking-wider"
+                    style={{ 
+                      writingMode: 'vertical-rl',
+                      textOrientation: 'mixed',
+                      transform: 'rotate(180deg)'
+                    }}
+                  >
+                    CONTROLS
+                  </div>
+                  {activeSection === 'controls' && (
+                    <div className="absolute right-0 top-0 bottom-0 w-0.5 bg-blue-500"></div>
+                  )}
+                </button>
+              </div>
+
+              {/* Main Content Area */}
+              <div className="flex-1 p-4 lg:p-6 overflow-y-auto overflow-x-hidden">
+                {getCurrentContent()}
               </div>
             </div>
           </div>
@@ -288,12 +325,12 @@ const AppContent: React.FC = () => {
   );
 };
 
-const App: React.FC = () => {
+function App() {
   return (
     <DeviceProvider>
       <AppContent />
     </DeviceProvider>
   );
-};
+}
 
 export default App;
