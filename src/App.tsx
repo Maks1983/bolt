@@ -341,9 +341,9 @@ const AppContent: React.FC = () => {
           {/* Tab Content Background with Sidebar */}
           <div className="bg-white border-2 border-gray-200 rounded-2xl rounded-tl-none shadow-lg -mt-px relative min-h-[600px]">
             {/* Unified Content Area with Sidebar and Content */}
-            <div className="flex min-h-full max-h-[calc(100vh-200px)] overflow-y-auto overflow-x-hidden">
+            <div className="flex h-full max-h-[calc(100vh-200px)] overflow-hidden">
               {/* Vertical Sidebar Navigation */}
-              <div className="flex flex-col w-16 border-r border-gray-200 flex-shrink-0">
+              <div className="flex flex-col w-16 border-r border-gray-200 flex-shrink-0 h-full">
                 {/* Status Tab */}
                 <button
                   onClick={() => setActiveSection('status')}
@@ -391,13 +391,10 @@ const AppContent: React.FC = () => {
                     <div className="absolute right-0 top-0 bottom-0 w-0.5 bg-blue-500"></div>
                   )}
                 </button>
-                
-                {/* Spacer to fill remaining height */}
-                <div className="flex-1"></div>
               </div>
 
               {/* Main Content Area */}
-              <div className="flex-1 p-4 lg:p-6">
+              <div className="flex-1 p-4 lg:p-6 overflow-y-auto overflow-x-hidden">
                 {getCurrentContent()}
               </div>
             </div>
