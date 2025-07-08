@@ -236,30 +236,30 @@ const AppContent: React.FC = () => {
           <div className="bg-white border-2 border-gray-200 rounded-2xl rounded-tl-none shadow-lg -mt-px relative">
             <div className="flex min-h-[500px]">
               {/* Left Side Navigation */}
-              <div className="w-48 border-r border-gray-200 p-4 bg-gray-50/50 rounded-l-2xl">
-                <div className="space-y-2">
+              <div className="w-20 border-r border-gray-200 p-3 bg-gray-50/50 rounded-l-2xl">
+                <div className="space-y-3">
                   <button
                     onClick={() => setActiveContent('status')}
-                    className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-left transition-all duration-200 ${
+                    className={`w-full flex flex-col items-center space-y-2 px-2 py-3 rounded-xl transition-all duration-200 ${
                       activeContent === 'status'
                         ? 'bg-blue-500 text-white shadow-md'
                         : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
                     }`}
                   >
-                    <BarChart3 className="w-5 h-5" />
-                    <span className="font-medium">Status</span>
+                    <BarChart3 className="w-6 h-6" />
+                    <span className="text-xs font-medium">Status</span>
                   </button>
                   
                   <button
                     onClick={() => setActiveContent('controls')}
-                    className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-left transition-all duration-200 ${
+                    className={`w-full flex flex-col items-center space-y-2 px-2 py-3 rounded-xl transition-all duration-200 ${
                       activeContent === 'controls'
                         ? 'bg-blue-500 text-white shadow-md'
                         : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
                     }`}
                   >
-                    <Settings className="w-5 h-5" />
-                    <span className="font-medium">Controls</span>
+                    <Settings className="w-6 h-6" />
+                    <span className="text-xs font-medium">Controls</span>
                   </button>
                 </div>
               </div>
