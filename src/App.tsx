@@ -341,8 +341,6 @@ const AppContent: React.FC = () => {
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`relative px-6 py-3 rounded-t-2xl font-semibold text-sm transition-all duration-200 transform ${
-                  index < availableTabs.length - 1 ? 'mr-1' : ''
-                } ${
                   activeTab === tab.id
                     ? 'bg-white text-gray-900 shadow-lg border-t-2 border-l-2 border-r-2 border-gray-200 -mb-px'
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border-2 border-gray-200 border-b-0'
@@ -351,9 +349,9 @@ const AppContent: React.FC = () => {
                   clipPath: activeTab === tab.id 
                     ? 'polygon(8px 0%, calc(100% - 8px) 0%, 100% 100%, 0% 100%)'
                     : 'polygon(6px 0%, calc(100% - 6px) 0%, 100% 100%, 0% 100%)',
-                  // Dynamic width distribution
-                  minWidth: `${Math.max(120, Math.floor(600 / availableTabs.length))}px`,
-                  flex: availableTabs.length <= 4 ? '0 0 auto' : '1 1 0%'
+                  // Equal width distribution across full container
+                  width: `${100 / availableTabs.length}%`,
+                  marginRight: index < availableTabs.length - 1 ? '2px' : '0'
                 }}
               >
                 <span className="relative whitespace-nowrap">{tab.label}</span>
@@ -362,11 +360,6 @@ const AppContent: React.FC = () => {
                 )}
               </button>
             ))}
-            
-            {/* Flexible spacer to push tabs to the left if needed */}
-            {availableTabs.length <= 4 && (
-              <div className="flex-1"></div>
-            )}
           </div>
           
           {/* Tab Content Background with Sidebar */}
