@@ -339,61 +339,64 @@ const AppContent: React.FC = () => {
           </div>
           
           {/* Tab Content Background with Sidebar */}
-          <div className="bg-white border-2 border-gray-200 rounded-2xl rounded-tl-none shadow-lg -mt-px relative flex min-h-[600px] max-h-[calc(100vh-200px)]">
-            {/* Vertical Sidebar Navigation */}
-            <div className="flex flex-col w-16 border-r border-gray-200">
-              {/* Status Tab */}
-              <button
-                onClick={() => setActiveSection('status')}
-                className={`relative flex-1 flex items-center justify-center py-8 transition-all duration-200 ${
-                  activeSection === 'status'
-                    ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-500'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                }`}
-              >
-                <div 
-                  className="font-semibold text-sm tracking-wider"
-                  style={{ 
-                    writingMode: 'vertical-rl',
-                    textOrientation: 'mixed',
-                    transform: 'rotate(180deg)'
-                  }}
+          <div className="bg-white border-2 border-gray-200 rounded-2xl rounded-tl-none shadow-lg -mt-px relative min-h-[600px] max-h-[calc(100vh-200px)] overflow-y-auto overflow-x-hidden">
+            {/* Unified Content Area with Sidebar and Content */}
+            <div className="flex min-h-full">
+              {/* Vertical Sidebar Navigation */}
+              <div className="flex flex-col w-16 border-r border-gray-200 flex-shrink-0">
+                {/* Status Tab */}
+                <button
+                  onClick={() => setActiveSection('status')}
+                  className={`relative flex items-center justify-center py-8 min-h-[120px] transition-all duration-200 ${
+                    activeSection === 'status'
+                      ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-500'
+                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                  }`}
                 >
-                  STATUS
-                </div>
-                {activeSection === 'status' && (
-                  <div className="absolute right-0 top-0 bottom-0 w-0.5 bg-blue-500"></div>
-                )}
-              </button>
+                  <div 
+                    className="font-semibold text-sm tracking-wider"
+                    style={{ 
+                      writingMode: 'vertical-rl',
+                      textOrientation: 'mixed',
+                      transform: 'rotate(180deg)'
+                    }}
+                  >
+                    STATUS
+                  </div>
+                  {activeSection === 'status' && (
+                    <div className="absolute right-0 top-0 bottom-0 w-0.5 bg-blue-500"></div>
+                  )}
+                </button>
 
-              {/* Controls Tab */}
-              <button
-                onClick={() => setActiveSection('controls')}
-                className={`relative flex-1 flex items-center justify-center py-8 transition-all duration-200 ${
-                  activeSection === 'controls'
-                    ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-500'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                }`}
-              >
-                <div 
-                  className="font-semibold text-sm tracking-wider"
-                  style={{ 
-                    writingMode: 'vertical-rl',
-                    textOrientation: 'mixed',
-                    transform: 'rotate(180deg)'
-                  }}
+                {/* Controls Tab */}
+                <button
+                  onClick={() => setActiveSection('controls')}
+                  className={`relative flex items-center justify-center py-8 min-h-[120px] transition-all duration-200 ${
+                    activeSection === 'controls'
+                      ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-500'
+                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                  }`}
                 >
-                  CONTROLS
-                </div>
-                {activeSection === 'controls' && (
-                  <div className="absolute right-0 top-0 bottom-0 w-0.5 bg-blue-500"></div>
-                )}
-              </button>
-            </div>
+                  <div 
+                    className="font-semibold text-sm tracking-wider"
+                    style={{ 
+                      writingMode: 'vertical-rl',
+                      textOrientation: 'mixed',
+                      transform: 'rotate(180deg)'
+                    }}
+                  >
+                    CONTROLS
+                  </div>
+                  {activeSection === 'controls' && (
+                    <div className="absolute right-0 top-0 bottom-0 w-0.5 bg-blue-500"></div>
+                  )}
+                </button>
+              </div>
 
-            {/* Main Content Area */}
-            <div className="flex-1 p-4 lg:p-6 overflow-y-auto overflow-x-hidden">
-              {getCurrentContent()}
+              {/* Main Content Area */}
+              <div className="flex-1 p-4 lg:p-6">
+                {getCurrentContent()}
+              </div>
             </div>
           </div>
         </div>
