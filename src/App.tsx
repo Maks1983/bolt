@@ -77,11 +77,11 @@ const AppContent: React.FC = () => {
       <main className="py-4 pb-8">
         {/* Tab Navigation */}
         <div className="px-6 mb-6">
-          <div className="flex items-end space-x-1">
+          <div className="flex items-end">
             {/* Upper Floor Tab */}
             <button
               onClick={() => setActiveFloor('Upper Floor')}
-              className={`relative px-6 py-3 rounded-t-2xl font-semibold text-sm transition-all duration-200 transform ${
+              className={`relative flex-1 px-6 py-3 rounded-t-2xl font-semibold text-sm transition-all duration-200 transform mr-1 ${
                 activeFloor === 'Upper Floor'
                   ? 'bg-white text-gray-900 shadow-lg border-t-2 border-l-2 border-r-2 border-gray-200  -mb-px'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border-2 border-gray-200 border-b-0'
@@ -92,7 +92,7 @@ const AppContent: React.FC = () => {
                   : 'polygon(6px 0%, calc(100% - 6px) 0%, 100% 100%, 0% 100%)'
               }}
             >
-              <span className="relative">Upper Floor</span>
+              <span className="relative text-center w-full">Upper Floor</span>
               {activeFloor === 'Upper Floor' && (
                 <div className="absolute inset-x-0 bottom-0 h-0.5 bg-white"></div>
               )}
@@ -101,7 +101,7 @@ const AppContent: React.FC = () => {
             {/* Lower Floor Tab */}
             <button
               onClick={() => setActiveFloor('Lower Floor')}
-              className={`relative px-6 py-3 rounded-t-2xl font-semibold text-sm transition-all duration-200 transform ${
+              className={`relative flex-1 px-6 py-3 rounded-t-2xl font-semibold text-sm transition-all duration-200 transform ${
                 activeFloor === 'Lower Floor'
                   ? 'bg-white text-gray-900 shadow-lg border-t-2 border-l-2 border-r-2 border-gray-200 -mb-px'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border-2 border-gray-200 border-b-0 '
@@ -112,7 +112,7 @@ const AppContent: React.FC = () => {
                   : 'polygon(6px 0%, calc(100% - 6px) 0%, 100% 100%, 0% 100%)'
               }}
             >
-              <span className="relative">Lower Floor</span>
+              <span className="relative text-center w-full">Lower Floor</span>
               {activeFloor === 'Lower Floor' && (
                 <div className="absolute inset-x-0 bottom-0 h-0.5 bg-white"></div>
               )}
