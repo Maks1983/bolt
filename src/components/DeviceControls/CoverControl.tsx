@@ -213,6 +213,7 @@ const AppContent: React.FC = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
+                className={`px-6 py-3 text-sm font-medium transition-all duration-200 ${
                   activeTab === tab.id
                     ? 'bg-white text-gray-900 shadow-lg border-t-2 border-l-2 border-r-2 border-gray-200 -mb-px'
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border-2 border-gray-200 border-b-0'
@@ -220,7 +221,18 @@ const AppContent: React.FC = () => {
                 style={{
                   clipPath: activeTab === tab.id 
                     ? 'polygon(8px 0%, calc(100% - 8px) 0%, 100% 100%, 0% 100%)'
-    const isOpen = currentDevice.state === 'open';
+                    : 'none'
+                }}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
+            <div className="flex">
+              {/* Side Navigation */}
+              <div className="flex flex-col border-r border-gray-200">
                 {/* Status Tab */}
                 <button
                   onClick={() => setActiveSection('status')}
@@ -259,23 +271,19 @@ const AppContent: React.FC = () => {
                     style={{ 
                       writingMode: 'vertical-rl',
                       textOrientation: 'mixed',
-      <div className="bg-gray-50/80 rounded-xl p-4 border border-gray-200/50">
+                      transform: 'rotate(180deg)'
                     }}
                   >
                     CONTROLS
                   </div>
                   {activeSection === 'controls' && (
-              className={`px-3 py-1.5 rounded-lg transition-colors text-sm font-medium ${
-                !isOpen ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-              }`}
+                    <div className="absolute right-0 top-0 bottom-0 w-0.5 bg-blue-500"></div>
                   )}
                 </button>
               </div>
 
               {/* Main Content Area */}
-              className={`px-3 py-1.5 rounded-lg transition-colors text-sm font-medium ${
-                isOpen ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-              }`}
+              <div className="flex-1 p-6">
                 {getCurrentContent()}
               </div>
             </div>
