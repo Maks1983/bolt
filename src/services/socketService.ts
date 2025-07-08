@@ -106,14 +106,18 @@ export class WebSocketService {
     this.setConnectionState('connecting');
 
     try {
-      console.log(`🔌 Attempting to connect to Home Assistant at: ${WEBSOCKET_URL}`);
+      console.log(`🔌 Attempting to connect to Home Assistant...`);
+      console.log(`   URL: ${WEBSOCKET_URL}`);
+      console.log(`   Protocol: ${WEBSOCKET_URL.startsWith('wss://') ? 'Secure WebSocket (wss://)' : 'WebSocket (ws://)'}`);
+      console.log(`   Page protocol: ${window.location.protocol}`);
+      console.log(`   Attempt: ${this.reconnectAttempts + 1}/${this.maxReconnectAttempts + 1}`);
       
       this.ws = new WebSocket(WEBSOCKET_URL);
       this.setupEventListeners();
     } catch (error) {
       console.error('❌ Failed to create WebSocket connection:', error);
       this.setConnectionState('error', error instanceof Error ? error.message : 'Connection failed');
-      this.scheduleReconnect();
+      this.scheduleReconnect(error instanceof Error ? error.message : 'Connection failed');
     }
   }
 
@@ -153,7 +157,25 @@ export class WebSocketService {
     };
 
     this.ws.onclose = (event) => {
-      console.log('🔌 WebSocket connection closed:', event.code, event.reason);
+      console.log('🔌 WebSocket connection closed:', {
+        code: event.code,
+        reason: event.reason,
+        wasClean: event.wasClean,
+        url: WEBSOCKET_URL
+      });
+      
+      // Provide more specific error messages based on close codes
+      let errorMessage = 'Connection closed';
+      if (event.code === 1006) {
+        errorMessage = 'Connection failed - unable to reach Home Assistant server. Please check if the server is running and accessible.';
+      } else if (event.code === 1002) {
+        errorMessage = 'Protocol error - invalid WebSocket endpoint or server configuration.';
+      } else if (event.code === 1015) {
+        errorMessage = 'TLS handshake failed - try using ws:// instead of wss:// if Home Assistant is not configured for SSL.';
+      } else if (event.reason) {
+        errorMessage = `Connection closed: ${event.reason}`;
+      }
+      
       this.setConnectionState('disconnected');
       
       // Clear pending messages and subscriptions
@@ -162,13 +184,32 @@ export class WebSocketService {
       
       // Auto-reconnect unless manually disconnected
       if (!this.isManuallyDisconnected) {
-        this.scheduleReconnect();
+        this.scheduleReconnect(errorMessage);
       }
     };
 
     this.ws.onerror = (error) => {
-      console.error('❌ WebSocket error:', error);
-      this.setConnectionState('error', 'WebSocket connection error');
+      console.error('❌ WebSocket error details:', {
+        error,
+        url: WEBSOCKET_URL,
+        readyState: this.ws?.readyState,
+        protocol: window.location.protocol
+      });
+      
+      // Provide helpful error message based on common issues
+      let errorMessage = 'WebSocket connection failed';
+      
+      if (WEBSOCKET_URL.startsWith('wss://') && window.location.protocol === 'http:') {
+        errorMessage = 'SSL/TLS error: Cannot connect to wss:// from http://. Try using ws:// or serve the dashboard over https://.';
+      } else if (WEBSOCKET_URL.includes('localhost') || WEBSOCKET_URL.includes('127.0.0.1')) {
+        errorMessage = 'Cannot connect to localhost. Please use your Home Assistant server\'s actual IP address.';
+      } else if (WEBSOCKET_URL.startsWith('wss://')) {
+        errorMessage = 'Secure WebSocket connection failed. If Home Assistant is not configured for SSL, try changing wss:// to ws:// in your .env file.';
+      } else {
+        errorMessage = `Cannot connect to Home Assistant at ${WEBSOCKET_URL}. Please verify the server is running and accessible.`;
+      }
+      
+      this.setConnectionState('error', errorMessage);
     };
   }
 
@@ -351,14 +392,15 @@ export class WebSocketService {
   /**
    * Schedule reconnection attempt
    */
-  private scheduleReconnect(): void {
+  private scheduleReconnect(lastError?: string): void {
     if (this.isManuallyDisconnected || DEV_MODE) {
       return;
     }
 
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-      console.error('❌ Max reconnection attempts reached');
-      this.setConnectionState('error', 'Cannot connect to Home Assistant. Please check your configuration and try refreshing the page.');
+      console.error('❌ Max reconnection attempts reached. Last error:', lastError);
+      const finalError = lastError || 'Cannot connect to Home Assistant after multiple attempts.';
+      this.setConnectionState('error', `${finalError} Please check your configuration and try refreshing the page.`);
       return;
     }
 
@@ -366,6 +408,9 @@ export class WebSocketService {
     const delay = Math.min(this.reconnectDelay * this.reconnectAttempts, this.maxReconnectDelay);
     
     console.log(`🔄 Scheduling reconnection attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts} in ${delay}ms`);
+    if (lastError) {
+      console.log(`   Last error: ${lastError}`);
+    }
     
     setTimeout(() => {
       if (this.connectionState !== 'connected' && !this.isManuallyDisconnected) {
