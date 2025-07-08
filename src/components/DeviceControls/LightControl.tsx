@@ -239,6 +239,10 @@ const AppContent: React.FC = () => {
                 </div>
               )}
               
+              {/* Apartment Controls */}
+              {apartmentRooms.length > 0 && (
+                <div>
+                  <div className="flex items-center mb-6">
                     <h2 className="text-xl font-bold text-gray-900">Apartment Controls</h2>
                     <div className="flex-1 ml-4 h-px bg-gradient-to-r from-gray-300 to-transparent"></div>
                   </div>
@@ -252,7 +256,17 @@ const AppContent: React.FC = () => {
                           </button>
                           <button className="w-full px-3 py-2 bg-gray-50 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors">
                             Advanced Settings
-    
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        }
+    }
     return null; // This should never be reached due to whole-house handling above
   };
 
@@ -270,7 +284,21 @@ const AppContent: React.FC = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
+              />
+            ))}
+          </div>
+        </div>
+      </main>
+    </div>
+  );
 };
 
 function App() {
+  return (
+    <DeviceProvider>
       <div className="bg-gray-50/80 rounded-xl p-4 border border-gray-200/50">
+        <AppContent />
+      </div>
+    </DeviceProvider>
+  );
+}

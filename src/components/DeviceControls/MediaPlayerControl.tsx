@@ -192,6 +192,8 @@ const AppContent: React.FC = () => {
       case 'apartment':
         rooms = apartmentRooms;
         title = 'Apartment';
+        break;
+    }
     
     return null; // This should never be reached due to whole-house handling above
   };
@@ -210,16 +212,20 @@ const AppContent: React.FC = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
+                className={`relative py-3 px-6 text-sm font-medium transition-all duration-200 ${
                   activeTab === tab.id
                     ? 'bg-white text-gray-900 shadow-lg border-t-2 border-l-2 border-r-2 border-gray-200 -mb-px'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-50'
+                }`}
+                style={{
                   clipPath: activeTab === tab.id 
                     ? 'polygon(8px 0%, calc(100% - 8px) 0%, 100% 100%, 0% 100%)'
-                  // Equal width distribution across full container
+                    : 'none',
                   width: `${100 / availableTabs.length}%`,
                   marginRight: index < availableTabs.length - 1 ? '2px' : '0'
                 }}
               >
-      <div className="bg-gray-50/80 rounded-xl p-4 border border-gray-200/50">
+                {tab.label}
                 {activeTab === tab.id && (
                   <div className="absolute inset-x-0 bottom-0 h-0.5 bg-white"></div>
                 )}
@@ -276,17 +282,17 @@ const AppContent: React.FC = () => {
                   >
                     CONTROLS
                   </div>
-            <h4 className="font-semibold text-gray-900">{currentDevice.friendly_name}</h4>
+                  {activeSection === 'controls' && (
+                    <div className="absolute right-0 top-0 bottom-0 w-0.5 bg-blue-500"></div>
+                  )}
                 </button>
               </div>
 
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-              isPlaying ? 'bg-green-500' : 'bg-gray-300'
+              {/* Main Content Area */}
+              <div className="flex-1 overflow-y-auto p-6">
                 {getCurrentContent()}
               </div>
-            <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-              isPlaying ? 'translate-x-6' : 'translate-x-1'
-            }`} />
+            </div>
           </div>
         </div>
       </main>
