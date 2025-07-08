@@ -83,8 +83,8 @@ const AppContent: React.FC = () => {
               onClick={() => setActiveFloor('Upper Floor')}
               className={`relative px-6 py-3 rounded-t-2xl font-semibold text-sm transition-all duration-200 transform ${
                 activeFloor === 'Upper Floor'
-                  ? 'bg-white text-gray-900 shadow-lg border-t-2 border-l-2 border-r-2 border-gray-200 z-10 -mb-px'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border-2 border-gray-200 border-b-0 z-0'
+                  ? 'bg-white text-gray-900 shadow-lg border-t-2 border-l-2 border-r-2 border-gray-200  -mb-px'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border-2 border-gray-200 border-b-0'
               }`}
               style={{
                 clipPath: activeFloor === 'Upper Floor' 
@@ -92,7 +92,7 @@ const AppContent: React.FC = () => {
                   : 'polygon(6px 0%, calc(100% - 6px) 0%, 100% 100%, 0% 100%)'
               }}
             >
-              <span className="relative z-10">Upper Floor</span>
+              <span className="relative">Upper Floor</span>
               {activeFloor === 'Upper Floor' && (
                 <div className="absolute inset-x-0 bottom-0 h-0.5 bg-white"></div>
               )}
@@ -103,8 +103,8 @@ const AppContent: React.FC = () => {
               onClick={() => setActiveFloor('Lower Floor')}
               className={`relative px-6 py-3 rounded-t-2xl font-semibold text-sm transition-all duration-200 transform ${
                 activeFloor === 'Lower Floor'
-                  ? 'bg-white text-gray-900 shadow-lg border-t-2 border-l-2 border-r-2 border-gray-200 z-10 -mb-px'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border-2 border-gray-200 border-b-0 z-0'
+                  ? 'bg-white text-gray-900 shadow-lg border-t-2 border-l-2 border-r-2 border-gray-200 -mb-px'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border-2 border-gray-200 border-b-0 '
               }`}
               style={{
                 clipPath: activeFloor === 'Lower Floor' 
@@ -112,7 +112,7 @@ const AppContent: React.FC = () => {
                   : 'polygon(6px 0%, calc(100% - 6px) 0%, 100% 100%, 0% 100%)'
               }}
             >
-              <span className="relative z-10">Lower Floor</span>
+              <span className="relative">Lower Floor</span>
               {activeFloor === 'Lower Floor' && (
                 <div className="absolute inset-x-0 bottom-0 h-0.5 bg-white"></div>
               )}
@@ -120,7 +120,7 @@ const AppContent: React.FC = () => {
           </div>
           
           {/* Tab Content Background */}
-          <div className="bg-white border-2 border-gray-200 rounded-2xl rounded-tl-none shadow-lg p-6 -mt-px relative z-0">
+          <div className="bg-white border-2 border-gray-200 rounded-2xl rounded-tl-none shadow-lg p-6 -mt-px relative">
             {/* Current Floor Content */}
             <div className="space-y-6">
               {getCurrentFloorRooms().length > 0 ? (
