@@ -1,330 +1,160 @@
 import React from 'react';
-import { DeviceProvider, useDevices } from './context/DeviceContext';
-import Header from './components/Header';
-import InfoRow from './components/InfoRow';
-import FloorSection from './components/FloorSection';
-import RoomCard from './components/RoomCard';
-import DeviceControlsSection from './components/DeviceControls/DeviceControlsSection';
+import { Lightbulb, Sun, Moon, Palette } from 'lucide-react';
+import { useDevices } from '../../context/DeviceContext';
 
-// Camera data for NVR system (fallback for display)
-const cameras = [
-  {
-    id: 1,
-    name: 'Front Yard Camera',
-    location: 'Front Yard',
-    recording: true,
-    nightVision: true,
-    temperature: 15,
-    humidity: 60,
-    backgroundImage: 'https://images.pexels.com/photos/1396122/pexels-photo-1396122.jpeg?auto=compress&cs=tinysrgb&w=800'
-  },
-  {
-    id: 2,
-    name: 'Backyard Camera',
-    location: 'Backyard',
-    recording: true,
-    nightVision: false,
-    temperature: 16,
-    humidity: 58,
-    backgroundImage: 'https://images.pexels.com/photos/1105766/pexels-photo-1105766.jpeg?auto=compress&cs=tinysrgb&w=800'
+interface LightControlProps {
+  deviceId: string;
+  roomName?: string;
+}
+
+const LightControl: React.FC<LightControlProps> = ({ deviceId, roomName }) => {
+  const { state, dispatch } = useDevices();
+  
+  // Find the light device
+  const device = state.devices.find(d => d.entity_id === deviceId);
+  
+  if (!device || device.device_class !== 'light') {
+    return null;
   }
-];
 
-const AppContent: React.FC = () => {
-  const [activeTab, setActiveTab] = React.useState<'whole-house' | 'upper-floor' | 'lower-floor' | 'apartment'>('whole-house');
-  const [activeSection, setActiveSection] = React.useState<'status' | 'controls'>('status');
-  
-  // Use dynamic room data from DeviceContext instead of hardcoded arrays
-  const { state } = useDevices();
-  
-  // Get floors and their rooms from the context
-  const upperFloor = state.floors.find(floor => floor.name === 'Upper Floor');
-  const lowerFloor = state.floors.find(floor => floor.name === 'Lower Floor');
-  const apartment = state.floors.find(floor => floor.name === 'Apartment');
-  
-  // Dynamic tab configuration - automatically includes floors that have rooms
-  const availableTabs = React.useMemo(() => {
-    const tabs = [
-      { id: 'whole-house' as const, label: 'Whole House', hasContent: true }
-    ];
-    
-    if (upperFloor && upperFloor.rooms.length > 0) {
-      tabs.push({ id: 'upper-floor' as const, label: 'Upper Floor', hasContent: true });
-    }
-    
-    if (lowerFloor && lowerFloor.rooms.length > 0) {
-      tabs.push({ id: 'lower-floor' as const, label: 'Lower Floor', hasContent: true });
-    }
-    
-    if (apartment && apartment.rooms.length > 0) {
-      tabs.push({ id: 'apartment' as const, label: 'Apartment', hasContent: true });
-    }
-    
-    return tabs;
-  }, [upperFloor, lowerFloor, apartment]);
-  
-  // Ensure active tab is valid
-  React.useEffect(() => {
-    const validTabIds = availableTabs.map(tab => tab.id);
-    if (!validTabIds.includes(activeTab)) {
-      setActiveTab('whole-house');
-    }
-  }, [availableTabs, activeTab]);
+  const isOn = device.state === 'on';
+  const brightness = device.attributes?.brightness || 0;
+  const colorTemp = device.attributes?.color_temp || 2700;
+  const rgbColor = device.attributes?.rgb_color || [255, 255, 255];
 
-  // Convert rooms to the format expected by FloorSection
-  const upperFloorRooms = upperFloor ? upperFloor.rooms.map(room => ({
-    name: room.name,
-    floor: room.floor,
-    backgroundImage: room.background_image || 'https://images.pexels.com/photos/164595/pexels-photo-164595.jpeg?auto=compress&cs=tinysrgb&w=800'
-  })) : [];
-  
-  const lowerFloorRooms = lowerFloor ? lowerFloor.rooms.map(room => ({
-    name: room.name,
-    floor: room.floor,
-    backgroundImage: room.background_image || 'https://images.pexels.com/photos/1428348/pexels-photo-1428348.jpeg?auto=compress&cs=tinysrgb&w=800'
-  })) : [];
+  const handleToggle = () => {
+    dispatch({
+      type: 'UPDATE_DEVICE',
+      payload: {
+        entity_id: deviceId,
+        state: isOn ? 'off' : 'on',
+        last_updated: new Date().toISOString()
+      }
+    });
+  };
 
-  const apartmentRooms = apartment ? apartment.rooms.map(room => ({
-    name: room.name,
-    floor: room.floor,
-    backgroundImage: room.background_image || 'https://images.pexels.com/photos/1428348/pexels-photo-1428348.jpeg?auto=compress&cs=tinysrgb&w=800'
-  })) : [];
+  const handleBrightnessChange = (newBrightness: number) => {
+    dispatch({
+      type: 'UPDATE_DEVICE',
+      payload: {
+        entity_id: deviceId,
+        state: newBrightness > 0 ? 'on' : 'off',
+        attributes: {
+          ...device.attributes,
+          brightness: newBrightness
+        },
+        last_updated: new Date().toISOString()
+      }
+    });
+  };
 
-  // Get all rooms for whole house view
-  const allRooms = [...upperFloorRooms, ...lowerFloorRooms, ...apartmentRooms];
-
-  // Get current content based on active tab and section
-  const getCurrentContent = () => {
-    let rooms: typeof allRooms = [];
-    let title = '';
-
-    switch (activeTab) {
-      case 'whole-house':
-        // Special handling for whole house view
-        if (activeSection === 'status') {
-          return (
-            <div className="space-y-8">
-              {/* Upper Floor Section */}
-              {upperFloorRooms.length > 0 && (
-                <div>
-                  <div className="flex items-center mb-6">
-                    <h2 className="text-2xl font-bold text-gray-900">Upper Floor</h2>
-                    <div className="flex-1 ml-4 h-px bg-gradient-to-r from-gray-300 to-transparent"></div>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
-                    {upperFloorRooms.map((room, index) => (
-                      <RoomCard 
-                        key={`upper-${index}`} 
-                        roomName={room.name}
-                        floor={room.floor}
-                        backgroundImage={room.backgroundImage}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
-              
-              {/* Lower Floor Section */}
-              {lowerFloorRooms.length > 0 && (
-                <div>
-                  <div className="flex items-center mb-6">
-                    <h2 className="text-2xl font-bold text-gray-900">Lower Floor</h2>
-                    <div className="flex-1 ml-4 h-px bg-gradient-to-r from-gray-300 to-transparent"></div>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
-                    {lowerFloorRooms.map((room, index) => (
-                      <RoomCard 
-                        key={`lower-${index}`} 
-                        roomName={room.name}
-                        floor={room.floor}
-                        backgroundImage={room.backgroundImage}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
-              
-              {/* Apartment Section (if exists) */}
-              {apartmentRooms.length > 0 && (
-                <div>
-                  <div className="flex items-center mb-6">
-                    <h2 className="text-2xl font-bold text-gray-900">Apartment</h2>
-                    <div className="flex-1 ml-4 h-px bg-gradient-to-r from-gray-300 to-transparent"></div>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
-                    {apartmentRooms.map((room, index) => (
-                      <RoomCard 
-                        key={`apartment-${index}`} 
-                        roomName={room.name}
-                        floor={room.floor}
-                        backgroundImage={room.backgroundImage}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
-              
-              {/* No rooms message */}
-              {allRooms.length === 0 && (
-                <div className="text-center py-12">
-                  <div className="text-gray-400 text-lg font-medium">
-                    No rooms configured
-                  </div>
-                  <div className="text-gray-500 text-sm mt-2">
-                    Add rooms to your configuration to see them here
-                  </div>
-                </div>
-              )}
-            </div>
-          );
-        } else {
-          // Controls view for whole house - use DeviceControlsSection
-          return <DeviceControlsSection activeTab="whole-house" />;
-        }
-      case 'upper-floor':
-        rooms = upperFloorRooms;
-        title = 'Upper Floor';
-        break;
-      case 'lower-floor':
-        rooms = lowerFloorRooms;
-        title = 'Lower Floor';
-        break;
-      case 'apartment':
-        rooms = apartmentRooms;
-        title = 'Apartment';
-        break;
-    }
-
-    if (activeSection === 'status' && activeTab !== 'whole-house') {
-      // Status view - show room cards
-      return rooms.length > 0 ? (
-        <FloorSection title={title} rooms={rooms} />
-      ) : (
-        <div className="text-center py-12">
-          <div className="text-gray-400 text-lg font-medium">
-            No rooms configured for {title}
-          </div>
-          <div className="text-gray-500 text-sm mt-2">
-            Add rooms to this area in your configuration
-          </div>
-        </div>
-      );
-    } else if (activeTab !== 'whole-house') {
-      // Controls view - show device controls interface
-      return <DeviceControlsSection activeTab={activeTab} />;
-    }
-    
-    return null; // This should never be reached due to whole-house handling above
+  const handleColorTempChange = (newColorTemp: number) => {
+    dispatch({
+      type: 'UPDATE_DEVICE',
+      payload: {
+        entity_id: deviceId,
+        attributes: {
+          ...device.attributes,
+          color_temp: newColorTemp
+        },
+        last_updated: new Date().toISOString()
+      }
+    });
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
-      <Header />
-      <InfoRow cameras={cameras} />
-      
-      <main className="py-4 pb-8">
-        {/* Top-level Tab Navigation */}
-        <div className="px-6 mb-6">
-          {/* Dynamic Tab Navigation */}
-          <div className="flex items-end w-full">
-            {availableTabs.map((tab, index) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`relative py-3 px-6 text-sm font-medium transition-all duration-200 ${
-                  activeTab === tab.id
-                    ? 'bg-white text-gray-900 shadow-lg border-t-2 border-l-2 border-r-2 border-gray-200 -mb-px'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border-2 border-gray-200 border-b-0'
-                }`}
-                style={{
-                  clipPath: activeTab === tab.id 
-                    ? 'polygon(8px 0%, calc(100% - 8px) 0%, 100% 100%, 0% 100%)'
-                    : 'polygon(6px 0%, calc(100% - 6px) 0%, 100% 100%, 0% 100%)',
-                  width: `${100 / availableTabs.length}%`,
-                  marginRight: index < availableTabs.length - 1 ? '2px' : '0'
-                }}
-              >
-                <span className="relative whitespace-nowrap">{tab.label}</span>
-                {activeTab === tab.id && (
-                  <div className="absolute inset-x-0 bottom-0 h-0.5 bg-white"></div>
-                )}
-              </button>
-            ))}
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center space-x-3">
+          <div className={`p-2 rounded-lg ${isOn ? 'bg-yellow-100 text-yellow-600' : 'bg-gray-100 text-gray-400'}`}>
+            <Lightbulb className="w-5 h-5" />
           </div>
-          
-          {/* Tab Content Background with Sidebar */}
-          <div className="bg-white border-2 border-gray-200 rounded-2xl rounded-tl-none shadow-lg -mt-px relative min-h-[600px]">
-            {/* Unified Content Area with Sidebar and Content */}
-            <div className="flex h-full max-h-[calc(100vh-200px)] overflow-hidden">
-              {/* Vertical Sidebar Navigation */}
-              <div className="flex flex-col w-16 border-r border-gray-200 flex-shrink-0 h-full">
-                {/* Status Tab */}
-                <button
-                  onClick={() => setActiveSection('status')}
-                  className={`relative flex items-center justify-center py-8 h-32 flex-shrink-0 transition-all duration-200 ${
-                    activeSection === 'status'
-                      ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-500'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                  }`}
-                >
-                  <div 
-                    className="font-semibold text-sm tracking-wider"
-                    style={{ 
-                      writingMode: 'vertical-rl',
-                      textOrientation: 'mixed',
-                      transform: 'rotate(180deg)'
-                    }}
-                  >
-                    STATUS
-                  </div>
-                  {activeSection === 'status' && (
-                    <div className="absolute right-0 top-0 bottom-0 w-0.5 bg-blue-500"></div>
-                  )}
-                </button>
-
-                {/* Controls Tab */}
-                <button
-                  onClick={() => setActiveSection('controls')}
-                  className={`relative flex items-center justify-center py-8 h-32 flex-shrink-0 transition-all duration-200 ${
-                    activeSection === 'controls'
-                      ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-500'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                  }`}
-                >
-                  <div 
-                    className="font-semibold text-sm tracking-wider"
-                    style={{ 
-                      writingMode: 'vertical-rl',
-                      textOrientation: 'mixed',
-                      transform: 'rotate(180deg)'
-                    }}
-                  >
-                    CONTROLS
-                  </div>
-                  {activeSection === 'controls' && (
-                    <div className="absolute right-0 top-0 bottom-0 w-0.5 bg-blue-500"></div>
-                  )}
-                </button>
-              </div>
-
-              {/* Main Content Area */}
-              <div className="flex-1 p-4 lg:p-6 overflow-y-auto overflow-x-hidden">
-                {getCurrentContent()}
-              </div>
-            </div>
+          <div>
+            <h3 className="font-semibold text-gray-900">{device.friendly_name}</h3>
+            {roomName && <p className="text-sm text-gray-500">{roomName}</p>}
           </div>
         </div>
-      </main>
+        <button
+          onClick={handleToggle}
+          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+            isOn ? 'bg-blue-600' : 'bg-gray-200'
+          }`}
+        >
+          <span
+            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+              isOn ? 'translate-x-6' : 'translate-x-1'
+            }`}
+          />
+        </button>
+      </div>
+
+      {isOn && (
+        <div className="space-y-4">
+          {/* Brightness Control */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-sm font-medium text-gray-700">Brightness</label>
+              <span className="text-sm text-gray-500">{Math.round((brightness / 255) * 100)}%</span>
+            </div>
+            <input
+              type="range"
+              min="0"
+              max="255"
+              value={brightness}
+              onChange={(e) => handleBrightnessChange(parseInt(e.target.value))}
+              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+            />
+          </div>
+
+          {/* Color Temperature Control */}
+          {device.attributes?.color_temp !== undefined && (
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-sm font-medium text-gray-700">Color Temperature</label>
+                <div className="flex items-center space-x-1">
+                  <Sun className="w-4 h-4 text-yellow-500" />
+                  <span className="text-sm text-gray-500">{colorTemp}K</span>
+                  <Moon className="w-4 h-4 text-blue-500" />
+                </div>
+              </div>
+              <input
+                type="range"
+                min="2000"
+                max="6500"
+                value={colorTemp}
+                onChange={(e) => handleColorTempChange(parseInt(e.target.value))}
+                className="w-full h-2 bg-gradient-to-r from-yellow-300 to-blue-300 rounded-lg appearance-none cursor-pointer"
+              />
+            </div>
+          )}
+
+          {/* RGB Color Control */}
+          {device.attributes?.rgb_color && (
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-sm font-medium text-gray-700">Color</label>
+                <Palette className="w-4 h-4 text-gray-500" />
+              </div>
+              <div 
+                className="w-full h-8 rounded-lg border border-gray-200 cursor-pointer"
+                style={{ backgroundColor: `rgb(${rgbColor.join(',')})` }}
+                onClick={() => {
+                  // Color picker functionality could be added here
+                }}
+              />
+            </div>
+          )}
+        </div>
+      )}
+
+      <div className="mt-4 pt-4 border-t border-gray-100">
+        <div className="flex items-center justify-between text-xs text-gray-500">
+          <span>Status: {isOn ? 'On' : 'Off'}</span>
+          <span>Updated: {new Date(device.last_updated).toLocaleTimeString()}</span>
+        </div>
+      </div>
     </div>
   );
 };
 
-function App() {
-  return (
-    <DeviceProvider>
-      <AppContent />
-    </DeviceProvider>
-  );
-}
-
-export default App;
+export default LightControl;
