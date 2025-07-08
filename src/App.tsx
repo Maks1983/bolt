@@ -29,8 +29,6 @@ const cameras = [
 ];
 
 const AppContent: React.FC = () => {
-  const [activeFloor, setActiveFloor] = React.useState<'Upper Floor' | 'Lower Floor'>('Upper Floor');
-  
   // Use dynamic room data from DeviceContext instead of hardcoded arrays
   const { state } = useDevices();
   
@@ -58,93 +56,106 @@ const AppContent: React.FC = () => {
     backgroundImage: room.background_image || 'https://images.pexels.com/photos/1428348/pexels-photo-1428348.jpeg?auto=compress&cs=tinysrgb&w=800'
   })) : [];
 
-  // Get current floor rooms based on active tab
-  const getCurrentFloorRooms = () => {
-    switch (activeFloor) {
-      case 'Upper Floor':
-        return upperFloorRooms;
-      case 'Lower Floor':
-        return lowerFloorRooms;
-      default:
-        return upperFloorRooms;
-    }
-  };
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
       <Header />
       <InfoRow cameras={cameras} />
       
-      <main className="py-4 pb-8">
-        {/* Tab Navigation */}
-        <div className="px-6 mb-6">
-          <div className="flex items-end space-x-1">
-            {/* Upper Floor Tab */}
-            <button
-              onClick={() => setActiveFloor('Upper Floor')}
-              className={`relative px-6 py-3 rounded-t-2xl font-semibold text-sm transition-all duration-200 transform ${
-                activeFloor === 'Upper Floor'
-                  ? 'bg-white text-gray-900 shadow-lg border-t-2 border-l-2 border-r-2 border-gray-200  -mb-px'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border-2 border-gray-200 border-b-0'
-              }`}
-              style={{
-                clipPath: activeFloor === 'Upper Floor' 
-                  ? 'polygon(8px 0%, calc(100% - 8px) 0%, 100% 100%, 0% 100%)'
-                  : 'polygon(6px 0%, calc(100% - 6px) 0%, 100% 100%, 0% 100%)'
-              }}
-            >
-              <span className="relative">Upper Floor</span>
-              {activeFloor === 'Upper Floor' && (
-                <div className="absolute inset-x-0 bottom-0 h-0.5 bg-white"></div>
-              )}
-            </button>
-
-            {/* Lower Floor Tab */}
-            <button
-              onClick={() => setActiveFloor('Lower Floor')}
-              className={`relative px-6 py-3 rounded-t-2xl font-semibold text-sm transition-all duration-200 transform ${
-                activeFloor === 'Lower Floor'
-                  ? 'bg-white text-gray-900 shadow-lg border-t-2 border-l-2 border-r-2 border-gray-200 -mb-px'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border-2 border-gray-200 border-b-0 '
-              }`}
-              style={{
-                clipPath: activeFloor === 'Lower Floor' 
-                  ? 'polygon(8px 0%, calc(100% - 8px) 0%, 100% 100%, 0% 100%)'
-                  : 'polygon(6px 0%, calc(100% - 6px) 0%, 100% 100%, 0% 100%)'
-              }}
-            >
-              <span className="relative">Lower Floor</span>
-              {activeFloor === 'Lower Floor' && (
-                <div className="absolute inset-x-0 bottom-0 h-0.5 bg-white"></div>
-              )}
-            </button>
-          </div>
+      <main className="py-4 pb-8 px-6">
+        {/* Three Column Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-200px)]">
           
-          {/* Tab Content Background */}
-          <div className="bg-white border-2 border-gray-200 rounded-2xl rounded-tl-none shadow-lg p-6 -mt-px relative">
-            {/* Current Floor Content */}
-            <div className="space-y-6">
-              {getCurrentFloorRooms().length > 0 ? (
-                <FloorSection title={activeFloor} rooms={getCurrentFloorRooms()} />
+          {/* Upper Floor Column */}
+          <div className="bg-white/80 backdrop-blur-sm rounded-3xl border border-gray-200/50 shadow-lg overflow-hidden">
+            <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4">
+              <h2 className="text-xl font-bold">Upper Floor</h2>
+              <p className="text-blue-100 text-sm">{upperFloorRooms.length} rooms</p>
+            </div>
+            <div className="p-4 h-full overflow-y-auto">
+              {upperFloorRooms.length > 0 ? (
+                <div className="space-y-4">
+                  {upperFloorRooms.map((room, index) => (
+                    <div key={index} className="transform scale-90 origin-top">
+                      <RoomCard 
+                        roomName={room.name}
+                        floor={room.floor}
+                        backgroundImage={room.backgroundImage}
+                      />
+                    </div>
+                  ))}
+                </div>
               ) : (
-                <div className="text-center py-12">
-                  <div className="text-gray-400 text-lg font-medium">
-                    No rooms configured for {activeFloor}
-                  </div>
-                  <div className="text-gray-500 text-sm mt-2">
-                    Add rooms to this floor in your configuration
+                <div className="flex items-center justify-center h-full text-center">
+                  <div>
+                    <div className="text-gray-400 text-lg font-medium mb-2">No rooms configured</div>
+                    <div className="text-gray-500 text-sm">Add rooms to Upper Floor</div>
                   </div>
                 </div>
               )}
             </div>
           </div>
-        </div>
-        
-        {/* Apartment Section (if exists) - Outside of tabs */}
-        {apartmentRooms.length > 0 && (
-          <div className="mt-8">
-            <FloorSection title="Apartment" rooms={apartmentRooms} />
+
+          {/* Lower Floor Column */}
+          <div className="bg-white/80 backdrop-blur-sm rounded-3xl border border-gray-200/50 shadow-lg overflow-hidden">
+            <div className="bg-gradient-to-r from-green-500 to-green-600 text-white p-4">
+              <h2 className="text-xl font-bold">Lower Floor</h2>
+              <p className="text-green-100 text-sm">{lowerFloorRooms.length} rooms</p>
+            </div>
+            <div className="p-4 h-full overflow-y-auto">
+              {lowerFloorRooms.length > 0 ? (
+                <div className="space-y-4">
+                  {lowerFloorRooms.map((room, index) => (
+                    <div key={index} className="transform scale-90 origin-top">
+                      <RoomCard 
+                        roomName={room.name}
+                        floor={room.floor}
+                        backgroundImage={room.backgroundImage}
+                      />
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex items-center justify-center h-full text-center">
+                  <div>
+                    <div className="text-gray-400 text-lg font-medium mb-2">No rooms configured</div>
+                    <div className="text-gray-500 text-sm">Add rooms to Lower Floor</div>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
-        )}
+
+          {/* Apartment Column */}
+          <div className="bg-white/80 backdrop-blur-sm rounded-3xl border border-gray-200/50 shadow-lg overflow-hidden">
+            <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-4">
+              <h2 className="text-xl font-bold">Apartment</h2>
+              <p className="text-purple-100 text-sm">{apartmentRooms.length} rooms</p>
+            </div>
+            <div className="p-4 h-full overflow-y-auto">
+              {apartmentRooms.length > 0 ? (
+                <div className="space-y-4">
+                  {apartmentRooms.map((room, index) => (
+                    <div key={index} className="transform scale-90 origin-top">
+                      <RoomCard 
+                        roomName={room.name}
+                        floor={room.floor}
+                        backgroundImage={room.backgroundImage}
+                      />
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex items-center justify-center h-full text-center">
+                  <div>
+                    <div className="text-gray-400 text-lg font-medium mb-2">No rooms configured</div>
+                    <div className="text-gray-500 text-sm">Add rooms to Apartment</div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+        </div>
       </main>
     </div>
   );
