@@ -160,7 +160,7 @@ const Header: React.FC = () => {
         <WeatherBackground className="absolute inset-0 z-0" />
         
         {/* Header content overlay */}
-        <div className="relative z-10 bg-white/80 backdrop-blur-xl rounded-2xl mx-2 my-1 px-4 py-1">
+        <div className="relative z-10 bg-white/70 backdrop-blur-lg rounded-2xl mx-2 my-1 px-4 py-1 shadow-sm">
         <div className="flex items-center justify-between max-w-7xl mx-auto">
           {/* User Presence - Left */}
           <div className="flex items-center space-x-2">

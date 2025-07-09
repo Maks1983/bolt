@@ -375,6 +375,53 @@ export const DeviceProvider: React.FC<DeviceProviderProps> = ({ children }) => {
         // Only simulate updates for entities that are actually configured
         const configuredEntityIds = subscribedEntities.map(e => e.entity_id);
         
+        // Simulate weather changes
+        setTimeout(() => {
+          console.log('🎭 Simulating weather change to rainy');
+          dispatch({ 
+            type: 'SIMULATE_STATE_CHANGE', 
+            payload: { 
+              entityId: 'weather.forecast_home', 
+              newState: 'rainy',
+              attributes: { condition: 'rainy', temperature: 15 }
+            } 
+          });
+        }, 3000);
+
+        // Simulate day/night change
+        setTimeout(() => {
+          console.log('🎭 Simulating sun change to below horizon');
+          dispatch({ 
+            type: 'SIMULATE_STATE_CHANGE', 
+            payload: { 
+              entityId: 'sun.sun', 
+              newState: 'below_horizon',
+              attributes: { elevation: -10 }
+            } 
+          });
+        }, 6000);
+
+        // Change back to sunny day
+        setTimeout(() => {
+          console.log('🎭 Simulating weather change back to sunny day');
+          dispatch({ 
+            type: 'SIMULATE_STATE_CHANGE', 
+            payload: { 
+              entityId: 'weather.forecast_home', 
+              newState: 'sunny',
+              attributes: { condition: 'sunny', temperature: 22 }
+            } 
+          });
+          dispatch({ 
+            type: 'SIMULATE_STATE_CHANGE', 
+            payload: { 
+              entityId: 'sun.sun', 
+              newState: 'above_horizon',
+              attributes: { elevation: 45 }
+            } 
+          });
+        }, 15000);
+        
         // Simulate motion sensor changes
         setTimeout(() => {
           const motionEntity = configuredEntityIds.find(id => id.includes('motion'));

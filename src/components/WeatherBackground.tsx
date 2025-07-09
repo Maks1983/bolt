@@ -10,9 +10,15 @@ const WeatherBackground: React.FC<WeatherBackgroundProps> = ({ className = '' })
   const weatherEntity = useRealtimeDevice('weather.forecast_home');
   const sunEntity = useRealtimeDevice('sun.sun');
 
+  // Debug logging
+  console.log('🌤️ Weather entity:', weatherEntity);
+  console.log('☀️ Sun entity:', sunEntity);
+
   // Determine current conditions
-  const weatherCondition = weatherEntity?.state || 'clear';
+  const weatherCondition = weatherEntity?.state || weatherEntity?.condition || 'sunny';
   const isDaytime = sunEntity?.state === 'above_horizon';
+
+  console.log('🌤️ Current weather condition:', weatherCondition, 'Is daytime:', isDaytime);
 
   // Generate background styles based on weather and time
   const backgroundStyles = useMemo(() => {
@@ -29,8 +35,8 @@ const WeatherBackground: React.FC<WeatherBackgroundProps> = ({ className = '' })
       case 'clear':
         return {
           background: isDaytime 
-            ? `${baseClasses} bg-gradient-to-br from-amber-300 via-yellow-200 to-orange-200`
-            : `${baseClasses} bg-gradient-to-br from-indigo-900 via-purple-900 to-slate-900`,
+            ? `${baseClasses} bg-gradient-to-br from-amber-400 via-yellow-300 to-orange-300`
+            : `${baseClasses} bg-gradient-to-br from-indigo-900 via-purple-800 to-slate-900`,
           overlay: isDaytime ? 'sunny-day' : 'clear-night',
           particles: isDaytime ? 'sun-rays' : 'stars'
         };
@@ -40,8 +46,8 @@ const WeatherBackground: React.FC<WeatherBackgroundProps> = ({ className = '' })
       case 'partly-cloudy':
         return {
           background: isDaytime 
-            ? `${baseClasses} bg-gradient-to-br from-gray-300 via-blue-200 to-slate-300`
-            : `${baseClasses} bg-gradient-to-br from-slate-800 via-gray-800 to-slate-700`,
+            ? `${baseClasses} bg-gradient-to-br from-gray-400 via-blue-300 to-slate-400`
+            : `${baseClasses} bg-gradient-to-br from-slate-700 via-gray-700 to-slate-600`,
           overlay: 'cloudy',
           particles: 'clouds'
         };
@@ -51,8 +57,8 @@ const WeatherBackground: React.FC<WeatherBackgroundProps> = ({ className = '' })
       case 'pouring':
         return {
           background: isDaytime 
-            ? `${baseClasses} bg-gradient-to-br from-slate-400 via-gray-500 to-blue-600`
-            : `${baseClasses} bg-gradient-to-br from-slate-900 via-gray-900 to-slate-800`,
+            ? `${baseClasses} bg-gradient-to-br from-slate-500 via-gray-600 to-blue-700`
+            : `${baseClasses} bg-gradient-to-br from-slate-800 via-gray-800 to-slate-700`,
           overlay: 'rainy',
           particles: 'rain'
         };
@@ -61,8 +67,8 @@ const WeatherBackground: React.FC<WeatherBackgroundProps> = ({ className = '' })
       case 'snow':
         return {
           background: isDaytime 
-            ? `${baseClasses} bg-gradient-to-br from-slate-200 via-blue-100 to-white`
-            : `${baseClasses} bg-gradient-to-br from-slate-800 via-slate-700 to-slate-600`,
+            ? `${baseClasses} bg-gradient-to-br from-slate-300 via-blue-200 to-gray-100`
+            : `${baseClasses} bg-gradient-to-br from-slate-700 via-slate-600 to-slate-500`,
           overlay: 'snowy',
           particles: 'snow'
         };
@@ -70,8 +76,8 @@ const WeatherBackground: React.FC<WeatherBackgroundProps> = ({ className = '' })
       case 'windy':
         return {
           background: isDaytime 
-            ? `${baseClasses} bg-gradient-to-br from-teal-300 via-cyan-200 to-blue-300`
-            : `${baseClasses} bg-gradient-to-br from-slate-700 via-gray-700 to-slate-600`,
+            ? `${baseClasses} bg-gradient-to-br from-teal-400 via-cyan-300 to-blue-400`
+            : `${baseClasses} bg-gradient-to-br from-slate-600 via-gray-600 to-slate-500`,
           overlay: 'windy',
           particles: 'wind'
         };
@@ -79,8 +85,8 @@ const WeatherBackground: React.FC<WeatherBackgroundProps> = ({ className = '' })
       default:
         return {
           background: isDaytime 
-            ? `${baseClasses} bg-gradient-to-br ${timeColors}`
-            : `${baseClasses} bg-gradient-to-br ${timeColors}`,
+            ? `${baseClasses} bg-gradient-to-br from-blue-400 via-blue-300 to-blue-200`
+            : `${baseClasses} bg-gradient-to-br from-slate-800 via-slate-700 to-slate-600`,
           overlay: 'default',
           particles: isDaytime ? 'default-day' : 'default-night'
         };
@@ -98,7 +104,7 @@ const WeatherBackground: React.FC<WeatherBackgroundProps> = ({ className = '' })
                 key={i}
                 className="absolute w-1 bg-yellow-300/30 animate-pulse"
                 style={{
-                  height: '100px',
+                  height: '80px',
                   top: '20%',
                   right: `${20 + i * 8}%`,
                   transform: `rotate(${i * 45}deg)`,
@@ -228,6 +234,10 @@ const WeatherBackground: React.FC<WeatherBackgroundProps> = ({ className = '' })
         
         {weatherCondition.toLowerCase() === 'sunny' && isDaytime && (
           <div className="absolute top-4 right-8 w-16 h-16 bg-yellow-300/30 rounded-full animate-pulse" />
+        )}
+        
+        {weatherCondition.toLowerCase() === 'sunny' && isDaytime && (
+          <div className="absolute top-6 right-10 w-12 h-12 bg-yellow-400/20 rounded-full animate-pulse" style={{ animationDelay: '0.5s' }} />
         )}
         
         {!isDaytime && (
