@@ -246,10 +246,10 @@ const DeviceControlsSection: React.FC<DeviceControlsSectionProps> = ({ activeTab
           devices: covers,
           icon: <Columns2 className="w-6 h-6 text-blue-600" />,
           backgroundImage: 'https://images.pexels.com/photos/1571453/pexels-photo-1571453.jpeg?auto=compress&cs=tinysrgb&w=800',
-          activeCount: covers.filter(c => c.state === 'open').length,
+          activeCount: covers.filter(c => c.state === 'closed').length,
           totalCount: covers.length,
           onToggleAll: handleCoversToggleAll,
-          toggleAllText: covers.some(c => c.state === 'open') ? 'Close All' : 'Open All'
+          toggleAllText: covers.some(c => c.state === 'closed') ? 'Open All' : 'Close All'
         };
       case 'media':
         return {
@@ -279,7 +279,7 @@ const DeviceControlsSection: React.FC<DeviceControlsSectionProps> = ({ activeTab
           devices: locks,
           icon: <Lock className="w-6 h-6 text-green-600" />,
           backgroundImage: 'https://images.pexels.com/photos/1428348/pexels-photo-1428348.jpeg?auto=compress&cs=tinysrgb&w=800',
-          activeCount: locks.filter(l => l.state === 'locked').length,
+          activeCount: locks.filter(l => l.state === 'unlocked').length,
           totalCount: locks.length,
           onToggleAll: handleLocksToggleAll,
           toggleAllText: locks.some(l => l.state === 'unlocked') ? 'Lock All' : 'Unlock All'
@@ -316,15 +316,15 @@ const DeviceControlsSection: React.FC<DeviceControlsSectionProps> = ({ activeTab
           title="Blinds & Curtains"
           icon={<Columns2 />}
           devices={covers}
-          activeCount={covers.filter(c => c.state === 'open').length}
+          activeCount={covers.filter(c => c.state === 'closed').length}
           totalCount={covers.length}
-          statusText={`${covers.filter(c => c.state === 'open').length} of ${covers.length} covers open`}
+          statusText={`${covers.filter(c => c.state === 'closed').length} of ${covers.length} covers closed`}
           gradientFrom="from-blue-400/80"
           gradientTo="to-cyan-500/80"
           iconBg="text-blue-600"
           cardType="covers"
           onQuickAction={handleCoversToggleAll}
-          quickActionText={covers.some(c => c.state === 'open') ? 'Close All' : 'Open All'}
+          quickActionText={covers.some(c => c.state === 'closed') ? 'Open All' : 'Close All'}
           backgroundImage="https://images.pexels.com/photos/1571453/pexels-photo-1571453.jpeg?auto=compress&cs=tinysrgb&w=800"
         />
 
@@ -370,9 +370,9 @@ const DeviceControlsSection: React.FC<DeviceControlsSectionProps> = ({ activeTab
             title="Locks"
             icon={<Lock />}
             devices={locks}
-            activeCount={locks.filter(l => l.state === 'locked').length}
+            activeCount={locks.filter(l => l.state === 'unlocked').length}
             totalCount={locks.length}
-            statusText={`${locks.filter(l => l.state === 'locked').length} of ${locks.length} locks secured`}
+            statusText={`${locks.filter(l => l.state === 'unlocked').length} of ${locks.length} locks unlocked`}
             gradientFrom="from-green-400/80"
             gradientTo="to-emerald-500/80"
             iconBg="text-green-600"
