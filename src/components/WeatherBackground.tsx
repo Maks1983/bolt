@@ -15,31 +15,29 @@ const WeatherBackground: React.FC<WeatherBackgroundProps> = ({ className = '' })
   console.log('☀️ Sun entity:', sunEntity);
 
   // Determine current conditions
-  const weatherCondition = weatherEntity?.state || weatherEntity?.condition || 'sunny';
+  const weatherCondition = weatherEntity?.state || 'cloudy';
   const isDaytime = sunEntity?.state === 'above_horizon';
 
   console.log('🌤️ Current weather condition:', weatherCondition, 'Is daytime:', isDaytime);
 
   // Generate background styles based on weather and time
-  const backgroundStyles = useMemo(() => {
-    const baseClasses = 'absolute inset-0 transition-all duration-1000 ease-in-out';
-    
+  const backgroundConfig = useMemo(() => {
     // Weather-specific overlays and effects
     switch (weatherCondition.toLowerCase()) {
       case 'sunny':
       case 'clear':
         return {
-          background: isDaytime 
-            ? `${baseClasses} bg-gradient-to-br from-amber-400 via-yellow-300 to-orange-300`
-            : `${baseClasses} bg-gradient-to-br from-indigo-900 via-purple-800 to-slate-900`,
+          gradient: isDaytime 
+            ? 'from-amber-400 via-yellow-300 to-orange-300'
+            : 'from-indigo-900 via-purple-800 to-slate-900',
           particles: isDaytime ? 'sun-rays' : 'stars'
         };
       
       case 'cloudy':
         return {
-          background: isDaytime 
-            ? `${baseClasses} bg-gradient-to-br from-slate-400 via-gray-400 to-slate-500`
-            : `${baseClasses} bg-gradient-to-br from-slate-700 via-gray-800 to-slate-600`,
+          gradient: isDaytime 
+            ? 'from-slate-400 via-gray-400 to-slate-500'
+            : 'from-slate-700 via-gray-800 to-slate-600',
           particles: 'clouds'
         };
       
@@ -47,17 +45,17 @@ const WeatherBackground: React.FC<WeatherBackgroundProps> = ({ className = '' })
       case 'partly-cloudy':
       case 'partly_cloudy':
         return {
-          background: isDaytime 
-            ? `${baseClasses} bg-gradient-to-br from-blue-400 via-sky-300 to-blue-300`
-            : `${baseClasses} bg-gradient-to-br from-slate-600 via-blue-700 to-slate-500`,
+          gradient: isDaytime 
+            ? 'from-blue-400 via-sky-300 to-blue-300'
+            : 'from-slate-600 via-blue-700 to-slate-500',
           particles: 'partly-cloudy'
         };
       
       case 'overcast':
         return {
-          background: isDaytime 
-            ? `${baseClasses} bg-gradient-to-br from-gray-500 via-slate-400 to-gray-600`
-            : `${baseClasses} bg-gradient-to-br from-slate-800 via-gray-800 to-slate-700`,
+          gradient: isDaytime 
+            ? 'from-gray-500 via-slate-400 to-gray-600'
+            : 'from-slate-800 via-gray-800 to-slate-700',
           particles: 'overcast'
         };
       
@@ -67,9 +65,9 @@ const WeatherBackground: React.FC<WeatherBackgroundProps> = ({ className = '' })
       case 'drizzle':
       case 'showers':
         return {
-          background: isDaytime 
-            ? `${baseClasses} bg-gradient-to-br from-slate-500 via-gray-600 to-blue-700`
-            : `${baseClasses} bg-gradient-to-br from-slate-800 via-gray-800 to-slate-700`,
+          gradient: isDaytime 
+            ? 'from-slate-500 via-gray-600 to-blue-700'
+            : 'from-slate-800 via-gray-800 to-slate-700',
           particles: 'rain'
         };
       
@@ -78,18 +76,18 @@ const WeatherBackground: React.FC<WeatherBackgroundProps> = ({ className = '' })
       case 'sleet':
       case 'hail':
         return {
-          background: isDaytime 
-            ? `${baseClasses} bg-gradient-to-br from-slate-300 via-blue-200 to-gray-100`
-            : `${baseClasses} bg-gradient-to-br from-slate-700 via-slate-600 to-slate-500`,
+          gradient: isDaytime 
+            ? 'from-slate-300 via-blue-200 to-gray-100'
+            : 'from-slate-700 via-slate-600 to-slate-500',
           particles: 'snow'
         };
       
       case 'windy':
       case 'breezy':
         return {
-          background: isDaytime 
-            ? `${baseClasses} bg-gradient-to-br from-teal-400 via-cyan-300 to-blue-400`
-            : `${baseClasses} bg-gradient-to-br from-slate-600 via-gray-600 to-slate-500`,
+          gradient: isDaytime 
+            ? 'from-teal-400 via-cyan-300 to-blue-400'
+            : 'from-slate-600 via-gray-600 to-slate-500',
           particles: 'wind'
         };
       
@@ -98,9 +96,9 @@ const WeatherBackground: React.FC<WeatherBackgroundProps> = ({ className = '' })
       case 'mist':
       case 'hazy':
         return {
-          background: isDaytime 
-            ? `${baseClasses} bg-gradient-to-br from-gray-300 via-slate-200 to-gray-400`
-            : `${baseClasses} bg-gradient-to-br from-slate-600 via-gray-600 to-slate-500`,
+          gradient: isDaytime 
+            ? 'from-gray-300 via-slate-200 to-gray-400'
+            : 'from-slate-600 via-gray-600 to-slate-500',
           particles: 'fog'
         };
       
@@ -108,17 +106,17 @@ const WeatherBackground: React.FC<WeatherBackgroundProps> = ({ className = '' })
       case 'lightning':
       case 'storm':
         return {
-          background: isDaytime 
-            ? `${baseClasses} bg-gradient-to-br from-slate-600 via-gray-700 to-slate-800`
-            : `${baseClasses} bg-gradient-to-br from-slate-800 via-gray-900 to-black`,
+          gradient: isDaytime 
+            ? 'from-slate-600 via-gray-700 to-slate-800'
+            : 'from-slate-800 via-gray-900 to-black',
           particles: 'lightning'
         };
       
       default:
         return {
-          background: isDaytime 
-            ? `${baseClasses} bg-gradient-to-br from-blue-400 via-blue-300 to-blue-200`
-            : `${baseClasses} bg-gradient-to-br from-slate-800 via-slate-700 to-slate-600`,
+          gradient: isDaytime 
+            ? 'from-blue-400 via-blue-300 to-blue-200'
+            : 'from-slate-800 via-slate-700 to-slate-600',
           particles: isDaytime ? 'default-day' : 'default-night'
         };
     }
@@ -129,11 +127,11 @@ const WeatherBackground: React.FC<WeatherBackgroundProps> = ({ className = '' })
     switch (type) {
       case 'sun-rays':
         return (
-          <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
             {[...Array(8)].map((_, i) => (
               <div
                 key={i}
-                className="absolute w-1 bg-yellow-300/30 animate-pulse"
+                className="absolute w-1 bg-yellow-300/40 animate-pulse"
                 style={{
                   height: '80px',
                   top: '20%',
@@ -150,7 +148,7 @@ const WeatherBackground: React.FC<WeatherBackgroundProps> = ({ className = '' })
       
       case 'stars':
         return (
-          <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
             {[...Array(20)].map((_, i) => (
               <div
                 key={i}
@@ -168,11 +166,11 @@ const WeatherBackground: React.FC<WeatherBackgroundProps> = ({ className = '' })
       
       case 'clouds':
         return (
-          <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
             {[...Array(4)].map((_, i) => (
               <div
                 key={i}
-                className="absolute bg-white/30 rounded-full animate-float"
+                className="absolute bg-white/40 rounded-full animate-float"
                 style={{
                   width: `${60 + i * 20}px`,
                   height: `${30 + i * 10}px`,
@@ -186,29 +184,9 @@ const WeatherBackground: React.FC<WeatherBackgroundProps> = ({ className = '' })
           </div>
         );
       
-      case 'overcast':
-        return (
-          <div className="absolute inset-0 overflow-hidden">
-            {[...Array(6)].map((_, i) => (
-              <div
-                key={i}
-                className="absolute bg-gray-600/40 rounded-full animate-float"
-                style={{
-                  width: `${80 + i * 15}px`,
-                  height: `${40 + i * 8}px`,
-                  top: `${10 + i * 10}%`,
-                  left: `${5 + i * 15}%`,
-                  animationDelay: `${i * 0.8}s`,
-                  animationDuration: `${10 + i}s`
-                }}
-              />
-            ))}
-          </div>
-        );
-      
       case 'rain':
         return (
-          <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
             {[...Array(50)].map((_, i) => (
               <div
                 key={i}
@@ -226,7 +204,7 @@ const WeatherBackground: React.FC<WeatherBackgroundProps> = ({ className = '' })
       
       case 'snow':
         return (
-          <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
             {[...Array(30)].map((_, i) => (
               <div
                 key={i}
@@ -241,33 +219,14 @@ const WeatherBackground: React.FC<WeatherBackgroundProps> = ({ className = '' })
           </div>
         );
       
-      case 'wind':
-        return (
-          <div className="absolute inset-0 overflow-hidden">
-            {[...Array(6)].map((_, i) => (
-              <div
-                key={i}
-                className="absolute h-0.5 bg-cyan-300/40 animate-wind"
-                style={{
-                  width: `${30 + Math.random() * 40}px`,
-                  top: `${20 + i * 10}%`,
-                  left: '-50px',
-                  animationDelay: `${i * 0.3}s`,
-                  animationDuration: '2s'
-                }}
-              />
-            ))}
-          </div>
-        );
-      
       case 'partly-cloudy':
         return (
-          <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
             {/* Sun rays for partly cloudy */}
             {isDaytime && [...Array(4)].map((_, i) => (
               <div
                 key={`sun-${i}`}
-                className="absolute w-0.5 bg-yellow-300/40 animate-pulse"
+                className="absolute w-0.5 bg-yellow-300/50 animate-pulse"
                 style={{
                   height: '60px',
                   top: '15%',
@@ -283,7 +242,7 @@ const WeatherBackground: React.FC<WeatherBackgroundProps> = ({ className = '' })
             {[...Array(2)].map((_, i) => (
               <div
                 key={`cloud-${i}`}
-                className="absolute bg-white/30 rounded-full animate-float"
+                className="absolute bg-white/40 rounded-full animate-float"
                 style={{
                   width: `${60 + i * 15}px`,
                   height: `${30 + i * 8}px`,
@@ -297,34 +256,14 @@ const WeatherBackground: React.FC<WeatherBackgroundProps> = ({ className = '' })
           </div>
         );
       
-      case 'fog':
-        return (
-          <div className="absolute inset-0 overflow-hidden">
-            {[...Array(8)].map((_, i) => (
-              <div
-                key={i}
-                className="absolute bg-gray-300/20 rounded-full animate-float"
-                style={{
-                  width: `${100 + i * 20}px`,
-                  height: `${20 + i * 5}px`,
-                  top: `${10 + i * 10}%`,
-                  left: `${-20 + i * 15}%`,
-                  animationDelay: `${i * 0.5}s`,
-                  animationDuration: `${10 + i}s`
-                }}
-              />
-            ))}
-          </div>
-        );
-      
       case 'lightning':
         return (
-          <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
             {/* Lightning flashes */}
             {[...Array(3)].map((_, i) => (
               <div
                 key={i}
-                className="absolute bg-yellow-200/60 animate-pulse"
+                className="absolute bg-yellow-200/80 animate-pulse"
                 style={{
                   width: '2px',
                   height: `${40 + Math.random() * 30}px`,
@@ -340,7 +279,7 @@ const WeatherBackground: React.FC<WeatherBackgroundProps> = ({ className = '' })
             {[...Array(4)].map((_, i) => (
               <div
                 key={`storm-cloud-${i}`}
-                className="absolute bg-slate-700/40 rounded-full animate-float"
+                className="absolute bg-slate-700/50 rounded-full animate-float"
                 style={{
                   width: `${80 + i * 25}px`,
                   height: `${40 + i * 12}px`,
@@ -360,37 +299,33 @@ const WeatherBackground: React.FC<WeatherBackgroundProps> = ({ className = '' })
   };
 
   return (
-    <div className={`relative overflow-hidden ${className}`}>
-      {/* Base gradient background */}
-      <div className={backgroundStyles.background} />
+    <div className={`absolute inset-0 overflow-hidden ${className}`}>
+      {/* Base gradient background - CRITICAL: This must be visible */}
+      <div 
+        className={`absolute inset-0 bg-gradient-to-br ${backgroundConfig.gradient} transition-all duration-1000 ease-in-out`}
+        style={{ zIndex: 1 }}
+      />
       
       {/* Weather-specific overlay effects */}
-      <div className="absolute inset-0">
+      <div className="absolute inset-0" style={{ zIndex: 2 }}>
         {/* Subtle texture overlay */}
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
         
         {/* Animated particles */}
-        <AnimatedParticles type={backgroundStyles.particles} />
+        <AnimatedParticles type={backgroundConfig.particles} />
         
-        {/* Additional weather effects */}
-        {weatherCondition.toLowerCase().includes('rain') && (
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-slate-900/10" />
-        )}
-        
-        {weatherCondition.toLowerCase() === 'sunny' && isDaytime && (
-          <>
-            <div className="absolute top-4 right-8 w-16 h-16 bg-yellow-300/30 rounded-full animate-pulse" />
-            <div className="absolute top-6 right-10 w-12 h-12 bg-yellow-400/20 rounded-full animate-pulse" style={{ animationDelay: '0.5s' }} />
-          </>
-        )}
-        
-        {!isDaytime && (
-          <div className="absolute top-6 right-12 w-12 h-12 bg-slate-200/40 rounded-full" />
+        {/* Sun/Moon */}
+        {isDaytime ? (
+          <div className="absolute top-4 right-8 w-16 h-16 bg-yellow-300/40 rounded-full animate-pulse" />
+        ) : (
+          <div className="absolute top-6 right-12 w-12 h-12 bg-slate-200/60 rounded-full" />
         )}
       </div>
       
-      {/* Content overlay to ensure readability */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/5" />
+      {/* Debug indicator - Remove this after testing */}
+      <div className="absolute top-2 left-2 text-xs text-white/80 bg-black/30 px-2 py-1 rounded z-50">
+        {weatherCondition} | {isDaytime ? 'Day' : 'Night'}
+      </div>
     </div>
   );
 };

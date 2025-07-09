@@ -155,13 +155,13 @@ const Header: React.FC = () => {
 
   return (
     <>
-      <header className="relative z-40 border-b border-gray-200/50 px-6 py-2 shadow-sm overflow-hidden min-h-[80px]">
+      <header className="relative z-40 border-b border-gray-200/50 shadow-sm overflow-hidden min-h-[80px]">
         {/* Dynamic Weather Background */}
-        <WeatherBackground className="absolute inset-0 z-0" />
+        <WeatherBackground />
         
         {/* Header content overlay */}
-        <div className="relative z-10 bg-white/80 backdrop-blur-lg rounded-2xl mx-2 my-1 px-4 py-1 shadow-sm border border-white/20">
-        <div className="flex items-center justify-between max-w-7xl mx-auto">
+        <div className="relative z-10 bg-white/85 backdrop-blur-lg mx-2 my-2 px-6 py-2 shadow-sm border border-white/30 rounded-xl">
+          <div className="flex items-center justify-between max-w-7xl mx-auto">
           {/* User Presence - Left */}
           <div className="flex items-center space-x-2">
             {users.map((user, index) => (
@@ -254,7 +254,7 @@ const Header: React.FC = () => {
               )}
             </div>
           </div>
-        </div>
+          </div>
         </div>
       </header>
 
