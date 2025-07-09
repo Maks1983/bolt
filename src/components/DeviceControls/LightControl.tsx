@@ -45,19 +45,19 @@
     console.log(`💡 LightControl render: ${currentDevice.entity_id} state=${currentDevice.state} isOn=${isOn} brightness=${currentDevice.brightness}`);
 
     return (
-      <div className="bg-gray-700/80 rounded-2xl p-5 border border-gray-600/50">
+      <div className="bg-gray-50/80 rounded-2xl p-5 border border-gray-200/50">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3">
             <div 
-              className="w-4 h-4 rounded-full border-2 border-gray-500"
+              className="w-4 h-4 rounded-full border-2 border-gray-300"
               style={{ backgroundColor: isOn ? (currentDevice.rgb_color ? rgbToHex(currentDevice.rgb_color) : '#ffffff') : '#e5e7eb' }}
             ></div>
-            <h4 className="font-semibold text-white">{currentDevice.friendly_name}</h4>
+            <h4 className="font-semibold text-gray-900">{currentDevice.friendly_name}</h4>
           </div>
           <button
             onClick={handleToggle}
             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-              isOn ? 'bg-blue-600' : 'bg-gray-500'
+              isOn ? 'bg-blue-500' : 'bg-gray-300'
             }`}
           >
             <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
@@ -70,8 +70,8 @@
           <div className="space-y-4">
             <div>
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-gray-300">Brightness</span>
-                <span className="text-sm text-gray-400">{Math.round((currentDevice.brightness || 0) / 255 * 100)}%</span>
+                <span className="text-sm font-medium text-gray-700">Brightness</span>
+                <span className="text-sm text-gray-500">{Math.round((currentDevice.brightness || 0) / 255 * 100)}%</span>
               </div>
               <input
                 type="range"
@@ -79,25 +79,25 @@
                 max="255"
                 value={currentDevice.brightness || 0}
                 onChange={(e) => handleBrightnessChange(parseInt(e.target.value))}
-                className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer slider"
+                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
               />
             </div>
             
             {hasColorSupport && (
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-300">Color</span>
+                <span className="text-sm font-medium text-gray-700">Color</span>
                 <div className="flex items-center space-x-2">
                   <input
                     type="color"
                     value={rgbToHex(currentDevice.rgb_color)}
                     onChange={(e) => handleColorChange(e.target.value)}
-                    className="w-8 h-8 rounded-lg border border-gray-500 cursor-pointer"
+                    className="w-8 h-8 rounded-lg border border-gray-300 cursor-pointer"
                   />
                   <button
                     onClick={() => handleColorChange('#ffffff')}
-                    className="p-2 bg-gray-600 border border-gray-500 rounded-lg hover:bg-gray-500 transition-colors"
+                    className="p-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                   >
-                    <Sun className="w-4 h-4 text-gray-300" />
+                    <Sun className="w-4 h-4 text-gray-600" />
                   </button>
                 </div>
               </div>

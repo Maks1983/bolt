@@ -111,18 +111,18 @@ const DeviceControlsSection: React.FC<DeviceControlsSectionProps> = ({ activeTab
     if (deviceCount === 0) return null;
 
     return (
-      <div className="bg-gray-800 rounded-2xl border border-gray-600 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
         {/* Sticky Header */}
-        <div className="sticky top-0 z-10 bg-gray-800 border-b border-gray-600 shadow-sm">
+        <div className="sticky top-0 z-10 bg-white border-b border-gray-200 shadow-sm">
           <div className="p-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
-                <div className="p-3 bg-blue-900/50 rounded-xl">
+                <div className="p-3 bg-blue-50 rounded-xl">
                   {icon}
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-white">{title}</h3>
-                  <p className="text-sm text-gray-400">{deviceCount} device{deviceCount !== 1 ? 's' : ''}</p>
+                  <h3 className="text-xl font-bold text-gray-900">{title}</h3>
+                  <p className="text-sm text-gray-500">{deviceCount} device{deviceCount !== 1 ? 's' : ''}</p>
                 </div>
               </div>
 
@@ -135,8 +135,8 @@ const DeviceControlsSection: React.FC<DeviceControlsSectionProps> = ({ activeTab
                       onClick={action.action}
                       className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 transform hover:scale-105 active:scale-95 ${
                         action.variant === 'primary'
-                          ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-md hover:shadow-lg'
-                          : 'bg-gray-600 text-gray-200 hover:bg-gray-500'
+                          ? 'bg-blue-500 text-white hover:bg-blue-600 shadow-md hover:shadow-lg'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                       }`}
                     >
                       {action.label}
@@ -147,12 +147,12 @@ const DeviceControlsSection: React.FC<DeviceControlsSectionProps> = ({ activeTab
                 {/* Expand/Collapse Button */}
                 <button
                   onClick={() => toggleGroupExpansion(groupKey)}
-                  className="p-2 rounded-lg hover:bg-gray-700 transition-colors"
+                  className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
                 >
                   {isExpanded ? (
-                    <ChevronUp className="w-5 h-5 text-gray-400" />
+                    <ChevronUp className="w-5 h-5 text-gray-600" />
                   ) : (
-                    <ChevronDown className="w-5 h-5 text-gray-400" />
+                    <ChevronDown className="w-5 h-5 text-gray-600" />
                   )}
                 </button>
               </div>
@@ -187,10 +187,10 @@ const DeviceControlsSection: React.FC<DeviceControlsSectionProps> = ({ activeTab
   if (totalDevices === 0) {
     return (
       <div className="text-center py-12">
-        <div className="text-gray-500 text-lg font-medium">
+        <div className="text-gray-400 text-lg font-medium">
           No controllable devices found
         </div>
-        <div className="text-gray-600 text-sm mt-2">
+        <div className="text-gray-500 text-sm mt-2">
           {activeTab === 'whole-house' 
             ? 'Add lights, covers, or media players to see controls here'
             : `No devices configured for ${getTabTitle()}`
@@ -204,10 +204,10 @@ const DeviceControlsSection: React.FC<DeviceControlsSectionProps> = ({ activeTab
     <div className="space-y-6">
       {/* Header */}
       <div className="mb-8">
-        <h2 className="text-2xl font-bold text-white mb-2">
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">
           Device Controls - {getTabTitle()}
         </h2>
-        <p className="text-gray-300">
+        <p className="text-gray-600">
           Control {totalDevices} device{totalDevices !== 1 ? 's' : ''} across {
             [lights.length > 0 && 'lights', covers.length > 0 && 'covers', mediaPlayers.length > 0 && 'media players']
               .filter(Boolean).join(', ')
@@ -218,7 +218,7 @@ const DeviceControlsSection: React.FC<DeviceControlsSectionProps> = ({ activeTab
       {/* Lights Group */}
       <DeviceGroup
         title="Lights"
-        icon={<Lightbulb className="w-6 h-6 text-blue-400" />}
+        icon={<Lightbulb className="w-6 h-6 text-blue-600" />}
         devices={lights}
         groupKey="lights"
         quickActions={[
@@ -238,7 +238,7 @@ const DeviceControlsSection: React.FC<DeviceControlsSectionProps> = ({ activeTab
       {/* Blinds & Curtains Group */}
       <DeviceGroup
         title="Blinds & Curtains"
-        icon={<Columns2 className="w-6 h-6 text-blue-400" />}
+        icon={<Columns2 className="w-6 h-6 text-blue-600" />}
         devices={covers}
         groupKey="covers"
         quickActions={[
@@ -258,7 +258,7 @@ const DeviceControlsSection: React.FC<DeviceControlsSectionProps> = ({ activeTab
       {/* Speakers & Media Group */}
       <DeviceGroup
         title="Speakers & Media"
-        icon={<Volume2 className="w-6 h-6 text-blue-400" />}
+        icon={<Volume2 className="w-6 h-6 text-blue-600" />}
         devices={mediaPlayers}
         groupKey="media"
         quickActions={[

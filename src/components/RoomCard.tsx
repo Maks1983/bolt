@@ -110,7 +110,7 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
   return (
     <>
       <div 
-        className="relative bg-gray-800 rounded-3xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:scale-[1.02] w-full max-w-sm mx-auto border border-gray-600/50"
+        className="relative bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:scale-[1.02] w-full max-w-sm mx-auto border border-gray-200/50"
         onClick={() => setExpanded(true)}
       >
         {/* Background Image */}
@@ -236,7 +236,7 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
       {/* Expanded Modal */}
       {expanded && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-gray-800 rounded-3xl max-w-4xl w-full max-h-[95vh] overflow-hidden shadow-2xl border border-gray-600 animate-in fade-in-0 zoom-in-95 duration-300">
+          <div className="bg-white rounded-3xl max-w-4xl w-full max-h-[95vh] overflow-hidden shadow-2xl border border-gray-200 animate-in fade-in-0 zoom-in-95 duration-300">
             {/* Header */}
             <div className="relative h-48 overflow-hidden">
               <div 
@@ -279,7 +279,7 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
                   </div>
                   <button 
                     onClick={() => setExpanded(false)}
-                    className="p-3 bg-black/20 rounded-full hover:bg-black/30 transition-colors backdrop-blur-sm shadow-lg"
+                    className="p-3 bg-white/20 rounded-full hover:bg-white/30 transition-colors backdrop-blur-sm shadow-lg"
                   >
                     <X className="w-6 h-6 text-white" />
                   </button>
@@ -318,10 +318,10 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
                 {roomDevices.lights.length > 0 && (
                   <div>
                     <div className="flex items-center space-x-3 mb-6">
-                      <div className="p-2 bg-yellow-900/50 rounded-xl">
-                        <Lightbulb className="w-5 h-5 text-yellow-400" />
+                      <div className="p-2 bg-yellow-100 rounded-xl">
+                        <Lightbulb className="w-5 h-5 text-yellow-600" />
                       </div>
-                      <h3 className="text-xl font-bold text-white">Lighting Controls</h3>
+                      <h3 className="text-xl font-bold text-gray-900">Lighting Controls</h3>
                     </div>
                     
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -336,10 +336,10 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
                 {roomDevices.locks.length > 0 && (
                   <div>
                     <div className="flex items-center space-x-3 mb-6">
-                      <div className="p-2 bg-red-900/50 rounded-xl">
-                        <Shield className="w-5 h-5 text-red-400" />
+                      <div className="p-2 bg-red-100 rounded-xl">
+                        <Shield className="w-5 h-5 text-red-600" />
                       </div>
-                      <h3 className="text-xl font-bold text-white">Security</h3>
+                      <h3 className="text-xl font-bold text-gray-900">Security</h3>
                     </div>
                     
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -354,10 +354,10 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
                 {roomDevices.covers.length > 0 && (
                   <div>
                     <div className="flex items-center space-x-3 mb-6">
-                      <div className="p-2 bg-blue-900/50 rounded-xl">
-                        <Columns2 className="w-5 h-5 text-blue-400" />
+                      <div className="p-2 bg-blue-100 rounded-xl">
+                        <Columns2 className="w-5 h-5 text-blue-600" />
                       </div>
-                      <h3 className="text-xl font-bold text-white">Window Covers</h3>
+                      <h3 className="text-xl font-bold text-gray-900">Window Covers</h3>
                     </div>
                     
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -376,10 +376,10 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
                 {roomDevices.fans.length > 0 && (
                   <div>
                     <div className="flex items-center space-x-3 mb-6">
-                      <div className="p-2 bg-cyan-900/50 rounded-xl">
-                        <Wind className="w-5 h-5 text-cyan-400" />
+                      <div className="p-2 bg-cyan-100 rounded-xl">
+                        <Wind className="w-5 h-5 text-cyan-600" />
                       </div>
-                      <h3 className="text-xl font-bold text-white">Fans</h3>
+                      <h3 className="text-xl font-bold text-gray-900">Fans</h3>
                     </div>
                     
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -394,10 +394,10 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
                 {roomDevices.mediaPlayers.length > 0 && (
                   <div>
                     <div className="flex items-center space-x-3 mb-6">
-                      <div className="p-2 bg-purple-900/50 rounded-xl">
-                        <Lightbulb className="w-5 h-5 text-purple-400" />
+                      <div className="p-2 bg-purple-100 rounded-xl">
+                        <Lightbulb className="w-5 h-5 text-purple-600" />
                       </div>
-                      <h3 className="text-xl font-bold text-white">Media Controls</h3>
+                      <h3 className="text-xl font-bold text-gray-900">Media Controls</h3>
                     </div>
                     
                     <div className="space-y-4">
@@ -412,10 +412,10 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
                 {roomDevices.cameras.length > 0 && (
                   <div>
                     <div className="flex items-center space-x-3 mb-6">
-                      <div className="p-2 bg-indigo-900/50 rounded-xl">
-                        <Camera className="w-5 h-5 text-indigo-400" />
+                      <div className="p-2 bg-indigo-100 rounded-xl">
+                        <Camera className="w-5 h-5 text-indigo-600" />
                       </div>
-                      <h3 className="text-xl font-bold text-white">Security Cameras</h3>
+                      <h3 className="text-xl font-bold text-gray-900">Security Cameras</h3>
                     </div>
                     
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -430,21 +430,21 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
                 {(roomDevices.sensors.length > 0 || roomDevices.binarySensors.length > 0) && (
                   <div>
                     <div className="flex items-center space-x-3 mb-6">
-                      <div className="p-2 bg-green-900/50 rounded-xl">
-                        <Thermometer className="w-5 h-5 text-green-400" />
+                      <div className="p-2 bg-green-100 rounded-xl">
+                        <Thermometer className="w-5 h-5 text-green-600" />
                       </div>
-                      <h3 className="text-xl font-bold text-white">Sensors</h3>
+                      <h3 className="text-xl font-bold text-gray-900">Sensors</h3>
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       {/* Temperature Sensors */}
                       {roomDevices.sensors.filter(s => (s as any).sensor_type === 'temperature').map((sensor) => (
-                        <div key={sensor.entity_id} className="bg-gray-700/80 rounded-2xl p-4 border border-gray-600/50">
+                        <div key={sensor.entity_id} className="bg-gray-50/80 rounded-2xl p-4 border border-gray-200/50">
                           <div className="flex items-center space-x-3">
-                            <Thermometer className="w-5 h-5 text-blue-400" />
+                            <Thermometer className="w-5 h-5 text-blue-600" />
                             <div>
-                              <h4 className="font-semibold text-white">{sensor.friendly_name}</h4>
-                              <p className="text-lg font-bold text-blue-400">{formatTemperature(sensor.state)}</p>
+                              <h4 className="font-semibold text-gray-900">{sensor.friendly_name}</h4>
+                              <p className="text-lg font-bold text-blue-600">{formatTemperature(sensor.state)}</p>
                             </div>
                           </div>
                         </div>
@@ -452,12 +452,12 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
                       
                       {/* Humidity Sensors */}
                       {roomDevices.sensors.filter(s => (s as any).sensor_type === 'humidity').map((sensor) => (
-                        <div key={sensor.entity_id} className="bg-gray-700/80 rounded-2xl p-4 border border-gray-600/50">
+                        <div key={sensor.entity_id} className="bg-gray-50/80 rounded-2xl p-4 border border-gray-200/50">
                           <div className="flex items-center space-x-3">
-                            <Droplets className="w-5 h-5 text-blue-400" />
+                            <Droplets className="w-5 h-5 text-blue-600" />
                             <div>
-                              <h4 className="font-semibold text-white">{sensor.friendly_name}</h4>
-                              <p className="text-lg font-bold text-blue-400">{formatHumidity(sensor.state)}</p>
+                              <h4 className="font-semibold text-gray-900">{sensor.friendly_name}</h4>
+                              <p className="text-lg font-bold text-blue-600">{formatHumidity(sensor.state)}</p>
                             </div>
                           </div>
                         </div>
@@ -465,12 +465,12 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
                       
                       {/* Motion Sensors */}
                       {roomDevices.binarySensors.filter(s => (s as any).sensor_type === 'motion').map((sensor) => (
-                        <div key={sensor.entity_id} className="bg-gray-700/80 rounded-2xl p-4 border border-gray-600/50">
+                        <div key={sensor.entity_id} className="bg-gray-50/80 rounded-2xl p-4 border border-gray-200/50">
                           <div className="flex items-center space-x-3">
-                            <User className={`w-5 h-5 ${sensor.state === 'on' ? 'text-green-400' : 'text-gray-500'}`} />
+                            <User className={`w-5 h-5 ${sensor.state === 'on' ? 'text-green-600' : 'text-gray-400'}`} />
                             <div>
-                              <h4 className="font-semibold text-white">{sensor.friendly_name}</h4>
-                              <p className={`text-lg font-bold ${sensor.state === 'on' ? 'text-green-400' : 'text-gray-500'}`}>
+                              <h4 className="font-semibold text-gray-900">{sensor.friendly_name}</h4>
+                              <p className={`text-lg font-bold ${sensor.state === 'on' ? 'text-green-600' : 'text-gray-400'}`}>
                                 {sensor.state === 'on' ? 'Motion' : 'No Motion'}
                               </p>
                             </div>
@@ -482,16 +482,16 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
                       {roomDevices.binarySensors.filter(s => 
                         (s as any).sensor_type === 'door' || (s as any).sensor_type === 'window'
                       ).map((sensor) => (
-                        <div key={sensor.entity_id} className="bg-gray-700/80 rounded-2xl p-4 border border-gray-600/50">
+                        <div key={sensor.entity_id} className="bg-gray-50/80 rounded-2xl p-4 border border-gray-200/50">
                           <div className="flex items-center space-x-3">
                             {(sensor as any).sensor_type === 'door' ? (
-                              sensor.state === 'on' ? <DoorOpen className="w-5 h-5 text-orange-400" /> : <DoorClosed className="w-5 h-5 text-green-400" />
+                              sensor.state === 'on' ? <DoorOpen className="w-5 h-5 text-orange-600" /> : <DoorClosed className="w-5 h-5 text-green-600" />
                             ) : (
-                              <Columns2 className={`w-5 h-5 ${sensor.state === 'on' ? 'text-orange-400' : 'text-green-400'}`} />
+                              <Columns2 className={`w-5 h-5 ${sensor.state === 'on' ? 'text-orange-600' : 'text-green-600'}`} />
                             )}
                             <div>
-                              <h4 className="font-semibold text-white">{sensor.friendly_name}</h4>
-                              <p className={`text-lg font-bold ${sensor.state === 'on' ? 'text-orange-400' : 'text-green-400'}`}>
+                              <h4 className="font-semibold text-gray-900">{sensor.friendly_name}</h4>
+                              <p className={`text-lg font-bold ${sensor.state === 'on' ? 'text-orange-600' : 'text-green-600'}`}>
                                 {sensor.state === 'on' ? 'Open' : 'Closed'}
                               </p>
                             </div>
@@ -501,12 +501,12 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
 
                       {/* Flood Sensors */}
                       {roomDevices.binarySensors.filter(s => (s as any).sensor_type === 'flood').map((sensor) => (
-                        <div key={sensor.entity_id} className={`bg-gray-700/80 rounded-2xl p-4 border ${sensor.state === 'on' ? 'border-red-500 bg-red-900/30' : 'border-gray-600/50'}`}>
+                        <div key={sensor.entity_id} className={`bg-gray-50/80 rounded-2xl p-4 border ${sensor.state === 'on' ? 'border-red-300 bg-red-50' : 'border-gray-200/50'}`}>
                           <div className="flex items-center space-x-3">
-                            <Waves className={`w-5 h-5 ${sensor.state === 'on' ? 'text-red-400' : 'text-blue-400'}`} />
+                            <Waves className={`w-5 h-5 ${sensor.state === 'on' ? 'text-red-600' : 'text-blue-600'}`} />
                             <div>
-                              <h4 className="font-semibold text-white">{sensor.friendly_name}</h4>
-                              <p className={`text-lg font-bold ${sensor.state === 'on' ? 'text-red-400' : 'text-green-400'}`}>
+                              <h4 className="font-semibold text-gray-900">{sensor.friendly_name}</h4>
+                              <p className={`text-lg font-bold ${sensor.state === 'on' ? 'text-red-600' : 'text-green-600'}`}>
                                 {sensor.state === 'on' ? 'FLOOD DETECTED' : 'Dry'}
                               </p>
                             </div>
@@ -516,12 +516,12 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
 
                       {/* Smoke Sensors */}
                       {roomDevices.binarySensors.filter(s => (s as any).sensor_type === 'smoke').map((sensor) => (
-                        <div key={sensor.entity_id} className={`bg-gray-700/80 rounded-2xl p-4 border ${sensor.state === 'on' ? 'border-red-500 bg-red-900/30' : 'border-gray-600/50'}`}>
+                        <div key={sensor.entity_id} className={`bg-gray-50/80 rounded-2xl p-4 border ${sensor.state === 'on' ? 'border-red-300 bg-red-50' : 'border-gray-200/50'}`}>
                           <div className="flex items-center space-x-3">
-                            <Flame className={`w-5 h-5 ${sensor.state === 'on' ? 'text-red-400' : 'text-gray-400'}`} />
+                            <Flame className={`w-5 h-5 ${sensor.state === 'on' ? 'text-red-600' : 'text-gray-600'}`} />
                             <div>
-                              <h4 className="font-semibold text-white">{sensor.friendly_name}</h4>
-                              <p className={`text-lg font-bold ${sensor.state === 'on' ? 'text-red-400' : 'text-green-400'}`}>
+                              <h4 className="font-semibold text-gray-900">{sensor.friendly_name}</h4>
+                              <p className={`text-lg font-bold ${sensor.state === 'on' ? 'text-red-600' : 'text-green-600'}`}>
                                 {sensor.state === 'on' ? 'SMOKE DETECTED' : 'Clear'}
                               </p>
                             </div>
@@ -534,16 +534,16 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
               </div>
               
               {/* Footer */}
-              <div className="p-6 border-t border-gray-600 bg-gray-700/50">
+              <div className="p-6 border-t border-gray-100 bg-gray-50/50">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2 text-gray-400">
+                  <div className="flex items-center space-x-2 text-gray-500">
                     <Clock className="w-4 h-4" />
                     <span className="text-sm">Last updated: {lastUpdate}</span>
                   </div>
                   <div className="flex space-x-3">
                     <button 
                       onClick={() => setExpanded(false)}
-                      className="px-6 py-3 bg-gray-600 text-gray-200 rounded-2xl hover:bg-gray-500 transition-colors font-semibold"
+                      className="px-6 py-3 bg-gray-200 text-gray-700 rounded-2xl hover:bg-gray-300 transition-colors font-semibold"
                     >
                       Close
                     </button>

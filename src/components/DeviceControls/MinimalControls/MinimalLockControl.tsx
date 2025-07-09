@@ -22,23 +22,23 @@ const MinimalLockControl: React.FC<MinimalLockControlProps> = ({ device }) => {
   const isLocked = currentDevice.state === 'locked';
 
   return (
-    <div className="bg-gray-700 rounded-xl p-4 border border-gray-600 shadow-sm hover:shadow-md transition-shadow">
+    <div className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <div className={`p-2 rounded-lg ${isLocked ? 'bg-green-900/50' : 'bg-red-900/50'}`}>
+          <div className={`p-2 rounded-lg ${isLocked ? 'bg-green-100' : 'bg-red-100'}`}>
             {isLocked ? (
-              <Lock className="w-5 h-5 text-green-400" />
+              <Lock className="w-5 h-5 text-green-600" />
             ) : (
-              <Unlock className="w-5 h-5 text-red-400" />
+              <Unlock className="w-5 h-5 text-red-600" />
             )}
           </div>
-          <span className="font-medium text-white">{currentDevice.friendly_name}</span>
+          <span className="font-medium text-gray-900">{currentDevice.friendly_name}</span>
         </div>
         
         <button
           onClick={handleToggle}
           className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-            isLocked ? 'bg-green-600' : 'bg-red-600'
+            isLocked ? 'bg-green-500' : 'bg-red-500'
           }`}
         >
           <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${

@@ -154,14 +154,14 @@ const Header: React.FC = () => {
 
   return (
     <>
-      <header className="relative z-40 bg-gray-900/95 backdrop-blur-xl border-b border-gray-700/50 px-6 py-2 shadow-sm">
+      <header className="relative z-40 bg-white/95 backdrop-blur-xl border-b border-gray-200/50 px-6 py-2 shadow-sm">
         <div className="flex items-center justify-between max-w-7xl mx-auto">
           {/* User Presence - Left */}
           <div className="flex items-center space-x-2">
             {users.map((user, index) => (
               <div 
                 key={index} 
-                className="flex flex-col items-center space-y-1 bg-gray-800/80 rounded-lg px-2 py-1.5 border border-gray-600/40 shadow-sm cursor-pointer hover:bg-gray-700/80 transition-colors"
+                className="flex flex-col items-center space-y-1 bg-gray-50/80 rounded-lg px-2 py-1.5 border border-gray-200/40 shadow-sm cursor-pointer hover:bg-gray-100/80 transition-colors"
                 onClick={() => handleUserClick(user)}
               >
                 <div className="relative">
@@ -173,7 +173,7 @@ const Header: React.FC = () => {
                   </div>
                 </div>
                 <div className="text-center">
-                  <div className="text-xs text-gray-400 font-medium">{getStatusLabel(user.status)}</div>
+                  <div className="text-xs text-gray-500 font-medium">{getStatusLabel(user.status)}</div>
                 </div>
               </div>
             ))}
@@ -181,7 +181,7 @@ const Header: React.FC = () => {
 
           {/* System Status - Center */}
           <div className="flex items-center space-x-3">
-            <div className="flex items-center space-x-2 bg-emerald-900/50 text-emerald-300 px-3 py-1.5 rounded-lg border border-emerald-700/50 shadow-sm">
+            <div className="flex items-center space-x-2 bg-emerald-50/80 text-emerald-700 px-3 py-1.5 rounded-lg border border-emerald-200/50 shadow-sm">
               <Shield className="w-3 h-3" />
               <div className="text-xs font-bold">All Systems Normal</div>
             </div>
@@ -190,13 +190,13 @@ const Header: React.FC = () => {
           {/* Weather, Date, Time and Connection Status - Right */}
           <div className="flex items-center space-x-3">
             {/* Weather from Balcony Sensors */}
-            <div className="flex items-center space-x-2 bg-blue-900/50 rounded-lg px-3 py-1.5 border border-blue-700/50 shadow-sm">
+            <div className="flex items-center space-x-2 bg-blue-50/80 rounded-lg px-3 py-1.5 border border-blue-200/50 shadow-sm">
               <Sun className="w-4 h-4 text-amber-500" />
               <div>
-                <div className="text-sm font-bold text-white">
+                <div className="text-sm font-bold text-gray-900">
                   {balconyTemp ? formatTemperature(balconyTemp.state) : '18.0°C'}
                 </div>
-                <div className="text-xs text-gray-400 font-medium">
+                <div className="text-xs text-gray-500 font-medium">
                   {balconyHumidity ? formatHumidity(balconyHumidity.state) : '65%'}
                 </div>
               </div>
@@ -204,8 +204,8 @@ const Header: React.FC = () => {
             
             {/* Date and Time */}
             <div className="text-right">
-              <div className="text-base font-bold text-white">{currentTime}</div>
-              <div className="text-xs text-gray-400 font-medium">{currentDate}</div>
+              <div className="text-base font-bold text-gray-900">{currentTime}</div>
+              <div className="text-xs text-gray-500 font-medium">{currentDate}</div>
             </div>
 
             {/* Connection Status with Dropdown */}
@@ -220,25 +220,25 @@ const Header: React.FC = () => {
 
               {/* Connection Dropdown */}
               {showConnectionDropdown && (
-                <div className="absolute right-0 top-full mt-2 w-60 bg-gray-800 rounded-lg shadow-lg border border-gray-600 z-50">
+                <div className="absolute right-0 top-full mt-2 w-60 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
                   <div className="p-4">
                     <div className="flex items-center space-x-3 mb-3">
                       {getConnectionIcon()}
                       <div>
-                        <div className="font-semibold text-white">Home Assistant</div>
-                        <div className="text-sm text-gray-300">{getConnectionText()}</div>
+                        <div className="font-semibold text-gray-900">Home Assistant</div>
+                        <div className="text-sm text-gray-600">{getConnectionText()}</div>
                       </div>
                     </div>
                     
                     {state.lastUpdate && (
-                      <div className="text-xs text-gray-400 mb-3">
+                      <div className="text-xs text-gray-500 mb-3">
                         Last update: {state.lastUpdate.toLocaleTimeString()}
                       </div>
                     )}
 
                     <button
                       onClick={handleRefresh}
-                      className="w-full flex items-center justify-center space-x-2 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                      className="w-full flex items-center justify-center space-x-2 px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
                     >
                       <RefreshCw className="w-4 h-4" />
                       <span>Refresh</span>
