@@ -21,19 +21,19 @@ const MinimalLightControl: React.FC<MinimalLightControlProps> = ({ device }) => 
   const isOn = currentDevice.state === 'on';
 
   return (
-    <div className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+    <div className="bg-gray-700 rounded-xl p-4 border border-gray-600 shadow-sm hover:shadow-md transition-shadow">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <div className={`p-2 rounded-lg ${isOn ? 'bg-yellow-100' : 'bg-gray-100'}`}>
-            <Lightbulb className={`w-5 h-5 ${isOn ? 'text-yellow-600' : 'text-gray-500'}`} />
+          <div className={`p-2 rounded-lg ${isOn ? 'bg-yellow-900/50' : 'bg-gray-600'}`}>
+            <Lightbulb className={`w-5 h-5 ${isOn ? 'text-yellow-400' : 'text-gray-400'}`} />
           </div>
-          <span className="font-medium text-gray-900">{currentDevice.friendly_name}</span>
+          <span className="font-medium text-white">{currentDevice.friendly_name}</span>
         </div>
         
         <button
           onClick={handleToggle}
           className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-            isOn ? 'bg-blue-500' : 'bg-gray-300'
+            isOn ? 'bg-blue-600' : 'bg-gray-500'
           }`}
         >
           <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${

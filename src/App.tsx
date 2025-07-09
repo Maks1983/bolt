@@ -218,7 +218,7 @@ const AppContent: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-800">
       <Header />
       <InfoRow cameras={cameras} />
       
@@ -233,8 +233,8 @@ const AppContent: React.FC = () => {
                 onClick={() => setActiveTab(tab.id)}
                 className={`relative px-6 py-3 rounded-t-2xl font-semibold text-sm transition-all duration-200 transform ${
                   activeTab === tab.id
-                    ? 'bg-white text-gray-900 shadow-lg border-t-2 border-l-2 border-r-2 border-gray-200 -mb-px'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border-2 border-gray-200 border-b-0'
+                    ? 'bg-gray-800 text-white shadow-lg border-t-2 border-l-2 border-r-2 border-gray-600 -mb-px'
+                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600 border-2 border-gray-600 border-b-0'
                 }`}
                 style={{
                   clipPath: activeTab === tab.id 
@@ -254,18 +254,18 @@ const AppContent: React.FC = () => {
           </div>
           
           {/* Tab Content Background with Sidebar */}
-          <div className="bg-white border-2 border-gray-200 rounded-2xl rounded-tl-none shadow-lg -mt-px relative min-h-[600px]">
+          <div className="bg-gray-800 border-2 border-gray-600 rounded-2xl rounded-tl-none shadow-lg -mt-px relative min-h-[600px]">
             {/* Unified Content Area with Sidebar and Content */}
             <div className="flex h-full max-h-[calc(100vh-200px)] overflow-hidden">
               {/* Vertical Sidebar Navigation */}
-              <div className="flex flex-col w-16 border-r border-gray-200 flex-shrink-0 h-full">
+              <div className="flex flex-col w-16 border-r border-gray-600 flex-shrink-0 h-full">
                 {/* Status Tab */}
                 <button
                   onClick={() => setActiveSection('status')}
                   className={`relative flex items-center justify-center py-8 h-32 flex-shrink-0 transition-all duration-200 ${
                     activeSection === 'status'
-                      ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-500'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                      ? 'bg-blue-900/50 text-blue-300 border-r-2 border-blue-500'
+                      : 'text-gray-400 hover:bg-gray-700 hover:text-gray-200'
                   }`}
                 >
                   <div 
@@ -288,8 +288,8 @@ const AppContent: React.FC = () => {
                   onClick={() => setActiveSection('controls')}
                   className={`relative flex items-center justify-center py-8 h-32 flex-shrink-0 transition-all duration-200 ${
                     activeSection === 'controls'
-                      ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-500'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                      ? 'bg-blue-900/50 text-blue-300 border-r-2 border-blue-500'
+                      : 'text-gray-400 hover:bg-gray-700 hover:text-gray-200'
                   }`}
                 >
                   <div 
