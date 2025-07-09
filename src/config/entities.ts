@@ -848,7 +848,7 @@ export const subscribedEntities: EntityConfig[] = [
     supported_features: ['arm_home', 'arm_away', 'arm_night', 'disarm'],
     last_updated: new Date().toISOString(),
     available: true
-  }
+  },
 
   // ADD MORE ENTITIES HERE AS NEEDED
   // Copy the pattern above for each entity you want to monitor
