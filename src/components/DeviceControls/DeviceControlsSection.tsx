@@ -2,9 +2,11 @@ import React, { useState, useMemo } from 'react';
 import { Lightbulb, Columns2, Volume2, Power, PowerOff, ChevronUp, ChevronDown } from 'lucide-react';
 import { useDevices } from '../../context/DeviceContext';
 import { Device, LightDevice, BlindDevice, MediaPlayerDevice } from '../../types/devices';
-import LightControl from './LightControl';
-import CoverControl from './CoverControl';
-import MediaPlayerControl from './MediaPlayerControl';
+import MinimalLightControl from './MinimalControls/MinimalLightControl';
+import MinimalCoverControl from './MinimalControls/MinimalCoverControl';
+import MinimalMediaPlayerControl from './MinimalControls/MinimalMediaPlayerControl';
+import MinimalFanControl from './MinimalControls/MinimalFanControl';
+import MinimalLockControl from './MinimalControls/MinimalLockControl';
 
 interface DeviceControlsSectionProps {
   activeTab: 'whole-house' | 'upper-floor' | 'lower-floor' | 'apartment';
@@ -227,7 +229,7 @@ const DeviceControlsSection: React.FC<DeviceControlsSectionProps> = ({ activeTab
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
           {lights.map((light) => (
             <div key={light.entity_id} className="transform transition-all duration-200 hover:scale-[1.02]">
-              <LightControl device={light} />
+              <MinimalLightControl device={light} />
             </div>
           ))}
         </div>
@@ -247,10 +249,7 @@ const DeviceControlsSection: React.FC<DeviceControlsSectionProps> = ({ activeTab
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
           {covers.map((cover) => (
             <div key={cover.entity_id} className="transform transition-all duration-200 hover:scale-[1.02]">
-              <CoverControl 
-                device={cover} 
-                type={cover.friendly_name.toLowerCase().includes('curtain') ? 'curtain' : 'blind'}
-              />
+              <MinimalCoverControl device={cover} />
             </div>
           ))}
         </div>
@@ -270,7 +269,7 @@ const DeviceControlsSection: React.FC<DeviceControlsSectionProps> = ({ activeTab
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {mediaPlayers.map((player) => (
             <div key={player.entity_id} className="transform transition-all duration-200 hover:scale-[1.02]">
-              <MediaPlayerControl device={player} />
+              <MinimalMediaPlayerControl device={player} />
             </div>
           ))}
         </div>
