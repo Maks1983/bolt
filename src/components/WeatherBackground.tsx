@@ -1,4 +1,5 @@
-import React, { useMemo } from 'react';
+import React, { useRef, useEffect, useMemo } from 'react';
+import * as THREE from 'three';
 import { useRealtimeDevice } from '../hooks/useDeviceUpdates';
 
 interface WeatherBackgroundProps {
@@ -7,6 +8,19 @@ interface WeatherBackgroundProps {
 }
 
 const WeatherBackground: React.FC<WeatherBackgroundProps> = ({ className = '', children }) => {
+  const mountRef = useRef<HTMLDivElement>(null);
+  const sceneRef = useRef<{
+    scene: THREE.Scene;
+    camera: THREE.PerspectiveCamera;
+    renderer: THREE.WebGLRenderer;
+    animationId: number | null;
+    particles: THREE.Points[];
+    clouds: THREE.Mesh[];
+    sun: THREE.Mesh | null;
+    moon: THREE.Mesh | null;
+    stars: THREE.Points | null;
+  } | null>(null);
+
   // Get weather and sun data from Home Assistant
   const weatherEntity = useRealtimeDevice('weather.forecast_home');
   const sunEntity = useRealtimeDevice('sun.sun');
@@ -16,431 +30,653 @@ const WeatherBackground: React.FC<WeatherBackgroundProps> = ({ className = '', c
   const sunState = sunEntity?.state || 'above_horizon';
   const isDay = sunState === 'above_horizon';
 
-  console.log('🌤️ Weather Background:', { weatherState, sunState, isDay });
+  console.log('🌤️ Realistic Weather Background:', { weatherState, sunState, isDay });
 
-  // Generate realistic background based on weather and time
-  const backgroundConfig = useMemo(() => {
+  // Initialize Three.js scene
+  useEffect(() => {
+    if (!mountRef.current) return;
+
+    const mount = mountRef.current;
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ 
+      antialias: true, 
+      alpha: true,
+      powerPreference: "high-performance"
+    });
+
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.0;
+    
+    mount.appendChild(renderer.domElement);
+
+    camera.position.set(0, 0, 5);
+
+    sceneRef.current = {
+      scene,
+      camera,
+      renderer,
+      animationId: null,
+      particles: [],
+      clouds: [],
+      sun: null,
+      moon: null,
+      stars: null
+    };
+
+    // Handle window resize
+    const handleResize = () => {
+      if (!sceneRef.current) return;
+      const { camera, renderer } = sceneRef.current;
+      
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      if (sceneRef.current) {
+        if (sceneRef.current.animationId) {
+          cancelAnimationFrame(sceneRef.current.animationId);
+        }
+        mount.removeChild(renderer.domElement);
+        renderer.dispose();
+      }
+    };
+  }, []);
+
+  // Create realistic sky gradient
+  const createSkyGradient = (isDay: boolean, weather: string) => {
+    if (!sceneRef.current) return;
+
+    const { scene } = sceneRef.current;
+    
+    // Remove existing sky
+    const existingSky = scene.getObjectByName('sky');
+    if (existingSky) scene.remove(existingSky);
+
+    const skyGeometry = new THREE.SphereGeometry(500, 32, 32);
+    let skyColors: THREE.Color[];
+
     if (isDay) {
-      switch (weatherState) {
+      switch (weather) {
         case 'sunny':
         case 'clear':
-          return {
-            background: (
-              <div className="absolute inset-0">
-                {/* Sky gradient */}
-                <div className="absolute inset-0 bg-gradient-to-b from-sky-400 via-sky-300 to-sky-100" />
-                
-                {/* Sun with realistic glow */}
-                <div className="absolute top-16 right-20">
-                  {/* Sun glow effect */}
-                  <div className="absolute w-32 h-32 -top-8 -left-8 bg-yellow-200/30 rounded-full blur-xl animate-pulse" />
-                  <div className="absolute w-24 h-24 -top-4 -left-4 bg-yellow-300/40 rounded-full blur-lg animate-pulse" style={{ animationDelay: '0.5s' }} />
-                  
-                  {/* Sun body */}
-                  <div className="relative w-16 h-16 bg-gradient-radial from-yellow-100 via-yellow-300 to-yellow-400 rounded-full shadow-lg">
-                    <div className="absolute inset-1 bg-gradient-radial from-yellow-50/80 to-transparent rounded-full" />
-                  </div>
-                  
-                  {/* Subtle sun rays */}
-                  <div className="absolute inset-0 animate-spin" style={{ animationDuration: '60s' }}>
-                    {[...Array(12)].map((_, i) => (
-                      <div
-                        key={i}
-                        className="absolute w-0.5 h-12 bg-gradient-to-t from-transparent via-yellow-200/20 to-transparent"
-                        style={{
-                          top: '-24px',
-                          left: '50%',
-                          transformOrigin: '50% 56px',
-                          transform: `translateX(-50%) rotate(${i * 30}deg)`
-                        }}
-                      />
-                    ))}
-                  </div>
-                </div>
-
-                {/* Atmospheric particles */}
-                <div className="absolute inset-0 overflow-hidden">
-                  {[...Array(8)].map((_, i) => (
-                    <div
-                      key={i}
-                      className="absolute w-1 h-1 bg-white/20 rounded-full animate-float"
-                      style={{
-                        left: `${15 + i * 12}%`,
-                        top: `${25 + (i % 4) * 15}%`,
-                        animationDelay: `${i * 1.2}s`,
-                        animationDuration: `${6 + i * 0.8}s`
-                      }}
-                    />
-                  ))}
-                </div>
-              </div>
-            )
-          };
-
+          skyColors = [
+            new THREE.Color(0x87CEEB), // Sky blue top
+            new THREE.Color(0xB0E0E6), // Powder blue middle
+            new THREE.Color(0xF0F8FF)  // Alice blue bottom
+          ];
+          break;
         case 'partlycloudy':
-          return {
-            background: (
-              <div className="absolute inset-0">
-                {/* Sky gradient */}
-                <div className="absolute inset-0 bg-gradient-to-b from-blue-400 via-blue-300 to-blue-100" />
-                
-                {/* Sun partially behind clouds */}
-                <div className="absolute top-12 right-16 w-20 h-20">
-                  <div className="absolute w-28 h-28 -top-4 -left-4 bg-yellow-200/25 rounded-full blur-xl animate-pulse" />
-                  <div className="w-full h-full bg-gradient-radial from-yellow-100 via-yellow-300 to-yellow-400 rounded-full opacity-70" />
-                </div>
-
-                {/* Realistic clouds */}
-                <div className="absolute inset-0 overflow-hidden">
-                  {[
-                    { size: 'large', x: 10, y: 15, delay: 0 },
-                    { size: 'medium', x: 45, y: 25, delay: 5 },
-                    { size: 'large', x: 70, y: 10, delay: 10 },
-                    { size: 'small', x: 25, y: 40, delay: 15 }
-                  ].map((cloud, i) => (
-                    <div
-                      key={i}
-                      className="absolute animate-drift"
-                      style={{
-                        left: `${cloud.x}%`,
-                        top: `${cloud.y}%`,
-                        animationDelay: `${cloud.delay}s`,
-                        animationDuration: '120s'
-                      }}
-                    >
-                      <svg 
-                        width={cloud.size === 'large' ? 200 : cloud.size === 'medium' ? 150 : 100} 
-                        height={cloud.size === 'large' ? 80 : cloud.size === 'medium' ? 60 : 40} 
-                        viewBox="0 0 200 80"
-                        className="drop-shadow-lg"
-                      >
-                        <defs>
-                          <radialGradient id={`cloudGrad${i}`} cx="50%" cy="30%">
-                            <stop offset="0%" stopColor="rgba(255,255,255,0.95)" />
-                            <stop offset="70%" stopColor="rgba(255,255,255,0.85)" />
-                            <stop offset="100%" stopColor="rgba(240,248,255,0.7)" />
-                          </radialGradient>
-                        </defs>
-                        <path
-                          d="M40 50 Q20 30 45 25 Q60 15 85 25 Q110 10 140 25 Q170 30 160 50 Q150 65 125 60 Q100 70 75 60 Q50 65 40 50"
-                          fill={`url(#cloudGrad${i})`}
-                          className="animate-cloud-breathe"
-                        />
-                      </svg>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )
-          };
-
+          skyColors = [
+            new THREE.Color(0x6495ED), // Cornflower blue
+            new THREE.Color(0x87CEFA), // Light sky blue
+            new THREE.Color(0xE6F3FF)  // Very light blue
+          ];
+          break;
         case 'cloudy':
         case 'overcast':
-          return {
-            background: (
-              <div className="absolute inset-0">
-                {/* Overcast sky */}
-                <div className="absolute inset-0 bg-gradient-to-b from-gray-400 via-gray-300 to-gray-200" />
-                
-                {/* Dense cloud layer */}
-                <div className="absolute inset-0 overflow-hidden">
-                  {[...Array(8)].map((_, i) => (
-                    <div
-                      key={i}
-                      className="absolute animate-drift"
-                      style={{
-                        left: `${-20 + i * 15}%`,
-                        top: `${5 + (i % 4) * 15}%`,
-                        animationDelay: `${i * 8}s`,
-                        animationDuration: '100s'
-                      }}
-                    >
-                      <svg width="250" height="100" viewBox="0 0 250 100" className="drop-shadow-md">
-                        <defs>
-                          <linearGradient id={`overcastGrad${i}`} x1="0%" y1="0%" x2="0%" y2="100%">
-                            <stop offset="0%" stopColor="rgba(255,255,255,0.9)" />
-                            <stop offset="50%" stopColor="rgba(248,250,252,0.85)" />
-                            <stop offset="100%" stopColor="rgba(226,232,240,0.8)" />
-                          </linearGradient>
-                        </defs>
-                        <path
-                          d="M50 65 Q30 40 55 35 Q75 25 105 35 Q135 20 165 35 Q195 40 185 65 Q175 80 150 75 Q125 85 100 75 Q75 80 50 65"
-                          fill={`url(#overcastGrad${i})`}
-                          className="animate-cloud-breathe"
-                        />
-                      </svg>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )
-          };
-
+          skyColors = [
+            new THREE.Color(0x708090), // Slate gray
+            new THREE.Color(0x9CA0A5), // Light gray
+            new THREE.Color(0xD3D3D3)  // Light gray
+          ];
+          break;
         case 'rainy':
-          return {
-            background: (
-              <div className="absolute inset-0">
-                {/* Storm sky */}
-                <div className="absolute inset-0 bg-gradient-to-b from-slate-600 via-slate-500 to-slate-400" />
-                
-                {/* Dark storm clouds */}
-                <div className="absolute inset-0 overflow-hidden">
-                  {[...Array(6)].map((_, i) => (
-                    <div
-                      key={i}
-                      className="absolute animate-drift"
-                      style={{
-                        left: `${-15 + i * 20}%`,
-                        top: `${8 + (i % 3) * 20}%`,
-                        animationDelay: `${i * 6}s`,
-                        animationDuration: '80s'
-                      }}
-                    >
-                      <svg width="220" height="90" viewBox="0 0 220 90" className="drop-shadow-xl">
-                        <defs>
-                          <linearGradient id={`stormGrad${i}`} x1="0%" y1="0%" x2="0%" y2="100%">
-                            <stop offset="0%" stopColor="rgba(100,116,139,0.9)" />
-                            <stop offset="70%" stopColor="rgba(71,85,105,0.85)" />
-                            <stop offset="100%" stopColor="rgba(51,65,85,0.8)" />
-                          </linearGradient>
-                        </defs>
-                        <path
-                          d="M45 60 Q25 35 50 30 Q70 20 100 30 Q130 15 160 30 Q185 35 175 60 Q165 75 140 70 Q115 80 90 70 Q65 75 45 60"
-                          fill={`url(#stormGrad${i})`}
-                          className="animate-cloud-breathe"
-                        />
-                      </svg>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Realistic rain */}
-                <div className="absolute inset-0 overflow-hidden">
-                  {[...Array(100)].map((_, i) => (
-                    <div
-                      key={i}
-                      className="absolute animate-rain"
-                      style={{
-                        left: `${Math.random() * 100}%`,
-                        animationDelay: `${Math.random() * 2}s`,
-                        animationDuration: `${0.3 + Math.random() * 0.4}s`
-                      }}
-                    >
-                      <div className="w-0.5 h-6 bg-gradient-to-b from-blue-200/80 to-blue-300/60 rounded-full opacity-70" />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )
-          };
-
+          skyColors = [
+            new THREE.Color(0x2F4F4F), // Dark slate gray
+            new THREE.Color(0x696969), // Dim gray
+            new THREE.Color(0x808080)  // Gray
+          ];
+          break;
         case 'snowy':
-          return {
-            background: (
-              <div className="absolute inset-0">
-                {/* Winter sky */}
-                <div className="absolute inset-0 bg-gradient-to-b from-gray-300 via-gray-200 to-gray-100" />
-                
-                {/* Snow clouds */}
-                <div className="absolute inset-0 overflow-hidden">
-                  {[...Array(5)].map((_, i) => (
-                    <div
-                      key={i}
-                      className="absolute animate-drift"
-                      style={{
-                        left: `${-10 + i * 25}%`,
-                        top: `${10 + (i % 3) * 20}%`,
-                        animationDelay: `${i * 10}s`,
-                        animationDuration: '120s'
-                      }}
-                    >
-                      <svg width="180" height="80" viewBox="0 0 180 80" className="drop-shadow-sm">
-                        <path
-                          d="M35 55 Q25 35 40 30 Q55 20 80 30 Q105 20 130 30 Q145 35 135 55 Q125 65 105 60 Q85 65 65 60 Q45 65 35 55"
-                          fill="rgba(255,255,255,0.95)"
-                          className="animate-cloud-breathe"
-                        />
-                      </svg>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Realistic snowflakes */}
-                <div className="absolute inset-0 overflow-hidden">
-                  {[...Array(50)].map((_, i) => (
-                    <div
-                      key={i}
-                      className="absolute text-white animate-snow opacity-80"
-                      style={{
-                        left: `${Math.random() * 100}%`,
-                        fontSize: `${6 + Math.random() * 6}px`,
-                        animationDelay: `${Math.random() * 5}s`,
-                        animationDuration: `${4 + Math.random() * 6}s`
-                      }}
-                    >
-                      ❄
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )
-          };
-
+          skyColors = [
+            new THREE.Color(0xC0C0C0), // Silver
+            new THREE.Color(0xD3D3D3), // Light gray
+            new THREE.Color(0xF5F5F5)  // White smoke
+          ];
+          break;
         default:
-          return {
-            background: (
-              <div className="absolute inset-0 bg-gradient-to-b from-sky-400 via-sky-300 to-sky-100" />
-            )
-          };
+          skyColors = [
+            new THREE.Color(0x87CEEB),
+            new THREE.Color(0xB0E0E6),
+            new THREE.Color(0xF0F8FF)
+          ];
       }
     } else {
-      // Night time
-      switch (weatherState) {
+      // Night colors
+      switch (weather) {
         case 'clear':
-          return {
-            background: (
-              <div className="absolute inset-0">
-                {/* Night sky gradient */}
-                <div className="absolute inset-0 bg-gradient-to-b from-indigo-900 via-blue-900 to-purple-900" />
-                
-                {/* Moon with realistic glow */}
-                <div className="absolute top-16 right-20">
-                  <div className="absolute w-24 h-24 -top-4 -left-4 bg-blue-200/10 rounded-full blur-2xl" />
-                  <div className="absolute w-20 h-20 -top-2 -left-2 bg-blue-100/15 rounded-full blur-xl" />
-                  <div className="relative w-16 h-16 bg-gradient-radial from-gray-100 via-gray-200 to-gray-300 rounded-full shadow-lg">
-                    {/* Moon craters/texture */}
-                    <div className="absolute top-2 left-3 w-2 h-2 bg-gray-400/30 rounded-full" />
-                    <div className="absolute top-6 right-2 w-1.5 h-1.5 bg-gray-400/20 rounded-full" />
-                    <div className="absolute bottom-3 left-2 w-1 h-1 bg-gray-400/25 rounded-full" />
-                  </div>
-                </div>
-
-                {/* Realistic stars */}
-                <div className="absolute inset-0 overflow-hidden">
-                  {[...Array(30)].map((_, i) => (
-                    <div
-                      key={i}
-                      className="absolute animate-twinkle"
-                      style={{
-                        left: `${Math.random() * 100}%`,
-                        top: `${Math.random() * 70}%`,
-                        animationDelay: `${Math.random() * 4}s`,
-                        animationDuration: `${2 + Math.random() * 3}s`
-                      }}
-                    >
-                      <div className="w-1 h-1 bg-white rounded-full shadow-sm" />
-                      <div className="absolute inset-0 w-1 h-1 bg-white/50 rounded-full blur-sm animate-pulse" />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )
-          };
-
+          skyColors = [
+            new THREE.Color(0x000428), // Very dark blue
+            new THREE.Color(0x004e92), // Dark blue
+            new THREE.Color(0x191970)  // Midnight blue
+          ];
+          break;
         case 'partlycloudy':
-          return {
-            background: (
-              <div className="absolute inset-0">
-                {/* Night sky */}
-                <div className="absolute inset-0 bg-gradient-to-b from-slate-800 via-slate-700 to-slate-600" />
-                
-                {/* Dim moon behind clouds */}
-                <div className="absolute top-12 right-16 w-16 h-16">
-                  <div className="absolute w-20 h-20 -top-2 -left-2 bg-blue-100/8 rounded-full blur-xl" />
-                  <div className="w-full h-full bg-gradient-radial from-gray-200 to-gray-300 rounded-full opacity-40" />
-                </div>
-
-                {/* Night clouds */}
-                <div className="absolute inset-0 overflow-hidden">
-                  {[...Array(4)].map((_, i) => (
-                    <div
-                      key={i}
-                      className="absolute animate-drift"
-                      style={{
-                        left: `${-5 + i * 30}%`,
-                        top: `${15 + (i % 3) * 20}%`,
-                        animationDelay: `${i * 15}s`,
-                        animationDuration: '150s'
-                      }}
-                    >
-                      <svg width="180" height="70" viewBox="0 0 180 70" className="drop-shadow-md">
-                        <defs>
-                          <linearGradient id={`nightCloudGrad${i}`} x1="0%" y1="0%" x2="0%" y2="100%">
-                            <stop offset="0%" stopColor="rgba(71,85,105,0.8)" />
-                            <stop offset="100%" stopColor="rgba(51,65,85,0.6)" />
-                          </linearGradient>
-                        </defs>
-                        <path
-                          d="M35 50 Q25 30 40 25 Q55 15 80 25 Q105 15 130 25 Q145 30 135 50 Q125 60 105 55 Q85 60 65 55 Q45 60 35 50"
-                          fill={`url(#nightCloudGrad${i})`}
-                          className="animate-cloud-breathe"
-                        />
-                      </svg>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Fewer stars due to clouds */}
-                <div className="absolute inset-0 overflow-hidden">
-                  {[...Array(15)].map((_, i) => (
-                    <div
-                      key={i}
-                      className="absolute animate-twinkle opacity-60"
-                      style={{
-                        left: `${Math.random() * 100}%`,
-                        top: `${Math.random() * 50}%`,
-                        animationDelay: `${Math.random() * 3}s`,
-                        animationDuration: `${3 + Math.random() * 2}s`
-                      }}
-                    >
-                      <div className="w-0.5 h-0.5 bg-white rounded-full" />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )
-          };
-
+        case 'cloudy':
+          skyColors = [
+            new THREE.Color(0x1a1a2e), // Very dark blue-gray
+            new THREE.Color(0x16213e), // Dark blue-gray
+            new THREE.Color(0x2c3e50)  // Dark gray-blue
+          ];
+          break;
         case 'rainy':
-          return {
-            background: (
-              <div className="absolute inset-0">
-                {/* Dark stormy night */}
-                <div className="absolute inset-0 bg-gradient-to-b from-slate-900 via-slate-800 to-slate-700" />
-                
-                {/* Night rain */}
-                <div className="absolute inset-0 overflow-hidden">
-                  {[...Array(80)].map((_, i) => (
-                    <div
-                      key={i}
-                      className="absolute animate-rain"
-                      style={{
-                        left: `${Math.random() * 100}%`,
-                        animationDelay: `${Math.random() * 2}s`,
-                        animationDuration: `${0.4 + Math.random() * 0.3}s`
-                      }}
-                    >
-                      <div className="w-0.5 h-5 bg-gradient-to-b from-slate-300/60 to-slate-400/40 rounded-full opacity-60" />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )
-          };
-
+          skyColors = [
+            new THREE.Color(0x0f0f23), // Almost black
+            new THREE.Color(0x1a1a2e), // Very dark
+            new THREE.Color(0x2c2c54)  // Dark purple-gray
+          ];
+          break;
         default:
-          return {
-            background: (
-              <div className="absolute inset-0 bg-gradient-to-b from-indigo-900 via-blue-900 to-purple-900" />
-            )
-          };
+          skyColors = [
+            new THREE.Color(0x000428),
+            new THREE.Color(0x004e92),
+            new THREE.Color(0x191970)
+          ];
       }
     }
+
+    // Create gradient material
+    const vertexShader = `
+      varying vec3 vWorldPosition;
+      void main() {
+        vec4 worldPosition = modelMatrix * vec4(position, 1.0);
+        vWorldPosition = worldPosition.xyz;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `;
+
+    const fragmentShader = `
+      uniform vec3 topColor;
+      uniform vec3 middleColor;
+      uniform vec3 bottomColor;
+      uniform float offset;
+      uniform float exponent;
+      varying vec3 vWorldPosition;
+      
+      void main() {
+        float h = normalize(vWorldPosition + offset).y;
+        float mixFactor = pow(max(h, 0.0), exponent);
+        vec3 color;
+        
+        if (h > 0.5) {
+          color = mix(middleColor, topColor, (h - 0.5) * 2.0);
+        } else {
+          color = mix(bottomColor, middleColor, h * 2.0);
+        }
+        
+        gl_FragColor = vec4(color, 1.0);
+      }
+    `;
+
+    const skyMaterial = new THREE.ShaderMaterial({
+      uniforms: {
+        topColor: { value: skyColors[0] },
+        middleColor: { value: skyColors[1] },
+        bottomColor: { value: skyColors[2] },
+        offset: { value: 33 },
+        exponent: { value: 0.6 }
+      },
+      vertexShader,
+      fragmentShader,
+      side: THREE.BackSide
+    });
+
+    const sky = new THREE.Mesh(skyGeometry, skyMaterial);
+    sky.name = 'sky';
+    scene.add(sky);
+  };
+
+  // Create realistic volumetric clouds
+  const createVolumetricClouds = (weather: string, isDay: boolean) => {
+    if (!sceneRef.current) return;
+
+    const { scene } = sceneRef.current;
+    
+    // Remove existing clouds
+    sceneRef.current.clouds.forEach(cloud => scene.remove(cloud));
+    sceneRef.current.clouds = [];
+
+    if (weather === 'sunny' || weather === 'clear') return;
+
+    const cloudCount = weather === 'cloudy' || weather === 'overcast' ? 12 : 6;
+    const cloudOpacity = isDay ? 0.8 : 0.6;
+    const cloudColor = isDay ? 
+      (weather === 'rainy' ? 0x404040 : 0xffffff) : 
+      0x2a2a2a;
+
+    for (let i = 0; i < cloudCount; i++) {
+      // Create cloud geometry using multiple spheres for realistic shape
+      const cloudGroup = new THREE.Group();
+      const sphereCount = 8 + Math.random() * 6;
+      
+      for (let j = 0; j < sphereCount; j++) {
+        const sphereGeometry = new THREE.SphereGeometry(
+          0.5 + Math.random() * 1.5, // Random size
+          16, 16
+        );
+        
+        const cloudMaterial = new THREE.MeshLambertMaterial({
+          color: cloudColor,
+          transparent: true,
+          opacity: cloudOpacity * (0.6 + Math.random() * 0.4),
+          fog: true
+        });
+        
+        const sphere = new THREE.Mesh(sphereGeometry, cloudMaterial);
+        sphere.position.set(
+          (Math.random() - 0.5) * 4,
+          (Math.random() - 0.5) * 2,
+          (Math.random() - 0.5) * 3
+        );
+        
+        cloudGroup.add(sphere);
+      }
+      
+      // Position cloud in sky
+      cloudGroup.position.set(
+        (Math.random() - 0.5) * 100,
+        10 + Math.random() * 20,
+        -20 - Math.random() * 30
+      );
+      
+      cloudGroup.rotation.y = Math.random() * Math.PI * 2;
+      cloudGroup.scale.setScalar(2 + Math.random() * 3);
+      
+      scene.add(cloudGroup);
+      sceneRef.current.clouds.push(cloudGroup);
+    }
+  };
+
+  // Create realistic sun with volumetric lighting
+  const createSun = () => {
+    if (!sceneRef.current) return;
+
+    const { scene } = sceneRef.current;
+    
+    // Remove existing sun
+    if (sceneRef.current.sun) {
+      scene.remove(sceneRef.current.sun);
+    }
+
+    const sunGeometry = new THREE.SphereGeometry(2, 32, 32);
+    const sunMaterial = new THREE.MeshBasicMaterial({
+      color: 0xffff00,
+      emissive: 0xffaa00,
+      emissiveIntensity: 0.8
+    });
+
+    const sun = new THREE.Mesh(sunGeometry, sunMaterial);
+    sun.position.set(30, 25, -40);
+
+    // Add sun glow effect
+    const glowGeometry = new THREE.SphereGeometry(4, 32, 32);
+    const glowMaterial = new THREE.ShaderMaterial({
+      uniforms: {
+        c: { value: 0.8 },
+        p: { value: 2.0 },
+        glowColor: { value: new THREE.Color(0xffaa00) },
+        viewVector: { value: new THREE.Vector3() }
+      },
+      vertexShader: `
+        uniform vec3 viewVector;
+        uniform float c;
+        uniform float p;
+        varying float intensity;
+        void main() {
+          vec3 vNormal = normalize(normalMatrix * normal);
+          vec3 vNormel = normalize(normalMatrix * viewVector);
+          intensity = pow(c - dot(vNormal, vNormel), p);
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform vec3 glowColor;
+        varying float intensity;
+        void main() {
+          vec3 glow = glowColor * intensity;
+          gl_FragColor = vec4(glow, 1.0);
+        }
+      `,
+      side: THREE.FrontSide,
+      blending: THREE.AdditiveBlending,
+      transparent: true
+    });
+
+    const sunGlow = new THREE.Mesh(glowGeometry, glowMaterial);
+    sunGlow.position.copy(sun.position);
+    
+    const sunGroup = new THREE.Group();
+    sunGroup.add(sun);
+    sunGroup.add(sunGlow);
+    
+    scene.add(sunGroup);
+    sceneRef.current.sun = sunGroup;
+
+    // Add directional light for sun
+    const sunLight = new THREE.DirectionalLight(0xffffff, 1.5);
+    sunLight.position.copy(sun.position);
+    sunLight.castShadow = true;
+    sunLight.shadow.mapSize.width = 2048;
+    sunLight.shadow.mapSize.height = 2048;
+    scene.add(sunLight);
+  };
+
+  // Create realistic moon with surface details
+  const createMoon = () => {
+    if (!sceneRef.current) return;
+
+    const { scene } = sceneRef.current;
+    
+    // Remove existing moon
+    if (sceneRef.current.moon) {
+      scene.remove(sceneRef.current.moon);
+    }
+
+    const moonGeometry = new THREE.SphereGeometry(1.5, 32, 32);
+    
+    // Create moon texture using noise
+    const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 512;
+    const ctx = canvas.getContext('2d')!;
+    
+    // Base moon color
+    ctx.fillStyle = '#e6e6e6';
+    ctx.fillRect(0, 0, 512, 512);
+    
+    // Add craters and surface details
+    for (let i = 0; i < 50; i++) {
+      const x = Math.random() * 512;
+      const y = Math.random() * 512;
+      const radius = Math.random() * 20 + 5;
+      
+      ctx.fillStyle = `rgba(180, 180, 180, ${0.3 + Math.random() * 0.4})`;
+      ctx.beginPath();
+      ctx.arc(x, y, radius, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    
+    const moonTexture = new THREE.CanvasTexture(canvas);
+    
+    const moonMaterial = new THREE.MeshLambertMaterial({
+      map: moonTexture,
+      emissive: 0x222222,
+      emissiveIntensity: 0.1
+    });
+
+    const moon = new THREE.Mesh(moonGeometry, moonMaterial);
+    moon.position.set(25, 20, -35);
+    
+    scene.add(moon);
+    sceneRef.current.moon = moon;
+
+    // Add moonlight
+    const moonLight = new THREE.DirectionalLight(0x9999ff, 0.3);
+    moonLight.position.copy(moon.position);
+    scene.add(moonLight);
+  };
+
+  // Create realistic stars
+  const createStars = () => {
+    if (!sceneRef.current) return;
+
+    const { scene } = sceneRef.current;
+    
+    // Remove existing stars
+    if (sceneRef.current.stars) {
+      scene.remove(sceneRef.current.stars);
+    }
+
+    const starGeometry = new THREE.BufferGeometry();
+    const starCount = 1000;
+    const positions = new Float32Array(starCount * 3);
+    const colors = new Float32Array(starCount * 3);
+    const sizes = new Float32Array(starCount);
+
+    for (let i = 0; i < starCount; i++) {
+      const i3 = i * 3;
+      
+      // Position stars in a sphere around the scene
+      const radius = 200 + Math.random() * 100;
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.random() * Math.PI;
+      
+      positions[i3] = radius * Math.sin(phi) * Math.cos(theta);
+      positions[i3 + 1] = radius * Math.cos(phi);
+      positions[i3 + 2] = radius * Math.sin(phi) * Math.sin(theta);
+      
+      // Star colors (white to slightly blue/yellow)
+      const colorVariation = 0.8 + Math.random() * 0.2;
+      colors[i3] = colorVariation;
+      colors[i3 + 1] = colorVariation;
+      colors[i3 + 2] = 0.9 + Math.random() * 0.1;
+      
+      // Star sizes
+      sizes[i] = Math.random() * 2 + 1;
+    }
+
+    starGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    starGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+    starGeometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+    const starMaterial = new THREE.ShaderMaterial({
+      uniforms: {
+        time: { value: 0 }
+      },
+      vertexShader: `
+        attribute float size;
+        attribute vec3 color;
+        varying vec3 vColor;
+        uniform float time;
+        
+        void main() {
+          vColor = color;
+          vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+          float twinkle = sin(time * 2.0 + position.x * 0.01) * 0.5 + 0.5;
+          gl_PointSize = size * (300.0 / -mvPosition.z) * (0.5 + twinkle * 0.5);
+          gl_Position = projectionMatrix * mvPosition;
+        }
+      `,
+      fragmentShader: `
+        varying vec3 vColor;
+        
+        void main() {
+          float r = distance(gl_PointCoord, vec2(0.5, 0.5));
+          if (r > 0.5) discard;
+          float alpha = 1.0 - smoothstep(0.0, 0.5, r);
+          gl_FragColor = vec4(vColor, alpha);
+        }
+      `,
+      transparent: true,
+      vertexColors: true
+    });
+
+    const stars = new THREE.Points(starGeometry, starMaterial);
+    scene.add(stars);
+    sceneRef.current.stars = stars;
+  };
+
+  // Create realistic precipitation
+  const createPrecipitation = (weather: string) => {
+    if (!sceneRef.current) return;
+
+    const { scene } = sceneRef.current;
+    
+    // Remove existing precipitation
+    sceneRef.current.particles.forEach(particle => scene.remove(particle));
+    sceneRef.current.particles = [];
+
+    if (weather === 'rainy') {
+      // Create rain
+      const rainGeometry = new THREE.BufferGeometry();
+      const rainCount = 2000;
+      const positions = new Float32Array(rainCount * 3);
+      const velocities = new Float32Array(rainCount * 3);
+
+      for (let i = 0; i < rainCount; i++) {
+        const i3 = i * 3;
+        positions[i3] = (Math.random() - 0.5) * 200;
+        positions[i3 + 1] = Math.random() * 100 + 50;
+        positions[i3 + 2] = (Math.random() - 0.5) * 200;
+        
+        velocities[i3] = (Math.random() - 0.5) * 2;
+        velocities[i3 + 1] = -10 - Math.random() * 10;
+        velocities[i3 + 2] = (Math.random() - 0.5) * 2;
+      }
+
+      rainGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      rainGeometry.setAttribute('velocity', new THREE.BufferAttribute(velocities, 3));
+
+      const rainMaterial = new THREE.PointsMaterial({
+        color: 0x87ceeb,
+        size: 0.5,
+        transparent: true,
+        opacity: 0.7
+      });
+
+      const rain = new THREE.Points(rainGeometry, rainMaterial);
+      scene.add(rain);
+      sceneRef.current.particles.push(rain);
+      
+    } else if (weather === 'snowy') {
+      // Create snow
+      const snowGeometry = new THREE.BufferGeometry();
+      const snowCount = 1000;
+      const positions = new Float32Array(snowCount * 3);
+      const velocities = new Float32Array(snowCount * 3);
+
+      for (let i = 0; i < snowCount; i++) {
+        const i3 = i * 3;
+        positions[i3] = (Math.random() - 0.5) * 200;
+        positions[i3 + 1] = Math.random() * 100 + 50;
+        positions[i3 + 2] = (Math.random() - 0.5) * 200;
+        
+        velocities[i3] = (Math.random() - 0.5) * 1;
+        velocities[i3 + 1] = -2 - Math.random() * 3;
+        velocities[i3 + 2] = (Math.random() - 0.5) * 1;
+      }
+
+      snowGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      snowGeometry.setAttribute('velocity', new THREE.BufferAttribute(velocities, 3));
+
+      const snowMaterial = new THREE.PointsMaterial({
+        color: 0xffffff,
+        size: 2,
+        transparent: true,
+        opacity: 0.8
+      });
+
+      const snow = new THREE.Points(snowGeometry, snowMaterial);
+      scene.add(snow);
+      sceneRef.current.particles.push(snow);
+    }
+  };
+
+  // Update scene based on weather and time
+  useEffect(() => {
+    if (!sceneRef.current) return;
+
+    const { scene } = sceneRef.current;
+    
+    // Clear scene
+    while (scene.children.length > 0) {
+      scene.remove(scene.children[0]);
+    }
+
+    // Add ambient light
+    const ambientLight = new THREE.AmbientLight(
+      isDay ? 0x404040 : 0x202040, 
+      isDay ? 0.4 : 0.1
+    );
+    scene.add(ambientLight);
+
+    // Create scene elements
+    createSkyGradient(isDay, weatherState);
+    createVolumetricClouds(weatherState, isDay);
+    
+    if (isDay) {
+      createSun();
+    } else {
+      createMoon();
+      createStars();
+    }
+    
+    createPrecipitation(weatherState);
+
   }, [weatherState, isDay]);
 
+  // Animation loop
+  useEffect(() => {
+    if (!sceneRef.current) return;
+
+    const animate = () => {
+      if (!sceneRef.current) return;
+
+      const { scene, camera, renderer, particles, clouds, stars } = sceneRef.current;
+
+      // Animate clouds
+      clouds.forEach((cloud, index) => {
+        cloud.rotation.y += 0.001 * (index % 2 === 0 ? 1 : -1);
+        cloud.position.x += 0.01 * (index % 2 === 0 ? 1 : -1);
+        
+        // Reset cloud position when it goes off screen
+        if (Math.abs(cloud.position.x) > 60) {
+          cloud.position.x = -60 * Math.sign(cloud.position.x);
+        }
+      });
+
+      // Animate precipitation
+      particles.forEach(particle => {
+        const positions = particle.geometry.attributes.position.array as Float32Array;
+        const velocities = particle.geometry.attributes.velocity.array as Float32Array;
+
+        for (let i = 0; i < positions.length; i += 3) {
+          positions[i] += velocities[i] * 0.1;
+          positions[i + 1] += velocities[i + 1] * 0.1;
+          positions[i + 2] += velocities[i + 2] * 0.1;
+
+          // Reset particle when it falls below ground
+          if (positions[i + 1] < -10) {
+            positions[i + 1] = 60;
+            positions[i] = (Math.random() - 0.5) * 200;
+            positions[i + 2] = (Math.random() - 0.5) * 200;
+          }
+        }
+
+        particle.geometry.attributes.position.needsUpdate = true;
+      });
+
+      // Animate stars twinkling
+      if (stars && stars.material instanceof THREE.ShaderMaterial) {
+        stars.material.uniforms.time.value += 0.01;
+      }
+
+      renderer.render(scene, camera);
+      sceneRef.current.animationId = requestAnimationFrame(animate);
+    };
+
+    animate();
+
+    return () => {
+      if (sceneRef.current?.animationId) {
+        cancelAnimationFrame(sceneRef.current.animationId);
+      }
+    };
+  }, []);
+
   return (
-    <div className={`fixed inset-0 -z-10 transition-all duration-1000 ${className}`}>
-      {backgroundConfig.background}
+    <div className={`fixed inset-0 -z-10 ${className}`}>
+      <div ref={mountRef} className="w-full h-full" />
       
       {/* Content overlay */}
       {children && (
@@ -448,69 +684,6 @@ const WeatherBackground: React.FC<WeatherBackgroundProps> = ({ className = '', c
           {children}
         </div>
       )}
-      
-      {/* Enhanced animations */}
-      <style jsx>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.6; }
-          50% { transform: translateY(-15px) rotate(180deg); opacity: 1; }
-        }
-        
-        @keyframes drift {
-          from { transform: translateX(-50px); }
-          to { transform: translateX(calc(100vw + 50px)); }
-        }
-        
-        @keyframes cloud-breathe {
-          0%, 100% { transform: scale(1) skewX(0deg); }
-          25% { transform: scale(1.02) skewX(0.5deg); }
-          50% { transform: scale(0.98) skewX(-0.5deg); }
-          75% { transform: scale(1.01) skewX(0.2deg); }
-        }
-        
-        @keyframes rain {
-          from { transform: translateY(-100vh) translateX(0px); }
-          to { transform: translateY(100vh) translateX(-20px); }
-        }
-        
-        @keyframes snow {
-          from { transform: translateY(-100vh) rotate(0deg); }
-          to { transform: translateY(100vh) rotate(360deg); }
-        }
-        
-        @keyframes twinkle {
-          0%, 100% { opacity: 0.3; transform: scale(1); }
-          50% { opacity: 1; transform: scale(1.5); }
-        }
-        
-        .animate-float {
-          animation: float 8s ease-in-out infinite;
-        }
-        
-        .animate-drift {
-          animation: drift linear infinite;
-        }
-        
-        .animate-cloud-breathe {
-          animation: cloud-breathe 12s ease-in-out infinite;
-        }
-        
-        .animate-rain {
-          animation: rain linear infinite;
-        }
-        
-        .animate-snow {
-          animation: snow linear infinite;
-        }
-        
-        .animate-twinkle {
-          animation: twinkle ease-in-out infinite;
-        }
-        
-        .bg-gradient-radial {
-          background: radial-gradient(circle, var(--tw-gradient-stops));
-        }
-      `}</style>
     </div>
   );
 };
