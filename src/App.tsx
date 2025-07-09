@@ -255,63 +255,48 @@ const AppContent: React.FC = () => {
           
           {/* Tab Content Background with Sidebar */}
           <div className="bg-white border-2 border-gray-200 rounded-2xl rounded-tl-none shadow-lg -mt-px relative min-h-[600px]">
-            {/* Unified Content Area with Sidebar and Content */}
-            <div className="flex h-full max-h-[calc(100vh-200px)] overflow-hidden">
-              {/* Vertical Sidebar Navigation */}
-              <div className="flex flex-col w-16 border-r border-gray-200 flex-shrink-0 h-full">
-                {/* Status Tab */}
+            {/* Header with Toggle Button */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">
+                  {getTabTitle()} - {activeSection === 'status' ? 'Status' : 'Controls'}
+                </h2>
+                <p className="text-gray-600 mt-1">
+                  {activeSection === 'status' 
+                    ? 'Monitor device status and detailed information'
+                    : 'Quick device controls and toggles'
+                  }
+                </p>
+              </div>
+              
+              {/* Toggle Button */}
+              <div className="flex items-center space-x-3">
+                <span className={`text-sm font-medium transition-colors ${
+                  activeSection === 'status' ? 'text-blue-600' : 'text-gray-500'
+                }`}>
+                  Status
+                </span>
                 <button
-                  onClick={() => setActiveSection('status')}
-                  className={`relative flex items-center justify-center py-8 h-32 flex-shrink-0 transition-all duration-200 ${
-                    activeSection === 'status'
-                      ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-500'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                  onClick={() => setActiveSection(activeSection === 'status' ? 'controls' : 'status')}
+                  className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                    activeSection === 'controls' ? 'bg-blue-600' : 'bg-gray-300'
                   }`}
                 >
-                  <div 
-                    className="font-semibold text-sm tracking-wider"
-                    style={{ 
-                      writingMode: 'vertical-rl',
-                      textOrientation: 'mixed',
-                      transform: 'rotate(180deg)'
-                    }}
-                  >
-                    STATUS
-                  </div>
-                  {activeSection === 'status' && (
-                    <div className="absolute right-0 top-0 bottom-0 w-0.5 bg-blue-500"></div>
-                  )}
+                  <span className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
+                    activeSection === 'controls' ? 'translate-x-7' : 'translate-x-1'
+                  }`} />
                 </button>
-
-                {/* Controls Tab */}
-                <button
-                  onClick={() => setActiveSection('controls')}
-                  className={`relative flex items-center justify-center py-8 h-32 flex-shrink-0 transition-all duration-200 ${
-                    activeSection === 'controls'
-                      ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-500'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                  }`}
-                >
-                  <div 
-                    className="font-semibold text-sm tracking-wider"
-                    style={{ 
-                      writingMode: 'vertical-rl',
-                      textOrientation: 'mixed',
-                      transform: 'rotate(180deg)'
-                    }}
-                  >
-                    CONTROLS
-                  </div>
-                  {activeSection === 'controls' && (
-                    <div className="absolute right-0 top-0 bottom-0 w-0.5 bg-blue-500"></div>
-                  )}
-                </button>
+                <span className={`text-sm font-medium transition-colors ${
+                  activeSection === 'controls' ? 'text-blue-600' : 'text-gray-500'
+                }`}>
+                  Controls
+                </span>
               </div>
+            </div>
 
-              {/* Main Content Area */}
-              <div className="flex-1 p-4 lg:p-6 overflow-y-auto overflow-x-hidden">
-                {getCurrentContent()}
-              </div>
+            {/* Main Content Area */}
+            <div className="p-4 lg:p-6 overflow-y-auto overflow-x-hidden max-h-[calc(100vh-300px)]">
+              {getCurrentContent()}
             </div>
           </div>
         </div>
