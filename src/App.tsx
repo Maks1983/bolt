@@ -93,6 +93,22 @@ const AppContent: React.FC = () => {
   // Get all rooms for whole house view
   const allRooms = [...upperFloorRooms, ...lowerFloorRooms, ...apartmentRooms];
 
+  // Function to get the title for the current active tab
+  const getTabTitle = () => {
+    switch (activeTab) {
+      case 'whole-house':
+        return 'Whole House';
+      case 'upper-floor':
+        return 'Upper Floor';
+      case 'lower-floor':
+        return 'Lower Floor';
+      case 'apartment':
+        return 'Apartment';
+      default:
+        return 'Whole House';
+    }
+  };
+
   // Get current content based on active tab and section
   const getCurrentContent = () => {
     let rooms: typeof allRooms = [];
