@@ -92,10 +92,10 @@ export const subscribedEntities: EntityConfig[] = [
     device_type: 'weather',
     room: 'System',
     floor: 'System',
-    state: 'sunny', // Try: sunny, cloudy, rainy, snowy, windy
+    state: 'partlycloudy', // Try: sunny, partlycloudy, cloudy, rainy, snowy, windy, fog, thunderstorm
     temperature: 18,
     humidity: 65,
-    condition: 'sunny',
+    condition: 'partlycloudy',
     last_updated: new Date().toISOString(),
     available: true
   },

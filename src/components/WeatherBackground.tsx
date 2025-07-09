@@ -44,17 +44,21 @@ const WeatherBackground: React.FC<WeatherBackgroundProps> = ({ className = '' })
       case 'cloudy':
       case 'partlycloudy':
       case 'partly-cloudy':
+      case 'partly_cloudy':
+      case 'overcast':
         return {
           background: isDaytime 
-            ? `${baseClasses} bg-gradient-to-br from-gray-400 via-blue-300 to-slate-400`
-            : `${baseClasses} bg-gradient-to-br from-slate-700 via-gray-700 to-slate-600`,
-          overlay: 'cloudy',
-          particles: 'clouds'
+            ? `${baseClasses} bg-gradient-to-br from-blue-400 via-gray-300 to-blue-300`
+            : `${baseClasses} bg-gradient-to-br from-slate-600 via-gray-700 to-slate-500`,
+          overlay: weatherCondition.toLowerCase().includes('partly') ? 'partly-cloudy' : 'cloudy',
+          particles: weatherCondition.toLowerCase().includes('partly') ? 'partly-cloudy' : 'clouds'
         };
       
       case 'rainy':
       case 'rain':
       case 'pouring':
+      case 'drizzle':
+      case 'showers':
         return {
           background: isDaytime 
             ? `${baseClasses} bg-gradient-to-br from-slate-500 via-gray-600 to-blue-700`
@@ -65,6 +69,8 @@ const WeatherBackground: React.FC<WeatherBackgroundProps> = ({ className = '' })
       
       case 'snowy':
       case 'snow':
+      case 'sleet':
+      case 'hail':
         return {
           background: isDaytime 
             ? `${baseClasses} bg-gradient-to-br from-slate-300 via-blue-200 to-gray-100`
@@ -74,12 +80,36 @@ const WeatherBackground: React.FC<WeatherBackgroundProps> = ({ className = '' })
         };
       
       case 'windy':
+      case 'breezy':
         return {
           background: isDaytime 
             ? `${baseClasses} bg-gradient-to-br from-teal-400 via-cyan-300 to-blue-400`
             : `${baseClasses} bg-gradient-to-br from-slate-600 via-gray-600 to-slate-500`,
           overlay: 'windy',
           particles: 'wind'
+        };
+      
+      case 'fog':
+      case 'foggy':
+      case 'mist':
+      case 'hazy':
+        return {
+          background: isDaytime 
+            ? `${baseClasses} bg-gradient-to-br from-gray-300 via-slate-200 to-gray-400`
+            : `${baseClasses} bg-gradient-to-br from-slate-600 via-gray-600 to-slate-500`,
+          overlay: 'foggy',
+          particles: 'fog'
+        };
+      
+      case 'thunderstorm':
+      case 'lightning':
+      case 'storm':
+        return {
+          background: isDaytime 
+            ? `${baseClasses} bg-gradient-to-br from-slate-600 via-gray-700 to-slate-800`
+            : `${baseClasses} bg-gradient-to-br from-slate-800 via-gray-900 to-black`,
+          overlay: 'stormy',
+          particles: 'lightning'
         };
       
       default:
@@ -203,6 +233,100 @@ const WeatherBackground: React.FC<WeatherBackgroundProps> = ({ className = '' })
                   left: '-50px',
                   animationDelay: `${i * 0.3}s`,
                   animationDuration: '2s'
+                }}
+              />
+            ))}
+          </div>
+        );
+      
+      case 'partly-cloudy':
+        return (
+          <div className="absolute inset-0 overflow-hidden">
+            {/* Sun rays for partly cloudy */}
+            {isDaytime && [...Array(4)].map((_, i) => (
+              <div
+                key={`sun-${i}`}
+                className="absolute w-0.5 bg-yellow-300/40 animate-pulse"
+                style={{
+                  height: '60px',
+                  top: '15%',
+                  right: `${25 + i * 10}%`,
+                  transform: `rotate(${i * 30}deg)`,
+                  transformOrigin: 'bottom center',
+                  animationDelay: `${i * 0.3}s`,
+                  animationDuration: '4s'
+                }}
+              />
+            ))}
+            {/* Some clouds */}
+            {[...Array(2)].map((_, i) => (
+              <div
+                key={`cloud-${i}`}
+                className="absolute bg-white/30 rounded-full animate-float"
+                style={{
+                  width: `${60 + i * 15}px`,
+                  height: `${30 + i * 8}px`,
+                  top: `${25 + i * 20}%`,
+                  left: `${20 + i * 40}%`,
+                  animationDelay: `${i * 1.5}s`,
+                  animationDuration: `${6 + i * 2}s`
+                }}
+              />
+            ))}
+          </div>
+        );
+      
+      case 'fog':
+        return (
+          <div className="absolute inset-0 overflow-hidden">
+            {[...Array(8)].map((_, i) => (
+              <div
+                key={i}
+                className="absolute bg-gray-300/20 rounded-full animate-float"
+                style={{
+                  width: `${100 + i * 20}px`,
+                  height: `${20 + i * 5}px`,
+                  top: `${10 + i * 10}%`,
+                  left: `${-20 + i * 15}%`,
+                  animationDelay: `${i * 0.5}s`,
+                  animationDuration: `${10 + i}s`
+                }}
+              />
+            ))}
+          </div>
+        );
+      
+      case 'lightning':
+        return (
+          <div className="absolute inset-0 overflow-hidden">
+            {/* Lightning flashes */}
+            {[...Array(3)].map((_, i) => (
+              <div
+                key={i}
+                className="absolute bg-yellow-200/60 animate-pulse"
+                style={{
+                  width: '2px',
+                  height: `${40 + Math.random() * 30}px`,
+                  top: `${10 + Math.random() * 30}%`,
+                  left: `${20 + i * 30}%`,
+                  transform: `rotate(${-10 + Math.random() * 20}deg)`,
+                  animationDelay: `${i * 2}s`,
+                  animationDuration: '0.2s'
+                }}
+              />
+            ))}
+            {/* Dark storm clouds */}
+            {[...Array(4)].map((_, i) => (
+              <div
+                key={`storm-cloud-${i}`}
+                className="absolute bg-slate-700/40 rounded-full animate-float"
+                style={{
+                  width: `${80 + i * 25}px`,
+                  height: `${40 + i * 12}px`,
+                  top: `${15 + i * 12}%`,
+                  left: `${5 + i * 25}%`,
+                  animationDelay: `${i * 0.8}s`,
+                  animationDuration: `${6 + i}s`
                 }}
               />
             ))}

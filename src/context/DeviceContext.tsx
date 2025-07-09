@@ -377,13 +377,13 @@ export const DeviceProvider: React.FC<DeviceProviderProps> = ({ children }) => {
         
         // Simulate weather changes
         setTimeout(() => {
-          console.log('🎭 Simulating weather change to rainy');
+          console.log('🎭 Simulating weather change to cloudy');
           dispatch({ 
             type: 'SIMULATE_STATE_CHANGE', 
             payload: { 
-              entityId: 'weather.forecast_home', 
-              newState: 'rainy',
-              attributes: { condition: 'rainy', temperature: 15 }
+              entityId: 'weather.forecast_home',
+              newState: 'cloudy',
+              attributes: { condition: 'cloudy', temperature: 16 }
             } 
           });
         }, 3000);
@@ -403,13 +403,13 @@ export const DeviceProvider: React.FC<DeviceProviderProps> = ({ children }) => {
 
         // Change back to sunny day
         setTimeout(() => {
-          console.log('🎭 Simulating weather change back to sunny day');
+          console.log('🎭 Simulating weather change to partly cloudy');
           dispatch({ 
             type: 'SIMULATE_STATE_CHANGE', 
             payload: { 
               entityId: 'weather.forecast_home', 
-              newState: 'sunny',
-              attributes: { condition: 'sunny', temperature: 22 }
+              newState: 'partlycloudy',
+              attributes: { condition: 'partlycloudy', temperature: 20 }
             } 
           });
           dispatch({ 
@@ -421,6 +421,19 @@ export const DeviceProvider: React.FC<DeviceProviderProps> = ({ children }) => {
             } 
           });
         }, 15000);
+
+        // Show thunderstorm
+        setTimeout(() => {
+          console.log('🎭 Simulating thunderstorm');
+          dispatch({ 
+            type: 'SIMULATE_STATE_CHANGE', 
+            payload: { 
+              entityId: 'weather.forecast_home', 
+              newState: 'thunderstorm',
+              attributes: { condition: 'thunderstorm', temperature: 18 }
+            } 
+          });
+        }, 20000);
         
         // Simulate motion sensor changes
         setTimeout(() => {
