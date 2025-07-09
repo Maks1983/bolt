@@ -4,6 +4,7 @@ import { useDevices } from '../context/DeviceContext';
 import { useRealtimeDevice } from '../hooks/useDeviceUpdates';
 import { formatTemperature, formatHumidity } from '../utils/deviceHelpers';
 import LocationModal from './LocationModal';
+import WeatherBackground from './WeatherBackground';
 
 const Header: React.FC = () => {
   const { state, forceUpdate } = useDevices();
@@ -154,7 +155,12 @@ const Header: React.FC = () => {
 
   return (
     <>
-      <header className="relative z-40 bg-white/95 backdrop-blur-xl border-b border-gray-200/50 px-6 py-2 shadow-sm">
+      <header className="relative z-40 border-b border-gray-200/50 px-6 py-2 shadow-sm overflow-hidden">
+        {/* Dynamic Weather Background */}
+        <WeatherBackground className="absolute inset-0 z-0" />
+        
+        {/* Header content overlay */}
+        <div className="relative z-10 bg-white/80 backdrop-blur-xl rounded-2xl mx-2 my-1 px-4 py-1">
         <div className="flex items-center justify-between max-w-7xl mx-auto">
           {/* User Presence - Left */}
           <div className="flex items-center space-x-2">
@@ -248,6 +254,7 @@ const Header: React.FC = () => {
               )}
             </div>
           </div>
+        </div>
         </div>
       </header>
 
