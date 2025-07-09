@@ -89,25 +89,20 @@ export const subscribedEntities: EntityConfig[] = [
   {
     entity_id: 'weather.forecast_home',
     friendly_name: 'Weather Forecast',
-    device_type: 'weather' as const,
+    device_type: 'sensor',
     room: 'System',
     floor: 'System',
-    state: 'cloudy', // Try: sunny, partlycloudy, cloudy, rainy, snowy, windy, fog, thunderstorm
-    temperature: 18,
-    humidity: 65,
-    condition: 'cloudy',
+    state: 'sunny',
     last_updated: new Date().toISOString(),
     available: true
   },
   {
     entity_id: 'sun.sun',
     friendly_name: 'Sun',
-    device_type: 'sun' as const,
+    device_type: 'sensor',
     room: 'System',
     floor: 'System',
-    state: 'above_horizon', // Try: above_horizon, below_horizon
-    elevation: 45,
-    azimuth: 180,
+    state: 'above_horizon',
     last_updated: new Date().toISOString(),
     available: true
   },
