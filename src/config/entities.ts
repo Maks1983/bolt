@@ -84,6 +84,28 @@ export const subscribedEntities: EntityConfig[] = [
     last_updated: new Date().toISOString(),
     available: true
   },
+
+  // === WEATHER AND SUN ENTITIES ===
+  {
+    entity_id: 'weather.forecast_home',
+    friendly_name: 'Weather Forecast',
+    device_type: 'sensor',
+    room: 'System',
+    floor: 'System',
+    state: 'sunny',
+    last_updated: new Date().toISOString(),
+    available: true
+  },
+  {
+    entity_id: 'sun.sun',
+    friendly_name: 'Sun',
+    device_type: 'sensor',
+    room: 'System',
+    floor: 'System',
+    state: 'above_horizon',
+    last_updated: new Date().toISOString(),
+    available: true
+  },
   
   // === LIGHTS ===
   {
