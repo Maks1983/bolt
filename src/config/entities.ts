@@ -852,28 +852,6 @@ export const subscribedEntities: EntityConfig[] = [
 
   // ADD MORE ENTITIES HERE AS NEEDED
   // Copy the pattern above for each entity you want to monitor
-
-  // === WEATHER ENTITIES ===
-  {
-    entity_id: 'weather.forecast_home',
-    friendly_name: 'Home Weather Forecast',
-    device_type: 'sensor',
-    room: 'System',
-    floor: 'System',
-    state: 'sunny',
-    last_updated: new Date().toISOString(),
-    available: true
-  },
-  {
-    entity_id: 'sun.sun',
-    friendly_name: 'Sun',
-    device_type: 'sensor',
-    room: 'System',
-    floor: 'System',
-    state: 'above_horizon',
-    last_updated: new Date().toISOString(),
-    available: true
-  }
 ];
 
 /**
