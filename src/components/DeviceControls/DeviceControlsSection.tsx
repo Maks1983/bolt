@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
-import { Lightbulb, Columns2, Volume2, Fan, Lock, ChevronUp, ChevronDown } from 'lucide-react';
+import { Lightbulb, Columns2, Volume2, Power, PowerOff, ChevronUp, ChevronDown } from 'lucide-react';
 import { useDevices } from '../../context/DeviceContext';
-import { Device, LightDevice, BlindDevice, MediaPlayerDevice, FanDevice, LockDevice } from '../../types/devices';
+import { Device, LightDevice, BlindDevice, MediaPlayerDevice } from '../../types/devices';
 import MinimalLightControl from './MinimalControls/MinimalLightControl';
 import MinimalCoverControl from './MinimalControls/MinimalCoverControl';
 import MinimalMediaPlayerControl from './MinimalControls/MinimalMediaPlayerControl';
@@ -13,13 +13,11 @@ interface DeviceControlsSectionProps {
 }
 
 const DeviceControlsSection: React.FC<DeviceControlsSectionProps> = ({ activeTab }) => {
-  const { state, controlLight, controlCover, controlMediaPlayer, controlFan, controlLock } = useDevices();
+  const { state, controlLight, controlCover, controlMediaPlayer } = useDevices();
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({
     lights: true,
     covers: true,
-    media: true,
-    fans: true,
-    locks: true
+    media: true
   });
 
   // Filter devices based on active tab
@@ -32,17 +30,15 @@ const DeviceControlsSection: React.FC<DeviceControlsSectionProps> = ({ activeTab
       devices = devices.filter(device => device.floor === floorName);
     }
 
-    // Group devices by type (excluding sensors and cameras for controls)
+    // Group devices by type (excluding sensors, locks, fans, cameras)
     const lights = devices.filter(d => d.device_type === 'light') as LightDevice[];
     const covers = devices.filter(d => d.device_type === 'cover') as BlindDevice[];
     const mediaPlayers = devices.filter(d => d.device_type === 'media_player') as MediaPlayerDevice[];
-    const fans = devices.filter(d => d.device_type === 'fan') as FanDevice[];
-    const locks = devices.filter(d => d.device_type === 'lock') as LockDevice[];
 
-    return { lights, covers, mediaPlayers, fans, locks };
+    return { lights, covers, mediaPlayers };
   }, [state.devices, activeTab]);
 
-  const { lights, covers, mediaPlayers, fans, locks } = getFilteredDevices;
+  const { lights, covers, mediaPlayers } = getFilteredDevices;
 
   // Quick action handlers
   const handleLightsAllOn = () => {
@@ -89,38 +85,6 @@ const DeviceControlsSection: React.FC<DeviceControlsSectionProps> = ({ activeTab
     mediaPlayers.forEach(player => {
       if (player.state === 'paused') {
         controlMediaPlayer(player.entity_id, 'play');
-      }
-    });
-  };
-
-  const handleFansAllOn = () => {
-    fans.forEach(fan => {
-      if (fan.state === 'off') {
-        controlFan(fan.entity_id, true);
-      }
-    });
-  };
-
-  const handleFansAllOff = () => {
-    fans.forEach(fan => {
-      if (fan.state === 'on') {
-        controlFan(fan.entity_id, false);
-      }
-    });
-  };
-
-  const handleLocksAllLock = () => {
-    locks.forEach(lock => {
-      if (lock.state === 'unlocked') {
-        controlLock(lock.entity_id, 'lock');
-      }
-    });
-  };
-
-  const handleLocksAllUnlock = () => {
-    locks.forEach(lock => {
-      if (lock.state === 'locked') {
-        controlLock(lock.entity_id, 'unlock');
       }
     });
   };
@@ -218,7 +182,7 @@ const DeviceControlsSection: React.FC<DeviceControlsSectionProps> = ({ activeTab
     }
   };
 
-  const totalDevices = lights.length + covers.length + mediaPlayers.length + fans.length + locks.length;
+  const totalDevices = lights.length + covers.length + mediaPlayers.length;
 
   if (totalDevices === 0) {
     return (
@@ -245,13 +209,7 @@ const DeviceControlsSection: React.FC<DeviceControlsSectionProps> = ({ activeTab
         </h2>
         <p className="text-gray-600">
           Control {totalDevices} device{totalDevices !== 1 ? 's' : ''} across {
-            [
-              lights.length > 0 && 'lights', 
-              covers.length > 0 && 'covers', 
-              mediaPlayers.length > 0 && 'media players',
-              fans.length > 0 && 'fans',
-              locks.length > 0 && 'locks'
-            ]
+            [lights.length > 0 && 'lights', covers.length > 0 && 'covers', mediaPlayers.length > 0 && 'media players']
               .filter(Boolean).join(', ')
           }
         </p>
@@ -292,46 +250,6 @@ const DeviceControlsSection: React.FC<DeviceControlsSectionProps> = ({ activeTab
           {covers.map((cover) => (
             <div key={cover.entity_id} className="transform transition-all duration-200 hover:scale-[1.02]">
               <MinimalCoverControl device={cover} />
-            </div>
-          ))}
-        </div>
-      </DeviceGroup>
-
-      {/* Fans Group */}
-      <DeviceGroup
-        title="Fans"
-        icon={<Fan className="w-6 h-6 text-blue-600" />}
-        devices={fans}
-        groupKey="fans"
-        quickActions={[
-          { label: 'All On', action: handleFansAllOn, variant: 'primary' },
-          { label: 'All Off', action: handleFansAllOff, variant: 'secondary' }
-        ]}
-      >
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
-          {fans.map((fan) => (
-            <div key={fan.entity_id} className="transform transition-all duration-200 hover:scale-[1.02]">
-              <MinimalFanControl device={fan} />
-            </div>
-          ))}
-        </div>
-      </DeviceGroup>
-
-      {/* Locks Group */}
-      <DeviceGroup
-        title="Locks"
-        icon={<Lock className="w-6 h-6 text-blue-600" />}
-        devices={locks}
-        groupKey="locks"
-        quickActions={[
-          { label: 'Lock All', action: handleLocksAllLock, variant: 'primary' },
-          { label: 'Unlock All', action: handleLocksAllUnlock, variant: 'secondary' }
-        ]}
-      >
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
-          {locks.map((lock) => (
-            <div key={lock.entity_id} className="transform transition-all duration-200 hover:scale-[1.02]">
-              <MinimalLockControl device={lock} />
             </div>
           ))}
         </div>
