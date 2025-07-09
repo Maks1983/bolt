@@ -1,24 +1,15 @@
 import React, { useState, useMemo } from 'react';
-import { Lightbulb, Columns2, Volume2, Power, PowerOff, ChevronUp, ChevronDown } from 'lucide-react';
+import { Lightbulb, Columns2, Volume2, Fan, Lock, ChevronDown, ChevronUp, Power, PowerOff } from 'lucide-react';
 import { useDevices } from '../../context/DeviceContext';
-import { Device, LightDevice, BlindDevice, MediaPlayerDevice } from '../../types/devices';
-import MinimalLightControl from './MinimalControls/MinimalLightControl';
-import MinimalCoverControl from './MinimalControls/MinimalCoverControl';
-import MinimalMediaPlayerControl from './MinimalControls/MinimalMediaPlayerControl';
-import MinimalFanControl from './MinimalControls/MinimalFanControl';
-import MinimalLockControl from './MinimalControls/MinimalLockControl';
+import { Device, LightDevice, BlindDevice, MediaPlayerDevice, FanDevice, LockDevice } from '../../types/devices';
 
 interface DeviceControlsSectionProps {
   activeTab: 'whole-house' | 'upper-floor' | 'lower-floor' | 'apartment';
 }
 
 const DeviceControlsSection: React.FC<DeviceControlsSectionProps> = ({ activeTab }) => {
-  const { state, controlLight, controlCover, controlMediaPlayer } = useDevices();
-  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({
-    lights: true,
-    covers: true,
-    media: true
-  });
+  const { state, controlLight, controlCover, controlMediaPlayer, controlFan, controlLock } = useDevices();
+  const [expandedCards, setExpandedCards] = useState<Record<string, boolean>>({});
 
   // Filter devices based on active tab
   const getFilteredDevices = useMemo(() => {
@@ -30,146 +21,234 @@ const DeviceControlsSection: React.FC<DeviceControlsSectionProps> = ({ activeTab
       devices = devices.filter(device => device.floor === floorName);
     }
 
-    // Group devices by type (excluding sensors, locks, fans, cameras)
+    // Group devices by type
     const lights = devices.filter(d => d.device_type === 'light') as LightDevice[];
     const covers = devices.filter(d => d.device_type === 'cover') as BlindDevice[];
     const mediaPlayers = devices.filter(d => d.device_type === 'media_player') as MediaPlayerDevice[];
+    const fans = devices.filter(d => d.device_type === 'fan') as FanDevice[];
+    const locks = devices.filter(d => d.device_type === 'lock') as LockDevice[];
 
-    return { lights, covers, mediaPlayers };
+    return { lights, covers, mediaPlayers, fans, locks };
   }, [state.devices, activeTab]);
 
-  const { lights, covers, mediaPlayers } = getFilteredDevices;
+  const { lights, covers, mediaPlayers, fans, locks } = getFilteredDevices;
 
-  // Quick action handlers
-  const handleLightsAllOn = () => {
-    lights.forEach(light => {
-      if (light.state === 'off') {
-        controlLight(light.entity_id, true, 255);
-      }
-    });
-  };
-
-  const handleLightsAllOff = () => {
-    lights.forEach(light => {
-      if (light.state === 'on') {
-        controlLight(light.entity_id, false);
-      }
-    });
-  };
-
-  const handleCoversOpenAll = () => {
-    covers.forEach(cover => {
-      if (cover.state !== 'open') {
-        controlCover(cover.entity_id, 'open');
-      }
-    });
-  };
-
-  const handleCoversCloseAll = () => {
-    covers.forEach(cover => {
-      if (cover.state !== 'closed') {
-        controlCover(cover.entity_id, 'close');
-      }
-    });
-  };
-
-  const handleMediaPauseAll = () => {
-    mediaPlayers.forEach(player => {
-      if (player.state === 'playing') {
-        controlMediaPlayer(player.entity_id, 'pause');
-      }
-    });
-  };
-
-  const handleMediaPlayAll = () => {
-    mediaPlayers.forEach(player => {
-      if (player.state === 'paused') {
-        controlMediaPlayer(player.entity_id, 'play');
-      }
-    });
-  };
-
-  const toggleGroupExpansion = (groupKey: string) => {
-    setExpandedGroups(prev => ({
+  const toggleCardExpansion = (cardType: string) => {
+    setExpandedCards(prev => ({
       ...prev,
-      [groupKey]: !prev[groupKey]
+      [cardType]: !prev[cardType]
     }));
   };
 
-  // Device group component
-  const DeviceGroup: React.FC<{
+  // Device type card component
+  const DeviceTypeCard: React.FC<{
     title: string;
     icon: React.ReactNode;
     devices: Device[];
-    quickActions: Array<{ label: string; action: () => void; variant: 'primary' | 'secondary' }>;
-    groupKey: string;
-    children: React.ReactNode;
-  }> = ({ title, icon, devices, quickActions, groupKey, children }) => {
-    const isExpanded = expandedGroups[groupKey];
-    const deviceCount = devices.length;
+    activeCount: number;
+    totalCount: number;
+    activeColor: string;
+    inactiveColor: string;
+    onToggleAll: () => void;
+    cardType: string;
+    children?: React.ReactNode;
+  }> = ({ 
+    title, 
+    icon, 
+    devices, 
+    activeCount, 
+    totalCount, 
+    activeColor, 
+    inactiveColor, 
+    onToggleAll, 
+    cardType,
+    children 
+  }) => {
+    if (totalCount === 0) return null;
 
-    if (deviceCount === 0) return null;
+    const isExpanded = expandedCards[cardType];
+    const hasActiveDevices = activeCount > 0;
 
     return (
-      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-        {/* Sticky Header */}
-        <div className="sticky top-0 z-10 bg-white border-b border-gray-200 shadow-sm">
-          <div className="p-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <div className="p-3 bg-blue-50 rounded-xl">
+      <div className={`rounded-3xl border-2 transition-all duration-300 shadow-lg hover:shadow-xl ${
+        hasActiveDevices 
+          ? `${activeColor} border-opacity-30` 
+          : `bg-white border-gray-200`
+      }`}>
+        {/* Card Header */}
+        <div className="p-8">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center space-x-4">
+              <div className={`p-4 rounded-2xl transition-all duration-300 ${
+                hasActiveDevices 
+                  ? 'bg-white/80 shadow-lg' 
+                  : 'bg-gray-100'
+              }`}>
+                <div className={`transition-colors duration-300 ${
+                  hasActiveDevices ? 'text-gray-700' : 'text-gray-500'
+                }`}>
                   {icon}
                 </div>
-                <div>
-                  <h3 className="text-xl font-bold text-gray-900">{title}</h3>
-                  <p className="text-sm text-gray-500">{deviceCount} device{deviceCount !== 1 ? 's' : ''}</p>
-                </div>
               </div>
-
-              <div className="flex items-center space-x-3">
-                {/* Quick Actions */}
-                <div className="flex space-x-2">
-                  {quickActions.map((action, index) => (
-                    <button
-                      key={index}
-                      onClick={action.action}
-                      className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 transform hover:scale-105 active:scale-95 ${
-                        action.variant === 'primary'
-                          ? 'bg-blue-500 text-white hover:bg-blue-600 shadow-md hover:shadow-lg'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      }`}
-                    >
-                      {action.label}
-                    </button>
-                  ))}
-                </div>
-
-                {/* Expand/Collapse Button */}
-                <button
-                  onClick={() => toggleGroupExpansion(groupKey)}
-                  className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                >
-                  {isExpanded ? (
-                    <ChevronUp className="w-5 h-5 text-gray-600" />
-                  ) : (
-                    <ChevronDown className="w-5 h-5 text-gray-600" />
-                  )}
-                </button>
+              <div>
+                <h3 className={`text-2xl font-bold transition-colors duration-300 ${
+                  hasActiveDevices ? 'text-gray-800' : 'text-gray-700'
+                }`}>
+                  {title}
+                </h3>
+                <p className={`text-lg transition-colors duration-300 ${
+                  hasActiveDevices ? 'text-gray-600' : 'text-gray-500'
+                }`}>
+                  {activeCount} of {totalCount} active
+                </p>
               </div>
             </div>
+
+            {/* Toggle All Button */}
+            <button
+              onClick={onToggleAll}
+              className={`flex items-center space-x-3 px-6 py-3 rounded-2xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg ${
+                hasActiveDevices
+                  ? 'bg-white text-gray-700 hover:bg-gray-50'
+                  : 'bg-blue-500 text-white hover:bg-blue-600'
+              }`}
+            >
+              {hasActiveDevices ? (
+                <>
+                  <PowerOff className="w-5 h-5" />
+                  <span>Turn All Off</span>
+                </>
+              ) : (
+                <>
+                  <Power className="w-5 h-5" />
+                  <span>Turn All On</span>
+                </>
+              )}
+            </button>
           </div>
+
+          {/* Status Bar */}
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-2">
+              <span className={`text-sm font-medium ${
+                hasActiveDevices ? 'text-gray-600' : 'text-gray-500'
+              }`}>
+                Activity
+              </span>
+              <span className={`text-sm font-medium ${
+                hasActiveDevices ? 'text-gray-600' : 'text-gray-500'
+              }`}>
+                {Math.round((activeCount / totalCount) * 100)}%
+              </span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+              <div 
+                className={`h-full transition-all duration-500 ${
+                  hasActiveDevices ? 'bg-white/90' : 'bg-blue-500'
+                }`}
+                style={{ width: `${(activeCount / totalCount) * 100}%` }}
+              />
+            </div>
+          </div>
+
+          {/* Expand/Collapse Button */}
+          {totalCount > 1 && (
+            <button
+              onClick={() => toggleCardExpansion(cardType)}
+              className={`w-full flex items-center justify-center space-x-2 py-3 rounded-xl transition-all duration-300 ${
+                hasActiveDevices
+                  ? 'bg-white/60 hover:bg-white/80 text-gray-700'
+                  : 'bg-gray-100 hover:bg-gray-200 text-gray-600'
+              }`}
+            >
+              <span className="font-medium">
+                {isExpanded ? 'Hide Individual Controls' : 'Show Individual Controls'}
+              </span>
+              {isExpanded ? (
+                <ChevronUp className="w-4 h-4" />
+              ) : (
+                <ChevronDown className="w-4 h-4" />
+              )}
+            </button>
+          )}
         </div>
 
-        {/* Expandable Content */}
-        <div className={`transition-all duration-300 ease-in-out overflow-hidden ${
-          isExpanded ? 'max-h-none opacity-100' : 'max-h-0 opacity-0'
-        }`}>
-          <div className="p-6 pt-0">
-            {children}
+        {/* Individual Device Controls */}
+        {isExpanded && children && (
+          <div className="px-8 pb-8">
+            <div className="bg-white/50 rounded-2xl p-6 space-y-3">
+              {children}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     );
+  };
+
+  // Individual device control component
+  const IndividualDeviceControl: React.FC<{
+    device: Device;
+    isActive: boolean;
+    onToggle: () => void;
+    icon: React.ReactNode;
+  }> = ({ device, isActive, onToggle, icon }) => (
+    <div className="flex items-center justify-between p-4 bg-white rounded-xl border border-gray-200 hover:shadow-md transition-all duration-200">
+      <div className="flex items-center space-x-3">
+        <div className={`p-2 rounded-lg ${isActive ? 'bg-blue-100' : 'bg-gray-100'}`}>
+          <div className={`${isActive ? 'text-blue-600' : 'text-gray-500'}`}>
+            {icon}
+          </div>
+        </div>
+        <span className="font-medium text-gray-900">{device.friendly_name}</span>
+      </div>
+      
+      <button
+        onClick={onToggle}
+        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+          isActive ? 'bg-blue-500' : 'bg-gray-300'
+        }`}
+      >
+        <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+          isActive ? 'translate-x-6' : 'translate-x-1'
+        }`} />
+      </button>
+    </div>
+  );
+
+  // Control handlers
+  const handleLightsToggleAll = () => {
+    const hasAnyOn = lights.some(light => light.state === 'on');
+    lights.forEach(light => {
+      controlLight(light.entity_id, !hasAnyOn, hasAnyOn ? undefined : 255);
+    });
+  };
+
+  const handleCoversToggleAll = () => {
+    const hasAnyOpen = covers.some(cover => cover.state === 'open');
+    covers.forEach(cover => {
+      controlCover(cover.entity_id, hasAnyOpen ? 'close' : 'open');
+    });
+  };
+
+  const handleMediaToggleAll = () => {
+    const hasAnyPlaying = mediaPlayers.some(player => player.state === 'playing');
+    mediaPlayers.forEach(player => {
+      controlMediaPlayer(player.entity_id, hasAnyPlaying ? 'pause' : 'play');
+    });
+  };
+
+  const handleFansToggleAll = () => {
+    const hasAnyOn = fans.some(fan => fan.state === 'on');
+    fans.forEach(fan => {
+      controlFan(fan.entity_id, !hasAnyOn);
+    });
+  };
+
+  const handleLocksToggleAll = () => {
+    const hasAnyUnlocked = locks.some(lock => lock.state === 'unlocked');
+    locks.forEach(lock => {
+      controlLock(lock.entity_id, hasAnyUnlocked ? 'lock' : 'unlock');
+    });
   };
 
   const getTabTitle = () => {
@@ -182,17 +261,17 @@ const DeviceControlsSection: React.FC<DeviceControlsSectionProps> = ({ activeTab
     }
   };
 
-  const totalDevices = lights.length + covers.length + mediaPlayers.length;
+  const totalDevices = lights.length + covers.length + mediaPlayers.length + fans.length + locks.length;
 
   if (totalDevices === 0) {
     return (
-      <div className="text-center py-12">
-        <div className="text-gray-400 text-lg font-medium">
+      <div className="text-center py-16">
+        <div className="text-gray-400 text-xl font-medium mb-2">
           No controllable devices found
         </div>
-        <div className="text-gray-500 text-sm mt-2">
+        <div className="text-gray-500">
           {activeTab === 'whole-house' 
-            ? 'Add lights, covers, or media players to see controls here'
+            ? 'Add devices to see controls here'
             : `No devices configured for ${getTabTitle()}`
           }
         </div>
@@ -201,79 +280,121 @@ const DeviceControlsSection: React.FC<DeviceControlsSectionProps> = ({ activeTab
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">
-          Device Controls - {getTabTitle()}
-        </h2>
-        <p className="text-gray-600">
-          Control {totalDevices} device{totalDevices !== 1 ? 's' : ''} across {
-            [lights.length > 0 && 'lights', covers.length > 0 && 'covers', mediaPlayers.length > 0 && 'media players']
-              .filter(Boolean).join(', ')
-          }
-        </p>
-      </div>
-
-      {/* Lights Group */}
-      <DeviceGroup
+    <div className="space-y-8">
+      {/* Lights Card */}
+      <DeviceTypeCard
         title="Lights"
-        icon={<Lightbulb className="w-6 h-6 text-blue-600" />}
+        icon={<Lightbulb className="w-8 h-8" />}
         devices={lights}
-        groupKey="lights"
-        quickActions={[
-          { label: 'All On', action: handleLightsAllOn, variant: 'primary' },
-          { label: 'All Off', action: handleLightsAllOff, variant: 'secondary' }
-        ]}
+        activeCount={lights.filter(l => l.state === 'on').length}
+        totalCount={lights.length}
+        activeColor="bg-gradient-to-br from-yellow-100 to-amber-100"
+        inactiveColor="bg-white"
+        onToggleAll={handleLightsToggleAll}
+        cardType="lights"
       >
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
-          {lights.map((light) => (
-            <div key={light.entity_id} className="transform transition-all duration-200 hover:scale-[1.02]">
-              <MinimalLightControl device={light} />
-            </div>
-          ))}
-        </div>
-      </DeviceGroup>
+        {lights.map((light) => (
+          <IndividualDeviceControl
+            key={light.entity_id}
+            device={light}
+            isActive={light.state === 'on'}
+            onToggle={() => controlLight(light.entity_id, light.state === 'off')}
+            icon={<Lightbulb className="w-4 h-4" />}
+          />
+        ))}
+      </DeviceTypeCard>
 
-      {/* Blinds & Curtains Group */}
-      <DeviceGroup
+      {/* Blinds & Curtains Card */}
+      <DeviceTypeCard
         title="Blinds & Curtains"
-        icon={<Columns2 className="w-6 h-6 text-blue-600" />}
+        icon={<Columns2 className="w-8 h-8" />}
         devices={covers}
-        groupKey="covers"
-        quickActions={[
-          { label: 'Open All', action: handleCoversOpenAll, variant: 'primary' },
-          { label: 'Close All', action: handleCoversCloseAll, variant: 'secondary' }
-        ]}
+        activeCount={covers.filter(c => c.state === 'open').length}
+        totalCount={covers.length}
+        activeColor="bg-gradient-to-br from-blue-100 to-cyan-100"
+        inactiveColor="bg-white"
+        onToggleAll={handleCoversToggleAll}
+        cardType="covers"
       >
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
-          {covers.map((cover) => (
-            <div key={cover.entity_id} className="transform transition-all duration-200 hover:scale-[1.02]">
-              <MinimalCoverControl device={cover} />
-            </div>
-          ))}
-        </div>
-      </DeviceGroup>
+        {covers.map((cover) => (
+          <IndividualDeviceControl
+            key={cover.entity_id}
+            device={cover}
+            isActive={cover.state === 'open'}
+            onToggle={() => controlCover(cover.entity_id, cover.state === 'open' ? 'close' : 'open')}
+            icon={<Columns2 className="w-4 h-4" />}
+          />
+        ))}
+      </DeviceTypeCard>
 
-      {/* Speakers & Media Group */}
-      <DeviceGroup
+      {/* Speakers & Media Card */}
+      <DeviceTypeCard
         title="Speakers & Media"
-        icon={<Volume2 className="w-6 h-6 text-blue-600" />}
+        icon={<Volume2 className="w-8 h-8" />}
         devices={mediaPlayers}
-        groupKey="media"
-        quickActions={[
-          { label: 'Play All', action: handleMediaPlayAll, variant: 'primary' },
-          { label: 'Pause All', action: handleMediaPauseAll, variant: 'secondary' }
-        ]}
+        activeCount={mediaPlayers.filter(m => m.state === 'playing').length}
+        totalCount={mediaPlayers.length}
+        activeColor="bg-gradient-to-br from-purple-100 to-pink-100"
+        inactiveColor="bg-white"
+        onToggleAll={handleMediaToggleAll}
+        cardType="media"
       >
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {mediaPlayers.map((player) => (
-            <div key={player.entity_id} className="transform transition-all duration-200 hover:scale-[1.02]">
-              <MinimalMediaPlayerControl device={player} />
-            </div>
-          ))}
-        </div>
-      </DeviceGroup>
+        {mediaPlayers.map((player) => (
+          <IndividualDeviceControl
+            key={player.entity_id}
+            device={player}
+            isActive={player.state === 'playing'}
+            onToggle={() => controlMediaPlayer(player.entity_id, player.state === 'playing' ? 'pause' : 'play')}
+            icon={<Volume2 className="w-4 h-4" />}
+          />
+        ))}
+      </DeviceTypeCard>
+
+      {/* Fans Card */}
+      <DeviceTypeCard
+        title="Fans"
+        icon={<Fan className="w-8 h-8" />}
+        devices={fans}
+        activeCount={fans.filter(f => f.state === 'on').length}
+        totalCount={fans.length}
+        activeColor="bg-gradient-to-br from-cyan-100 to-teal-100"
+        inactiveColor="bg-white"
+        onToggleAll={handleFansToggleAll}
+        cardType="fans"
+      >
+        {fans.map((fan) => (
+          <IndividualDeviceControl
+            key={fan.entity_id}
+            device={fan}
+            isActive={fan.state === 'on'}
+            onToggle={() => controlFan(fan.entity_id, fan.state === 'off')}
+            icon={<Fan className="w-4 h-4" />}
+          />
+        ))}
+      </DeviceTypeCard>
+
+      {/* Locks Card */}
+      <DeviceTypeCard
+        title="Locks"
+        icon={<Lock className="w-8 h-8" />}
+        devices={locks}
+        activeCount={locks.filter(l => l.state === 'locked').length}
+        totalCount={locks.length}
+        activeColor="bg-gradient-to-br from-green-100 to-emerald-100"
+        inactiveColor="bg-white"
+        onToggleAll={handleLocksToggleAll}
+        cardType="locks"
+      >
+        {locks.map((lock) => (
+          <IndividualDeviceControl
+            key={lock.entity_id}
+            device={lock}
+            isActive={lock.state === 'locked'}
+            onToggle={() => controlLock(lock.entity_id, lock.state === 'locked' ? 'unlock' : 'lock')}
+            icon={<Lock className="w-4 h-4" />}
+          />
+        ))}
+      </DeviceTypeCard>
     </div>
   );
 };
