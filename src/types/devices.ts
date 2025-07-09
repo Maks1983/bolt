@@ -133,6 +133,32 @@ export interface DeviceTrackerDevice extends BaseDevice {
   longitude?: number;
 }
 
+export interface WeatherDevice extends BaseDevice {
+  device_type: 'weather';
+  state: string;
+  condition?: string;
+  temperature?: number;
+  humidity?: number;
+  pressure?: number;
+  wind_speed?: number;
+  wind_bearing?: number;
+  visibility?: number;
+  forecast?: any[];
+}
+
+export interface SunDevice extends BaseDevice {
+  device_type: 'sun';
+  state: 'above_horizon' | 'below_horizon';
+  elevation?: number;
+  azimuth?: number;
+  next_dawn?: string;
+  next_dusk?: string;
+  next_midnight?: string;
+  next_noon?: string;
+  next_rising?: string;
+  next_setting?: string;
+}
+
 export type Device = 
   | LightDevice 
   | BlindDevice 
@@ -144,7 +170,9 @@ export type Device =
   | FanDevice 
   | ClimateDevice
   | AlarmControlPanelDevice
-  | DeviceTrackerDevice;
+  | DeviceTrackerDevice
+  | WeatherDevice
+  | SunDevice;
 
 export interface Room {
   id: string;
