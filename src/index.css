@@ -435,44 +435,7 @@
   border-radius: 1.5rem;
 }
 
-/* Tablet-specific modal fixes */
-@media (min-width: 768px) and (max-width: 1024px) {
-  .seamless-modal {
-    max-height: calc(100vh - 4rem);
-    overflow-y: auto;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-  }
-  
-  .seamless-modal::-webkit-scrollbar {
-    display: none;
-  }
-  
-  /* Ensure modal content doesn't get cut off on tablets */
-  .fixed.inset-0.bg-black\/60 {
-    padding-bottom: 2rem;
-  }
-  
-  /* Adjust modal positioning for tablets */
-  .min-h-screen.flex.items-start.justify-center {
-    align-items: flex-start;
-    padding-top: 2rem;
-    padding-bottom: 2rem;
-  }
-}
-
-/* Mobile modal adjustments */
-@media (max-width: 767px) {
-  .seamless-modal {
-    max-height: calc(100vh - 2rem);
-    overflow-y: auto;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-  }
-  
-  .seamless-modal::-webkit-scrollbar {
-    display: none;
-  }
+.modal-scrollable {
 }
 
 /* Unified button styles */
