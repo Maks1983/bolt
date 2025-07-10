@@ -234,26 +234,25 @@ const AppContent: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-850 to-gray-900">
+    <div className="h-screen no-scroll" style={{ backgroundColor: '#010d14' }}>
       <Header 
         activeSection={activeSection} 
         onSectionChange={setActiveSection} 
       />
-      <InfoRow cameras={cameras} />
       
-      <main className="py-4 pb-8">
+      <main className="h-full no-scroll">
         {/* Top-level Tab Navigation */}
-        <div className="px-6 mb-6">
+        <div className="px-6 h-full no-scroll">
           {/* Dynamic Tab Navigation */}
           <div className="flex items-end">
             {availableTabs.map((tab, index) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`relative px-6 py-3 font-medium text-sm transition-all duration-300 ${
+                className={`seamless-tab relative px-6 py-3 font-medium text-sm transition-all duration-300 ${
                   activeTab === tab.id
-                    ? 'text-cyan-400 bg-gray-800/30 backdrop-blur-xl'
-                    : 'text-gray-400 hover:text-cyan-300 bg-gray-800/10 hover:bg-gray-800/20'
+                    ? 'active'
+                    : ''
                 }`}
                 style={{
                   borderRadius: '12px 12px 0 0',
@@ -264,21 +263,21 @@ const AppContent: React.FC = () => {
               >
                 <span className="relative whitespace-nowrap">{tab.label}</span>
                 {activeTab === tab.id && (
-                  <div className="absolute inset-x-0 bottom-0 h-0.5 bg-gradient-to-r from-transparent via-cyan-400 to-transparent"></div>
+                  <div className="absolute inset-x-0 bottom-0 h-0.5" style={{ background: 'linear-gradient(90deg, transparent, #028ee5, transparent)' }}></div>
                 )}
               </button>
             ))}
           </div>
           
           {/* Tab Content Background with Sidebar */}
-          <div className="seamless-modal rounded-2xl -mt-px relative min-h-[600px]">
+          <div className="seamless-modal rounded-2xl -mt-px relative h-[calc(100vh-120px)] no-scroll">
             {/* Header with Toggle Button */}
-            <div className="flex items-center justify-between p-6 border-b border-gray-700/20">
+            <div className="flex items-center justify-between p-6">
               <div>
                 <h2 className="text-2xl font-bold text-primary">
                   {getTabTitle()} - {activeSection === 'status' ? 'Status' : 'Controls'}
                 </h2>
-                <p className="text-secondary mt-1">
+                <p className="text-secondary mt-1" style={{ color: 'rgba(255, 255, 255, 0.7)' }}>
                   {activeSection === 'status' 
                     ? 'Monitor device status and detailed information'
                     : 'Quick device controls and toggles'
@@ -295,7 +294,7 @@ const AppContent: React.FC = () => {
                 </span>
                 <button
                   onClick={() => setActiveSection(activeSection === 'status' ? 'controls' : 'status')}
-                  className={`seamless-toggle relative inline-flex h-8 w-14 items-center rounded-full focus:outline-none ${
+                  className={`seamless-toggle relative inline-flex h-8 w-14 items-center rounded-full ${
                     activeSection === 'controls' ? 'active' : ''
                   }`}
                 >
@@ -312,7 +311,7 @@ const AppContent: React.FC = () => {
             </div>
 
             {/* Main Content Area */}
-            <div className="p-6 overflow-y-auto overflow-x-hidden max-h-[calc(100vh-300px)]">
+            <div className="p-6 h-[calc(100%-100px)] no-scroll">
               {getCurrentContent()}
             </div>
           </div>

@@ -1,240 +1,274 @@
+@import url('@fontsource/poppins/400.css');
+@import url('@fontsource/poppins/500.css');
+@import url('@fontsource/poppins/600.css');
+@import url('@fontsource/poppins/700.css');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Dark theme base styles */
+/* CSS Custom Properties for exact color scheme */
+:root {
+  --primary: #028ee5;
+  --secondary: #00314f;
+  --neutral: #272727;
+  --background: #010d14;
+}
+
+/* Base styles with exact colors and typography */
 @layer base {
+  * {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+  }
+  
   body {
-    @apply bg-gray-900 text-gray-100;
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--background);
+    color: #ffffff;
+    overflow: hidden;
+  }
+  
+  html, body, #root {
+    height: 100vh;
+    overflow: hidden;
   }
 }
 
-/* Custom scrollbar styles - Seamless dark theme */
+/* Remove all scrollbars */
 ::-webkit-scrollbar {
-  width: 4px;
+  display: none;
 }
 
-::-webkit-scrollbar-track {
-  background: transparent;
+* {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
-::-webkit-scrollbar-thumb {
-  background: rgba(75, 85, 99, 0.3);
-  border-radius: 2px;
+/* Glassmorphism cards with minimal opacity */
+.glass-card {
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(75, 85, 99, 0.5);
+.glass-card-strong {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
 }
 
-/* Subtle glow effects - no harsh borders */
-.subtle-glow-blue {
-  box-shadow: 0 0 30px rgba(59, 130, 246, 0.1);
+/* Primary color elements */
+.primary-bg {
+  background-color: var(--primary);
 }
 
-.subtle-glow-purple {
-  box-shadow: 0 0 30px rgba(139, 92, 246, 0.1);
+.primary-text {
+  color: var(--primary);
 }
 
-.subtle-glow-cyan {
-  box-shadow: 0 0 30px rgba(6, 182, 212, 0.1);
+.primary-glass {
+  background: rgba(2, 142, 229, 0.1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }
 
-.subtle-glow-green {
-  box-shadow: 0 0 30px rgba(34, 197, 94, 0.1);
+/* Secondary color elements */
+.secondary-bg {
+  background-color: var(--secondary);
 }
 
-.subtle-glow-yellow {
-  box-shadow: 0 0 30px rgba(234, 179, 8, 0.1);
+.secondary-text {
+  color: var(--secondary);
 }
 
-.subtle-glow-red {
-  box-shadow: 0 0 30px rgba(239, 68, 68, 0.1);
+.secondary-glass {
+  background: rgba(0, 49, 79, 0.2);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* Neutral color elements */
+.neutral-bg {
+  background-color: var(--neutral);
+}
+
+.neutral-text {
+  color: var(--neutral);
+}
+
+.neutral-glass {
+  background: rgba(39, 39, 39, 0.3);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }
 
 /* Seamless transitions */
-.transition-smooth {
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+.seamless-transition {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Device control seamless styling */
-.device-control {
-  transition: all 0.3s ease-in-out;
-  background: rgba(31, 41, 55, 0.3);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(75, 85, 99, 0.1);
+/* Seamless buttons */
+.seamless-button {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  color: #ffffff;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  transition: all 0.3s ease;
 }
 
-.device-control:hover {
+.seamless-button:hover {
+  background: rgba(2, 142, 229, 0.2);
   transform: translateY(-1px);
-  background: rgba(31, 41, 55, 0.4);
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.2);
 }
 
-/* Glass morphism effect - seamless */
-.glass-morphism {
-  background: rgba(31, 41, 55, 0.2);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(75, 85, 99, 0.1);
-}
-
-.glass-morphism-strong {
-  background: rgba(31, 41, 55, 0.4);
-  backdrop-filter: blur(25px);
-  border: 1px solid rgba(75, 85, 99, 0.15);
-}
-
-/* Seamless card styling */
-.seamless-card {
-  background: rgba(17, 24, 39, 0.3);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(55, 65, 81, 0.1);
-  transition: all 0.3s ease;
-}
-
-.seamless-card:hover {
-  background: rgba(17, 24, 39, 0.4);
-  transform: translateY(-2px);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-}
-
-/* Unified button styles */
-.unified-button {
-  background: rgba(55, 65, 81, 0.3);
+.seamless-button-primary {
+  background: rgba(2, 142, 229, 0.3);
   backdrop-filter: blur(15px);
-  border: 1px solid rgba(75, 85, 99, 0.1);
+  -webkit-backdrop-filter: blur(15px);
+  color: #ffffff;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
   transition: all 0.3s ease;
 }
 
-.unified-button:hover {
-  background: rgba(55, 65, 81, 0.5);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+.seamless-button-primary:hover {
+  background: rgba(2, 142, 229, 0.5);
+  transform: translateY(-1px);
 }
 
-.unified-button-primary {
-  background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(59, 130, 246, 0.2));
-  backdrop-filter: blur(15px);
-  border: 1px solid rgba(6, 182, 212, 0.2);
-  transition: all 0.3s ease;
-}
-
-.unified-button-primary:hover {
-  background: linear-gradient(135deg, rgba(6, 182, 212, 0.3), rgba(59, 130, 246, 0.3));
-  box-shadow: 0 8px 30px rgba(6, 182, 212, 0.1);
-}
-
-/* Seamless slider styling */
-.seamless-slider {
-  background: rgba(55, 65, 81, 0.3);
-  border: none;
-  border-radius: 8px;
-  height: 6px;
-}
-
-.seamless-slider::-webkit-slider-thumb {
-  background: linear-gradient(135deg, #06b6d4, #3b82f6);
-  border: none;
-  border-radius: 50%;
-  width: 16px;
-  height: 16px;
-  box-shadow: 0 2px 8px rgba(6, 182, 212, 0.3);
-  cursor: pointer;
-  -webkit-appearance: none;
-}
-
-.seamless-slider::-moz-range-thumb {
-  background: linear-gradient(135deg, #06b6d4, #3b82f6);
-  border: none;
-  border-radius: 50%;
-  width: 16px;
-  height: 16px;
-  box-shadow: 0 2px 8px rgba(6, 182, 212, 0.3);
-  cursor: pointer;
-}
-
-/* Seamless toggle switches */
+/* Seamless toggles */
 .seamless-toggle {
-  background: rgba(55, 65, 81, 0.4);
-  border: none;
+  background: rgba(39, 39, 39, 0.6);
   transition: all 0.3s ease;
 }
 
 .seamless-toggle.active {
-  background: linear-gradient(135deg, rgba(6, 182, 212, 0.6), rgba(59, 130, 246, 0.6));
-  box-shadow: 0 0 20px rgba(6, 182, 212, 0.2);
+  background: var(--primary);
 }
 
-/* Remove all harsh borders and create flow */
-.seamless-border {
-  border: 1px solid rgba(75, 85, 99, 0.1);
+/* Seamless sliders */
+.seamless-slider {
+  background: rgba(39, 39, 39, 0.4);
+  height: 6px;
+  border-radius: 3px;
+  appearance: none;
+  -webkit-appearance: none;
 }
 
-.seamless-border-accent {
-  border: 1px solid rgba(6, 182, 212, 0.2);
+.seamless-slider::-webkit-slider-thumb {
+  background: var(--primary);
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
-/* Unified spacing and flow */
-.unified-spacing {
-  padding: 1.5rem;
-  margin: 0.5rem;
+.seamless-slider::-moz-range-thumb {
+  background: var(--primary);
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
 }
 
-/* Seamless modal styling */
-.seamless-modal {
-  background: rgba(17, 24, 39, 0.8);
-  backdrop-filter: blur(30px);
-  border: 1px solid rgba(55, 65, 81, 0.2);
-}
-
-/* Seamless dropdown styling */
-.seamless-dropdown {
-  background: rgba(31, 41, 55, 0.9);
-  backdrop-filter: blur(25px);
-  border: 1px solid rgba(75, 85, 99, 0.2);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-}
-
-/* Unified text colors - muted and cohesive */
-.text-primary {
-  color: #e5e7eb;
-}
-
-.text-secondary {
-  color: #9ca3af;
-}
-
-.text-accent {
-  color: #06b6d4;
-}
-
-.text-muted {
-  color: #6b7280;
-}
-
-/* Seamless status indicators */
-.status-indicator {
-  background: rgba(55, 65, 81, 0.3);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(75, 85, 99, 0.1);
+/* Seamless inputs */
+.seamless-input {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  color: #ffffff;
+  font-family: 'Poppins', sans-serif;
+  padding: 12px 16px;
   border-radius: 12px;
-  padding: 0.5rem 1rem;
   transition: all 0.3s ease;
 }
 
+.seamless-input:focus {
+  background: rgba(2, 142, 229, 0.1);
+}
+
+/* Seamless progress bars */
+.seamless-progress {
+  background: rgba(39, 39, 39, 0.4);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.seamless-progress-fill {
+  background: linear-gradient(90deg, var(--primary), #00a8ff);
+  transition: width 0.8s ease;
+  border-radius: 8px;
+}
+
+/* Typography classes */
+.text-primary {
+  color: #ffffff;
+  font-family: 'Poppins', sans-serif;
+}
+
+.text-secondary {
+  color: rgba(255, 255, 255, 0.7);
+  font-family: 'Poppins', sans-serif;
+}
+
+.text-muted {
+  color: rgba(255, 255, 255, 0.5);
+  font-family: 'Poppins', sans-serif;
+}
+
+.text-accent {
+  color: var(--primary);
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Seamless modal */
+.seamless-modal {
+  background: rgba(1, 13, 20, 0.95);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+}
+
+/* Seamless dropdown */
+.seamless-dropdown {
+  background: rgba(1, 13, 20, 0.9);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+}
+
+/* Remove all visual separators */
+.seamless-container {
+  background: transparent;
+}
+
+/* Unified spacing */
+.unified-spacing {
+  padding: 1.5rem;
+}
+
+/* Status indicators */
+.status-indicator {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  transition: all 0.3s ease;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+}
+
 .status-indicator.active {
-  background: rgba(6, 182, 212, 0.2);
-  border-color: rgba(6, 182, 212, 0.3);
-  box-shadow: 0 0 20px rgba(6, 182, 212, 0.1);
+  background: rgba(2, 142, 229, 0.3);
 }
 
-/* Remove grid lines and create flow */
-.seamless-grid {
-  display: grid;
-  gap: 1rem;
-  padding: 0;
-}
-
-/* Unified animations */
+/* Seamless animations */
 @keyframes seamlessFloat {
   0%, 100% { transform: translateY(0px); }
   50% { transform: translateY(-2px); }
@@ -244,15 +278,65 @@
   animation: seamlessFloat 6s ease-in-out infinite;
 }
 
-/* Seamless progress bars */
-.seamless-progress {
-  background: rgba(55, 65, 81, 0.3);
-  border-radius: 8px;
-  overflow: hidden;
+/* Device control styling */
+.device-control {
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  transition: all 0.3s ease;
 }
 
-.seamless-progress-fill {
-  background: linear-gradient(90deg, rgba(6, 182, 212, 0.6), rgba(59, 130, 246, 0.6));
-  transition: width 0.8s ease;
-  border-radius: 8px;
+.device-control:hover {
+  background: rgba(255, 255, 255, 0.05);
+  transform: translateY(-2px);
+}
+
+/* Room card styling */
+.room-card {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  transition: all 0.3s ease;
+}
+
+.room-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+  transform: translateY(-3px);
+}
+
+/* Tab styling */
+.seamless-tab {
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  color: rgba(255, 255, 255, 0.6);
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.seamless-tab.active {
+  background: rgba(2, 142, 229, 0.2);
+  color: var(--primary);
+}
+
+.seamless-tab:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Header styling */
+.seamless-header {
+  background: rgba(1, 13, 20, 0.8);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+}
+
+/* Ensure no scrollbars anywhere */
+.no-scroll {
+  overflow: hidden !important;
+}
+
+.no-scroll * {
+  overflow: hidden !important;
 }

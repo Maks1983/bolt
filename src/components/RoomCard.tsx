@@ -110,7 +110,7 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
   return (
     <>
       <div 
-        className="relative seamless-card rounded-3xl overflow-hidden transition-all duration-300 cursor-pointer w-full max-w-sm mx-auto"
+        className="room-card relative rounded-3xl overflow-hidden cursor-pointer w-full max-w-sm mx-auto"
         onClick={() => setExpanded(true)}
       >
         {/* Background Image */}
@@ -118,7 +118,7 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
           className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: `url(${backgroundImage})` }}
         >
-          <div className="absolute inset-0 bg-gradient-to-t from-gray-900/95 via-gray-900/50 to-gray-900/20"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
         </div>
         
         {/* Content */}
@@ -126,26 +126,26 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
           {/* Header */}
           <div className="flex justify-between items-start mb-4">
             <div>
-              <h3 className="text-xl font-bold text-white mb-1">{roomName}</h3>
+              <h3 className="text-xl font-bold text-white mb-1" style={{ fontFamily: 'Poppins, sans-serif' }}>{roomName}</h3>
             </div>
 
             {/* Sensor Icons - Always visible in top right corner */}
             <div className="flex flex-row items-center space-x-2">
               {/* Smoke sensor - only show if configured */}
               {roomStats.smokeSensors.length > 0 && (
-                <div className={`p-2 ${roomStats.smokeAlert ? 'bg-red-500/60 subtle-glow-red' : 'bg-gray-700/60'} rounded-full backdrop-blur-sm`}>
+                <div className={`p-2 ${roomStats.smokeAlert ? 'bg-red-500/60' : 'glass-card'} rounded-full`}>
                   <Flame className="w-4 h-4 text-white" />
                 </div>
               )}
               {/* Flood sensor - only show if configured */}
               {roomStats.floodSensors.length > 0 && (
-                <div className={`p-2 ${roomStats.floodAlert ? 'bg-red-500/60 subtle-glow-red' : 'bg-gray-700/60'} rounded-full backdrop-blur-sm`}>
+                <div className={`p-2 ${roomStats.floodAlert ? 'bg-red-500/60' : 'glass-card'} rounded-full`}>
                   <Waves className="w-4 h-4 text-white" />
                 </div>
               )}
               {/* Lock status - only show if configured */}
               {roomStats.hasLocks && (
-                <div className={`p-2 ${roomStats.isLocked ? 'bg-green-500/60 subtle-glow-green' : 'bg-red-500/60 subtle-glow-red'} rounded-full backdrop-blur-sm`}>
+                <div className={`p-2 ${roomStats.isLocked ? 'bg-green-500/60' : 'bg-red-500/60'} rounded-full`}>
                   {roomStats.isLocked ? (
                     <Lock className="w-4 h-4 text-white" />
                   ) : (
@@ -155,7 +155,7 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
               )}
               {/* Presence sensor - only show if configured */}
               {roomStats.motionSensor && (
-                <div className={`p-2 ${roomStats.presence ? 'bg-cyan-500/60 subtle-glow-cyan' : 'bg-gray-700/60'} rounded-full backdrop-blur-sm`}>
+                <div className={`p-2 ${roomStats.presence ? 'primary-glass' : 'glass-card'} rounded-full`}>
                   <User className="w-4 h-4 text-white" />
                 </div>
               )}
@@ -223,7 +223,7 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
               {(roomStats.windowSensors.length > 0 || roomStats.doorSensors.length > 0) && (
                 <div className="flex items-center space-x-2 text-white/80">
                   {React.createElement(getOpenCloseIcon(), { 
-                    className: `w-4 h-4 ${roomStats.windowOpen ? 'text-orange-400' : 'text-gray-400'}` 
+                    className: `w-4 h-4 ${roomStats.windowOpen ? 'text-orange-400' : 'text-white/60'}` 
                   })}
                   <span className="text-sm font-medium">{getOpenCloseText()}</span>
                 </div>
@@ -235,7 +235,7 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
 
       {/* Expanded Modal */}
       {expanded && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-xl z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-xl z-50 flex items-center justify-center p-4 no-scroll">
           <div className="seamless-modal rounded-3xl max-w-4xl w-full max-h-[95vh] overflow-hidden animate-in fade-in-0 zoom-in-95 duration-300">
             {/* Header */}
             <div className="relative h-48 overflow-hidden">
@@ -243,35 +243,35 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
                 className="absolute inset-0 bg-cover bg-center scale-110"
                 style={{ backgroundImage: `url(${backgroundImage})` }}
               >
-                <div className="absolute inset-0 bg-gradient-to-t from-gray-900/95 via-gray-900/60 to-gray-900/30"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-black/30"></div>
               </div>
               <div className="relative p-6 h-full flex flex-col justify-between">
                 <div className="flex justify-between items-start">
                   <div className="flex items-center space-x-4">
                     <div>
-                      <h2 className="text-3xl font-bold text-white mb-1">{roomName}</h2>
+                      <h2 className="text-3xl font-bold text-white mb-1" style={{ fontFamily: 'Poppins, sans-serif' }}>{roomName}</h2>
                     </div>
                     {/* Sensor Icons in Modal - Same layout as card */}
                     <div className="flex items-center space-x-3">
                       {roomStats.motionSensor && (
-                        <div className={`p-3 ${roomStats.presence ? 'bg-cyan-500/60 subtle-glow-cyan' : 'bg-gray-700/60'} rounded-full backdrop-blur-sm`}>
+                        <div className={`p-3 ${roomStats.presence ? 'primary-glass' : 'glass-card'} rounded-full`}>
                           <User className="w-5 h-5 text-white" />
                         </div>
                       )}
                       {(roomStats.windowSensors.length > 0 || roomStats.doorSensors.length > 0) && (
-                        <div className={`p-3 ${roomStats.windowOpen ? 'bg-orange-500/60' : 'bg-gray-700/60'} rounded-full backdrop-blur-sm`}>
+                        <div className={`p-3 ${roomStats.windowOpen ? 'bg-orange-500/60' : 'glass-card'} rounded-full`}>
                           {React.createElement(getOpenCloseIcon(), { 
                             className: `w-4 h-4 ${roomStats.windowOpen ? 'text-white' : 'text-white'}` 
                           })}                        
                         </div>
                       )}
                       {roomStats.floodSensors.length > 0 && (
-                        <div className={`p-3 ${roomStats.floodAlert ? 'bg-red-500/60 subtle-glow-red' : 'bg-gray-700/60'} rounded-full backdrop-blur-sm`}>
+                        <div className={`p-3 ${roomStats.floodAlert ? 'bg-red-500/60' : 'glass-card'} rounded-full`}>
                           <Waves className="w-5 h-5 text-white" />
                         </div>
                       )}
                       {roomStats.smokeSensors.length > 0 && (
-                        <div className={`p-3 ${roomStats.smokeAlert ? 'bg-red-500/60 subtle-glow-red' : 'bg-gray-700/60'} rounded-full backdrop-blur-sm`}>
+                        <div className={`p-3 ${roomStats.smokeAlert ? 'bg-red-500/60' : 'glass-card'} rounded-full`}>
                           <Flame className="w-5 h-5 text-white" />
                         </div>
                       )}
@@ -279,7 +279,7 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
                   </div>
                   <button 
                     onClick={() => setExpanded(false)}
-                    className="unified-button p-3 rounded-full transition-colors"
+                    className="seamless-button p-3 rounded-full"
                   >
                     <X className="w-6 h-6 text-white" />
                   </button>
@@ -288,14 +288,14 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
                 <div className="grid grid-cols-3 gap-6">
                   {roomStats.temperature !== null && (
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-white">{formatTemperature(roomStats.temperature)}</div>
-                    <div className="text-white/80 text-sm font-medium">Temperature</div>
+                    <div className="text-2xl font-bold text-white" style={{ fontFamily: 'Poppins, sans-serif' }}>{formatTemperature(roomStats.temperature)}</div>
+                    <div className="text-white/80 text-sm font-medium" style={{ fontFamily: 'Poppins, sans-serif' }}>Temperature</div>
                   </div>
                   )}
                   {roomStats.humidity !== null && (
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-white">{formatHumidity(roomStats.humidity)}</div>
-                      <div className="text-white/80 text-sm font-medium">Humidity</div>
+                      <div className="text-2xl font-bold text-white" style={{ fontFamily: 'Poppins, sans-serif' }}>{formatHumidity(roomStats.humidity)}</div>
+                      <div className="text-white/80 text-sm font-medium" style={{ fontFamily: 'Poppins, sans-serif' }}>Humidity</div>
                     </div>
                   )}
                   
@@ -311,17 +311,17 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
             </div>
             
             {/* Scrollable Content */}
-            <div className="max-h-[calc(95vh-12rem)] overflow-y-auto">
+            <div className="max-h-[calc(95vh-12rem)] no-scroll">
               <div className="p-6 space-y-8">
                 
                 {/* Lighting Controls */}
                 {roomDevices.lights.length > 0 && (
                   <div>
                     <div className="flex items-center space-x-3 mb-6">
-                      <div className="p-2 bg-yellow-500/20 rounded-xl seamless-border-accent">
+                      <div className="p-2 glass-card rounded-xl">
                         <Lightbulb className="w-5 h-5 text-yellow-400" />
                       </div>
-                      <h3 className="text-xl font-bold text-gray-100">Lighting Controls</h3>
+                      <h3 className="text-xl font-bold text-white" style={{ fontFamily: 'Poppins, sans-serif' }}>Lighting Controls</h3>
                     </div>
                     
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -336,10 +336,10 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
                 {roomDevices.locks.length > 0 && (
                   <div>
                     <div className="flex items-center space-x-3 mb-6">
-                      <div className="p-2 bg-red-500/20 rounded-xl seamless-border-accent">
+                      <div className="p-2 glass-card rounded-xl">
                         <Shield className="w-5 h-5 text-red-400" />
                       </div>
-                      <h3 className="text-xl font-bold text-gray-100">Security</h3>
+                      <h3 className="text-xl font-bold text-white" style={{ fontFamily: 'Poppins, sans-serif' }}>Security</h3>
                     </div>
                     
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -534,16 +534,17 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
               </div>
               
               {/* Footer */}
-              <div className="p-6 border-t border-gray-700/20 bg-gray-800/20">
+              <div className="p-6 glass-card">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2 text-secondary">
+                  <div className="flex items-center space-x-2" style={{ color: 'rgba(255, 255, 255, 0.7)' }}>
                     <Clock className="w-4 h-4" />
-                    <span className="text-sm">Last updated: {lastUpdate}</span>
+                    <span className="text-sm" style={{ fontFamily: 'Poppins, sans-serif' }}>Last updated: {lastUpdate}</span>
                   </div>
                   <div className="flex space-x-3">
                     <button 
                       onClick={() => setExpanded(false)}
-                      className="unified-button px-6 py-3 text-secondary rounded-2xl hover:text-accent transition-all duration-300 font-semibold"
+                      className="seamless-button px-6 py-3 rounded-2xl font-semibold"
+                      style={{ fontFamily: 'Poppins, sans-serif' }}
                     >
                       Close
                     </button>

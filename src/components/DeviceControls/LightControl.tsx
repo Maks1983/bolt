@@ -45,14 +45,14 @@ const LightControl: React.FC<LightControlProps> = ({ device }) => {
   console.log(`💡 LightControl render: ${currentDevice.entity_id} state=${currentDevice.state} isOn=${isOn} brightness=${currentDevice.brightness}`);
 
   return (
-    <div className="seamless-card rounded-2xl p-5 device-control">
+    <div className="device-control rounded-2xl p-5">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-3">
           <div 
-            className="w-4 h-4 rounded-full border border-gray-600/30"
+            className="w-4 h-4 rounded-full"
             style={{ backgroundColor: isOn ? (currentDevice.rgb_color ? rgbToHex(currentDevice.rgb_color) : '#ffffff') : '#e5e7eb' }}
           ></div>
-          <h4 className="font-semibold text-gray-100">{currentDevice.friendly_name}</h4>
+          <h4 className="font-semibold text-white" style={{ fontFamily: 'Poppins, sans-serif' }}>{currentDevice.friendly_name}</h4>
         </div>
         <button
           onClick={handleToggle}
@@ -70,8 +70,8 @@ const LightControl: React.FC<LightControlProps> = ({ device }) => {
         <div className="space-y-4">
           <div>
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-secondary">Brightness</span>
-              <span className="text-sm text-muted">{Math.round((currentDevice.brightness || 0) / 255 * 100)}%</span>
+              <span className="text-sm font-medium" style={{ color: 'rgba(255, 255, 255, 0.7)', fontFamily: 'Poppins, sans-serif' }}>Brightness</span>
+              <span className="text-sm" style={{ color: 'rgba(255, 255, 255, 0.5)', fontFamily: 'Poppins, sans-serif' }}>{Math.round((currentDevice.brightness || 0) / 255 * 100)}%</span>
             </div>
             <input
               type="range"
@@ -79,23 +79,23 @@ const LightControl: React.FC<LightControlProps> = ({ device }) => {
               max="255"
               value={currentDevice.brightness || 0}
               onChange={(e) => handleBrightnessChange(parseInt(e.target.value))}
-              className="seamless-slider w-full appearance-none cursor-pointer"
+              className="seamless-slider w-full cursor-pointer"
             />
           </div>
           
           {hasColorSupport && (
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-secondary">Color</span>
+              <span className="text-sm font-medium" style={{ color: 'rgba(255, 255, 255, 0.7)', fontFamily: 'Poppins, sans-serif' }}>Color</span>
               <div className="flex items-center space-x-2">
                 <input
                   type="color"
                   value={rgbToHex(currentDevice.rgb_color)}
                   onChange={(e) => handleColorChange(e.target.value)}
-                  className="w-8 h-8 rounded-lg seamless-border cursor-pointer"
+                  className="w-8 h-8 rounded-lg cursor-pointer"
                 />
                 <button
                   onClick={() => handleColorChange('#ffffff')}
-                  className="unified-button p-2 rounded-lg transition-colors"
+                  className="seamless-button p-2 rounded-lg"
                 >
                   <Sun className="w-4 h-4 text-yellow-400" />
                 </button>

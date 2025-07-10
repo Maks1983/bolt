@@ -182,26 +182,26 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onSectionChange }) => {
 
   return (
     <>
-      <header className="relative z-40 bg-gray-900/80 backdrop-blur-xl border-b border-gray-700/20 px-6 py-3">
+      <header className="seamless-header relative z-40 px-6 py-3">
         <div className="flex items-center justify-between max-w-7xl mx-auto">
           {/* User Presence - Left */}
           <div className="flex items-center space-x-2">
             {users.map((user, index) => (
               <div 
                 key={index} 
-                className="flex flex-col items-center space-y-1 seamless-card rounded-xl px-2 py-1.5 cursor-pointer transition-all duration-300"
+                className="flex flex-col items-center space-y-1 glass-card rounded-xl px-2 py-1.5 cursor-pointer seamless-transition"
                 onClick={() => handleUserClick(user)}
               >
                 <div className="relative">
-                  <div className="w-6 h-6 bg-gradient-to-br from-slate-600 to-slate-700 rounded-full flex items-center justify-center text-white text-xs font-medium">
+                  <div className="w-6 h-6 neutral-glass rounded-full flex items-center justify-center text-white text-xs font-medium">
                     {user.avatar}
                   </div>
-                  <div className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 ${getStatusColor(user.status)} rounded-full flex items-center justify-center text-white border border-white shadow-sm`}>
+                  <div className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 ${getStatusColor(user.status)} rounded-full flex items-center justify-center text-white`}>
                     {getStatusIcon(user.status)}
                   </div>
                 </div>
                 <div className="text-center">
-                  <div className="text-xs text-secondary font-medium">{getStatusLabel(user.status)}</div>
+                  <div className="text-xs text-secondary font-medium" style={{ color: 'rgba(255, 255, 255, 0.7)' }}>{getStatusLabel(user.status)}</div>
                 </div>
               </div>
             ))}
@@ -211,29 +211,37 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onSectionChange }) => {
           <div className="flex items-center space-x-1">
             <button
               onClick={() => onSectionChange('status')}
-              className={`relative px-2 py-1 text-base font-medium transition-all duration-200 ${
+              className={`relative px-2 py-1 text-base font-medium seamless-transition ${
                 activeSection === 'status'
                   ? 'text-accent'
-                  : 'text-muted hover:text-accent'
+                  : 'text-muted'
               }`}
+              style={{ 
+                color: activeSection === 'status' ? '#028ee5' : 'rgba(255, 255, 255, 0.5)',
+                fontFamily: 'Poppins, sans-serif'
+              }}
             >
               Status
               {activeSection === 'status' && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-cyan-400 to-transparent rounded-full"></div>
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full" style={{ background: 'linear-gradient(90deg, transparent, #028ee5, transparent)' }}></div>
               )}
             </button>
-            <span className="text-muted font-light">|</span>
+            <span className="text-muted font-light" style={{ color: 'rgba(255, 255, 255, 0.3)' }}>|</span>
             <button
               onClick={() => onSectionChange('controls')}
-              className={`relative px-2 py-1 text-base font-medium transition-all duration-200 ${
+              className={`relative px-2 py-1 text-base font-medium seamless-transition ${
                 activeSection === 'controls'
                   ? 'text-accent'
-                  : 'text-muted hover:text-accent'
+                  : 'text-muted'
               }`}
+              style={{ 
+                color: activeSection === 'controls' ? '#028ee5' : 'rgba(255, 255, 255, 0.5)',
+                fontFamily: 'Poppins, sans-serif'
+              }}
             >
               Controls
               {activeSection === 'controls' && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-cyan-400 to-transparent rounded-full"></div>
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full" style={{ background: 'linear-gradient(90deg, transparent, #028ee5, transparent)' }}></div>
               )}
             </button>
           </div>
@@ -244,28 +252,28 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onSectionChange }) => {
             <div className="relative" ref={quickActionsRef}>
               <button
                 onClick={handleQuickActions}
-                className="unified-button flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-300"
+                className="seamless-button flex items-center justify-center w-10 h-10 rounded-xl"
                 title="Quick Actions & Scenes"
               >
-                <Clapperboard className="w-5 h-5 text-accent" />
+                <Clapperboard className="w-5 h-5" style={{ color: '#028ee5' }} />
               </button>
 
               {/* Quick Actions Dropdown */}
               {showQuickActions && (
                 <div className="absolute right-0 top-full mt-2 w-64 seamless-dropdown rounded-xl z-50">
                   <div className="p-4">
-                    <h3 className="font-semibold text-primary mb-3">Quick Actions</h3>
+                    <h3 className="font-semibold text-primary mb-3" style={{ fontFamily: 'Poppins, sans-serif' }}>Quick Actions</h3>
                     <div className="space-y-2">
-                      <button className="w-full text-left px-3 py-2 rounded-lg text-secondary hover:bg-gray-700/30 hover:text-accent transition-colors">
+                      <button className="seamless-button w-full text-left px-3 py-2 rounded-lg">
                         Good Morning Scene
                       </button>
-                      <button className="w-full text-left px-3 py-2 rounded-lg text-secondary hover:bg-gray-700/30 hover:text-accent transition-colors">
+                      <button className="seamless-button w-full text-left px-3 py-2 rounded-lg">
                         Good Night Scene
                       </button>
-                      <button className="w-full text-left px-3 py-2 rounded-lg text-secondary hover:bg-gray-700/30 hover:text-accent transition-colors">
+                      <button className="seamless-button w-full text-left px-3 py-2 rounded-lg">
                         Away Mode
                       </button>
-                      <button className="w-full text-left px-3 py-2 rounded-lg text-secondary hover:bg-gray-700/30 hover:text-accent transition-colors">
+                      <button className="seamless-button w-full text-left px-3 py-2 rounded-lg">
                         Movie Time
                       </button>
                     </div>
@@ -276,7 +284,7 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onSectionChange }) => {
 
             {/* System Status */}
             <button
-              className="unified-button flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-300"
+              className="seamless-button flex items-center justify-center w-10 h-10 rounded-xl"
               title={`System Status: ${systemStatus.status}`}
             >
               <systemStatus.icon className={`w-5 h-5 ${systemStatus.color}`} />
@@ -286,7 +294,7 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onSectionChange }) => {
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setShowConnectionDropdown(!showConnectionDropdown)}
-                className="unified-button flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-300"
+                className="seamless-button flex items-center justify-center w-10 h-10 rounded-xl"
                 title="Home Assistant Connection"
               >
                 {getConnectionIcon()}
@@ -299,20 +307,20 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onSectionChange }) => {
                     <div className="flex items-center space-x-3 mb-3">
                       {getConnectionIcon()}
                       <div>
-                        <div className="font-semibold text-primary">Home Assistant</div>
-                        <div className="text-sm text-secondary">{getConnectionText()}</div>
+                        <div className="font-semibold text-primary" style={{ fontFamily: 'Poppins, sans-serif' }}>Home Assistant</div>
+                        <div className="text-sm text-secondary" style={{ color: 'rgba(255, 255, 255, 0.7)' }}>{getConnectionText()}</div>
                       </div>
                     </div>
                     
                     {state.lastUpdate && (
-                      <div className="text-xs text-muted mb-3">
+                      <div className="text-xs text-muted mb-3" style={{ color: 'rgba(255, 255, 255, 0.5)' }}>
                         Last update: {state.lastUpdate.toLocaleTimeString()}
                       </div>
                     )}
 
                     <button
                       onClick={handleRefresh}
-                      className="w-full unified-button-primary flex items-center justify-center space-x-2 px-3 py-2 text-white rounded-xl"
+                      className="w-full seamless-button-primary flex items-center justify-center space-x-2 px-3 py-2 text-white rounded-xl"
                     >
                       <RefreshCw className="w-4 h-4" />
                       <span>Refresh</span>
