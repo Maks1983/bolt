@@ -384,7 +384,7 @@ const DeviceControlsSection: React.FC<DeviceControlsSectionProps> = ({ activeTab
       {selectedDeviceType && currentDeviceTypeData && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xl z-50 overflow-y-auto scrollbar-width-none -ms-overflow-style-none">
           <div className="min-h-screen flex items-start justify-center p-4 pt-8">
-            <div className="seamless-modal rounded-3xl max-w-4xl w-full animate-in fade-in-0 zoom-in-95 duration-300 mb-8">
+            <div className="seamless-modal rounded-3xl max-w-4xl w-full animate-in fade-in-0 zoom-in-95 duration-300 mb-8 overflow-hidden">
             {/* Header */}
             <div className="relative h-48 overflow-hidden">
               <div 
@@ -434,8 +434,7 @@ const DeviceControlsSection: React.FC<DeviceControlsSectionProps> = ({ activeTab
             </div>
             
             {/* Content */}
-            <div className="max-h-[60vh] overflow-y-auto scrollbar-width-none -ms-overflow-style-none">
-              <div className="p-6">
+            <div className="p-6">
                 <h3 className="text-xl font-bold text-primary mb-6">Individual Device Controls</h3>
                 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -464,7 +463,6 @@ const DeviceControlsSection: React.FC<DeviceControlsSectionProps> = ({ activeTab
                   ))}
                 </div>
               </div>
-            </div>
             
             {/* Footer */}
             <div className="p-6 border-t border-gray-700/20 bg-gray-800/20">
@@ -491,7 +489,6 @@ const DeviceControlsSection: React.FC<DeviceControlsSectionProps> = ({ activeTab
               </div>
             </div>
             </div>
-          </div>
         </div>
       )}
     </>
