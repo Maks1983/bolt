@@ -401,7 +401,7 @@
 
 /* Tab content area */
 .tab-content-area {
-  min-height: calc(100vh - 180px);
+  min-height: calc(100vh - 200px);
   padding: 1.5rem;
 }
 /* Modal positioning and sizing fixes */

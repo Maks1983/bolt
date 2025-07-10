@@ -191,9 +191,6 @@ const AppContent: React.FC = () => {
                   </div>
                 </div>
               )}
-              
-              {/* Add padding to ensure consistent modal height */}
-              <div className="h-32"></div>
             </div>
           );
         } else {
