@@ -234,7 +234,7 @@ const AppContent: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
       <Header 
         activeSection={activeSection} 
         onSectionChange={setActiveSection} 
@@ -250,10 +250,10 @@ const AppContent: React.FC = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`relative px-6 py-3 rounded-t-2xl font-semibold text-sm transition-all duration-200 transform ${
+                className={`relative px-6 py-3 rounded-t-2xl font-semibold text-sm transition-all duration-300 transform ${
                   activeTab === tab.id
-                    ? 'bg-white text-gray-900 shadow-lg border-t-2 border-l-2 border-r-2 border-gray-200 -mb-px'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border-2 border-gray-200 border-b-0'
+                    ? 'bg-gray-800 text-cyan-400 neon-glow-cyan border-t-2 border-l-2 border-r-2 border-cyan-500/50 -mb-px'
+                    : 'bg-gray-700/50 text-gray-300 hover:bg-gray-600/50 hover:text-cyan-300 border-2 border-gray-600/30 border-b-0'
                 }`}
                 style={{
                   clipPath: activeTab === tab.id 
@@ -266,21 +266,21 @@ const AppContent: React.FC = () => {
               >
                 <span className="relative whitespace-nowrap">{tab.label}</span>
                 {activeTab === tab.id && (
-                  <div className="absolute inset-x-0 bottom-0 h-0.5 bg-white"></div>
+                  <div className="absolute inset-x-0 bottom-0 h-0.5 bg-cyan-400"></div>
                 )}
               </button>
             ))}
           </div>
           
           {/* Tab Content Background with Sidebar */}
-          <div className="bg-white border-2 border-gray-200 rounded-2xl rounded-tl-none shadow-lg -mt-px relative min-h-[600px]">
+          <div className="glass-morphism border-2 border-gray-600/30 rounded-2xl rounded-tl-none neon-glow-blue -mt-px relative min-h-[600px]">
             {/* Header with Toggle Button */}
-            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+            <div className="flex items-center justify-between p-6 border-b border-gray-600/30">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">
+                <h2 className="text-2xl font-bold text-gray-100">
                   {getTabTitle()} - {activeSection === 'status' ? 'Status' : 'Controls'}
                 </h2>
-                <p className="text-gray-600 mt-1">
+                <p className="text-gray-400 mt-1">
                   {activeSection === 'status' 
                     ? 'Monitor device status and detailed information'
                     : 'Quick device controls and toggles'
@@ -291,14 +291,14 @@ const AppContent: React.FC = () => {
               {/* Toggle Button */}
               <div className="flex items-center space-x-3">
                 <span className={`text-sm font-medium transition-colors ${
-                  activeSection === 'status' ? 'text-blue-600' : 'text-gray-500'
+                  activeSection === 'status' ? 'text-cyan-400' : 'text-gray-500'
                 }`}>
                   Status
                 </span>
                 <button
                   onClick={() => setActiveSection(activeSection === 'status' ? 'controls' : 'status')}
-                  className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                    activeSection === 'controls' ? 'bg-blue-600' : 'bg-gray-300'
+                  className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-gray-800 ${
+                    activeSection === 'controls' ? 'bg-gradient-to-r from-cyan-500 to-blue-500 neon-glow-cyan' : 'bg-gray-600'
                   }`}
                 >
                   <span className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
@@ -306,7 +306,7 @@ const AppContent: React.FC = () => {
                   }`} />
                 </button>
                 <span className={`text-sm font-medium transition-colors ${
-                  activeSection === 'controls' ? 'text-blue-600' : 'text-gray-500'
+                  activeSection === 'controls' ? 'text-cyan-400' : 'text-gray-500'
                 }`}>
                   Controls
                 </span>

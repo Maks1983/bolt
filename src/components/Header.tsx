@@ -182,18 +182,18 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onSectionChange }) => {
 
   return (
     <>
-      <header className="relative z-40 bg-white/95 backdrop-blur-xl border-b border-gray-200/50 px-6 py-3 shadow-sm">
+      <header className="relative z-40 bg-gray-900/95 backdrop-blur-xl border-b border-gray-700/50 px-6 py-3 shadow-2xl">
         <div className="flex items-center justify-between max-w-7xl mx-auto">
           {/* User Presence - Left */}
           <div className="flex items-center space-x-2">
             {users.map((user, index) => (
               <div 
                 key={index} 
-                className="flex flex-col items-center space-y-1 bg-gray-50/80 rounded-lg px-2 py-1.5 border border-gray-200/40 shadow-sm cursor-pointer hover:bg-gray-100/80 transition-colors"
+                className="flex flex-col items-center space-y-1 glass-morphism rounded-lg px-2 py-1.5 neon-border-blue cursor-pointer hover:neon-glow-blue transition-all duration-300"
                 onClick={() => handleUserClick(user)}
               >
                 <div className="relative">
-                  <div className="w-6 h-6 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white text-xs font-medium shadow-sm">
+                  <div className="w-6 h-6 bg-gradient-to-br from-cyan-400 to-purple-500 rounded-full flex items-center justify-center text-white text-xs font-medium neon-glow-cyan">
                     {user.avatar}
                   </div>
                   <div className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 ${getStatusColor(user.status)} rounded-full flex items-center justify-center text-white border border-white shadow-sm`}>
@@ -201,7 +201,7 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onSectionChange }) => {
                   </div>
                 </div>
                 <div className="text-center">
-                  <div className="text-xs text-gray-500 font-medium">{getStatusLabel(user.status)}</div>
+                  <div className="text-xs text-gray-300 font-medium">{getStatusLabel(user.status)}</div>
                 </div>
               </div>
             ))}
@@ -213,27 +213,27 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onSectionChange }) => {
               onClick={() => onSectionChange('status')}
               className={`relative px-2 py-1 text-base font-medium transition-all duration-200 ${
                 activeSection === 'status'
-                  ? 'text-gray-900'
-                  : 'text-gray-500 hover:text-gray-700'
+                  ? 'text-cyan-400'
+                  : 'text-gray-400 hover:text-cyan-300'
               }`}
             >
               Status
               {activeSection === 'status' && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500 rounded-full"></div>
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-cyan-400 rounded-full neon-glow-cyan"></div>
               )}
             </button>
-            <span className="text-gray-400 font-light">|</span>
+            <span className="text-gray-600 font-light">|</span>
             <button
               onClick={() => onSectionChange('controls')}
               className={`relative px-2 py-1 text-base font-medium transition-all duration-200 ${
                 activeSection === 'controls'
-                  ? 'text-gray-900'
-                  : 'text-gray-500 hover:text-gray-700'
+                  ? 'text-cyan-400'
+                  : 'text-gray-400 hover:text-cyan-300'
               }`}
             >
               Controls
               {activeSection === 'controls' && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500 rounded-full"></div>
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-cyan-400 rounded-full neon-glow-cyan"></div>
               )}
             </button>
           </div>
@@ -244,28 +244,28 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onSectionChange }) => {
             <div className="relative" ref={quickActionsRef}>
               <button
                 onClick={handleQuickActions}
-                className="flex items-center justify-center w-10 h-10 bg-gray-100/80 rounded-xl border border-gray-200/50 hover:bg-gray-200/80 transition-colors shadow-sm"
+                className="futuristic-button flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-300"
                 title="Quick Actions & Scenes"
               >
-                <Clapperboard className="w-5 h-5 text-gray-600" />
+                <Clapperboard className="w-5 h-5 text-cyan-400" />
               </button>
 
               {/* Quick Actions Dropdown */}
               {showQuickActions && (
-                <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-xl shadow-lg border border-gray-200 z-50">
+                <div className="absolute right-0 top-full mt-2 w-64 glass-morphism rounded-xl neon-glow-blue border border-gray-600/30 z-50">
                   <div className="p-4">
-                    <h3 className="font-semibold text-gray-900 mb-3">Quick Actions</h3>
+                    <h3 className="font-semibold text-gray-100 mb-3">Quick Actions</h3>
                     <div className="space-y-2">
-                      <button className="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors">
+                      <button className="w-full text-left px-3 py-2 rounded-lg text-gray-300 hover:bg-gray-700/50 hover:text-cyan-300 transition-colors">
                         Good Morning Scene
                       </button>
-                      <button className="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors">
+                      <button className="w-full text-left px-3 py-2 rounded-lg text-gray-300 hover:bg-gray-700/50 hover:text-cyan-300 transition-colors">
                         Good Night Scene
                       </button>
-                      <button className="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors">
+                      <button className="w-full text-left px-3 py-2 rounded-lg text-gray-300 hover:bg-gray-700/50 hover:text-cyan-300 transition-colors">
                         Away Mode
                       </button>
-                      <button className="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors">
+                      <button className="w-full text-left px-3 py-2 rounded-lg text-gray-300 hover:bg-gray-700/50 hover:text-cyan-300 transition-colors">
                         Movie Time
                       </button>
                     </div>
@@ -276,7 +276,7 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onSectionChange }) => {
 
             {/* System Status */}
             <button
-              className={`flex items-center justify-center w-10 h-10 rounded-xl border border-gray-200/50 transition-colors shadow-sm ${systemStatus.bgColor} hover:opacity-80`}
+              className={`flex items-center justify-center w-10 h-10 rounded-xl border border-gray-600/30 transition-all duration-300 glass-morphism hover:neon-glow-blue`}
               title={`System Status: ${systemStatus.status}`}
             >
               <systemStatus.icon className={`w-5 h-5 ${systemStatus.color}`} />
@@ -286,7 +286,7 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onSectionChange }) => {
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setShowConnectionDropdown(!showConnectionDropdown)}
-                className={`flex items-center justify-center w-10 h-10 rounded-xl border border-gray-200/50 transition-colors shadow-sm ${getConnectionColor()}`}
+                className="futuristic-button flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-300"
                 title="Home Assistant Connection"
               >
                 {getConnectionIcon()}
@@ -294,13 +294,13 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onSectionChange }) => {
 
               {/* Connection Dropdown */}
               {showConnectionDropdown && (
-                <div className="absolute right-0 top-full mt-2 w-60 bg-white rounded-xl shadow-lg border border-gray-200 z-50">
+                <div className="absolute right-0 top-full mt-2 w-60 glass-morphism rounded-xl neon-glow-blue border border-gray-600/30 z-50">
                   <div className="p-4">
                     <div className="flex items-center space-x-3 mb-3">
                       {getConnectionIcon()}
                       <div>
-                        <div className="font-semibold text-gray-900">Home Assistant</div>
-                        <div className="text-sm text-gray-600">{getConnectionText()}</div>
+                        <div className="font-semibold text-gray-100">Home Assistant</div>
+                        <div className="text-sm text-gray-400">{getConnectionText()}</div>
                       </div>
                     </div>
                     
@@ -312,7 +312,7 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onSectionChange }) => {
 
                     <button
                       onClick={handleRefresh}
-                      className="w-full flex items-center justify-center space-x-2 px-3 py-2 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-colors"
+                      className="w-full flex items-center justify-center space-x-2 px-3 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-xl hover:from-cyan-400 hover:to-blue-400 transition-all duration-300 neon-glow-cyan"
                     >
                       <RefreshCw className="w-4 h-4" />
                       <span>Refresh</span>

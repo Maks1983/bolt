@@ -75,7 +75,7 @@ const DeviceControlsSection: React.FC<DeviceControlsSectionProps> = ({ activeTab
 
     return (
       <div 
-        className="relative bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:scale-[1.02] w-full max-w-sm mx-auto border border-gray-200/50"
+        className="relative glass-morphism rounded-3xl overflow-hidden neon-glow-blue hover:neon-glow-cyan transition-all duration-300 cursor-pointer transform hover:scale-[1.02] w-full max-w-sm mx-auto neon-border-blue"
         onClick={() => setSelectedDeviceType(cardType)}
       >
         {/* Background Image */}
@@ -86,7 +86,7 @@ const DeviceControlsSection: React.FC<DeviceControlsSectionProps> = ({ activeTab
           <div className={`absolute inset-0 transition-all duration-300 ${
             hasActiveDevices 
               ? `bg-gradient-to-t ${gradientFrom} ${gradientTo} backdrop-blur-[1px]`
-              : 'bg-gradient-to-t from-black/80 via-black/20 to-black/10 backdrop-blur-[1px]'
+              : 'bg-gradient-to-t from-black/90 via-black/40 to-black/20 backdrop-blur-[1px]'
           }`}></div>
         </div>
         
@@ -105,7 +105,7 @@ const DeviceControlsSection: React.FC<DeviceControlsSectionProps> = ({ activeTab
                 e.stopPropagation();
                 onQuickAction();
               }}
-              className="flex items-center space-x-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white px-3 py-2 rounded-lg transition-all duration-200 text-sm font-medium"
+              className="flex items-center space-x-2 bg-gray-800/50 hover:bg-gray-700/50 backdrop-blur-sm text-white px-3 py-2 rounded-lg transition-all duration-300 text-sm font-medium neon-border-cyan"
             >
               <Zap className="w-4 h-4" />
               <span>{quickActionText}</span>
@@ -122,8 +122,8 @@ const DeviceControlsSection: React.FC<DeviceControlsSectionProps> = ({ activeTab
               <div className="flex items-center space-x-3">
                 <div className={`p-3 rounded-xl transition-all duration-300 ${
                   hasActiveDevices 
-                    ? 'bg-white/90 shadow-lg' 
-                    : 'bg-white/20'
+                    ? 'bg-gray-800/90 neon-glow-blue' 
+                    : 'bg-gray-800/30'
                 }`}>
                   <div className={`transition-all duration-300 ${
                     hasActiveDevices ? iconBg : 'text-white/80'
@@ -149,9 +149,9 @@ const DeviceControlsSection: React.FC<DeviceControlsSectionProps> = ({ activeTab
                 <span className="text-white/90 text-sm font-medium">Activity</span>
                 <span className="text-white text-sm font-bold">{Math.round(activityPercentage)}%</span>
               </div>
-              <div className="w-full h-2 bg-white/30 rounded-full overflow-hidden">
+              <div className="w-full h-2 bg-gray-800/50 rounded-full overflow-hidden">
                 <div 
-                  className="h-full bg-white/90 transition-all duration-1000 ease-out rounded-full"
+                  className="h-full bg-gradient-to-r from-cyan-400 to-blue-500 transition-all duration-1000 ease-out rounded-full neon-glow-cyan"
                   style={{ width: `${activityPercentage}%` }}
                 />
               </div>
@@ -386,20 +386,20 @@ const DeviceControlsSection: React.FC<DeviceControlsSectionProps> = ({ activeTab
 
       {/* Device Type Modal */}
       {selectedDeviceType && currentDeviceTypeData && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-4xl w-full max-h-[95vh] overflow-hidden shadow-2xl border border-gray-200 animate-in fade-in-0 zoom-in-95 duration-300">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="glass-morphism rounded-3xl max-w-4xl w-full max-h-[95vh] overflow-hidden neon-glow-blue border border-gray-600/30 animate-in fade-in-0 zoom-in-95 duration-300">
             {/* Header */}
             <div className="relative h-48 overflow-hidden">
               <div 
                 className="absolute inset-0 bg-cover bg-center scale-110"
                 style={{ backgroundImage: `url(${currentDeviceTypeData.backgroundImage})` }}
               >
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20 backdrop-blur-sm"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/30 backdrop-blur-sm"></div>
               </div>
               <div className="relative p-6 h-full flex flex-col justify-between">
                 <div className="flex justify-between items-start">
                   <div className="flex items-center space-x-4">
-                    <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
+                    <div className="p-3 bg-gray-800/50 rounded-xl backdrop-blur-sm neon-border-cyan">
                       {currentDeviceTypeData.icon}
                     </div>
                     <div>
@@ -411,7 +411,7 @@ const DeviceControlsSection: React.FC<DeviceControlsSectionProps> = ({ activeTab
                   </div>
                   <button 
                     onClick={() => setSelectedDeviceType(null)}
-                    className="p-3 bg-white/20 rounded-full hover:bg-white/30 transition-colors backdrop-blur-sm shadow-lg"
+                    className="p-3 bg-gray-800/50 rounded-full hover:bg-gray-700/50 transition-colors backdrop-blur-sm neon-border-cyan"
                   >
                     <X className="w-6 h-6 text-white" />
                   </button>
@@ -427,7 +427,7 @@ const DeviceControlsSection: React.FC<DeviceControlsSectionProps> = ({ activeTab
                   
                   <button
                     onClick={currentDeviceTypeData.onToggleAll}
-                    className="flex items-center space-x-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white px-6 py-3 rounded-xl transition-all duration-200 font-semibold"
+                    className="flex items-center space-x-2 bg-gray-800/50 hover:bg-gray-700/50 backdrop-blur-sm text-white px-6 py-3 rounded-xl transition-all duration-300 font-semibold neon-border-cyan"
                   >
                     <Zap className="w-5 h-5" />
                     <span>{currentDeviceTypeData.toggleAllText}</span>
@@ -439,7 +439,7 @@ const DeviceControlsSection: React.FC<DeviceControlsSectionProps> = ({ activeTab
             {/* Scrollable Content */}
             <div className="max-h-[calc(95vh-12rem)] overflow-y-auto">
               <div className="p-6">
-                <h3 className="text-xl font-bold text-gray-900 mb-6">Individual Device Controls</h3>
+                <h3 className="text-xl font-bold text-gray-100 mb-6">Individual Device Controls</h3>
                 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                   {selectedDeviceType === 'lights' && lights.map((light) => (
@@ -469,9 +469,9 @@ const DeviceControlsSection: React.FC<DeviceControlsSectionProps> = ({ activeTab
               </div>
               
               {/* Footer */}
-              <div className="p-6 border-t border-gray-100 bg-gray-50/50">
+              <div className="p-6 border-t border-gray-600/30 bg-gray-800/30">
                 <div className="flex items-center justify-between">
-                  <div className="text-gray-600">
+                  <div className="text-gray-400">
                     <span className="text-sm">
                       {currentDeviceTypeData.devices.length} device{currentDeviceTypeData.devices.length !== 1 ? 's' : ''} total
                     </span>
@@ -479,13 +479,13 @@ const DeviceControlsSection: React.FC<DeviceControlsSectionProps> = ({ activeTab
                   <div className="flex space-x-3">
                     <button
                       onClick={currentDeviceTypeData.onToggleAll}
-                      className="px-6 py-3 bg-blue-500 text-white rounded-2xl hover:bg-blue-600 transition-colors font-semibold"
+                      className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-2xl hover:from-cyan-400 hover:to-blue-400 transition-all duration-300 font-semibold neon-glow-cyan"
                     >
                       {currentDeviceTypeData.toggleAllText}
                     </button>
                     <button 
                       onClick={() => setSelectedDeviceType(null)}
-                      className="px-6 py-3 bg-gray-200 text-gray-700 rounded-2xl hover:bg-gray-300 transition-colors font-semibold"
+                      className="px-6 py-3 bg-gray-700/50 text-gray-300 rounded-2xl hover:bg-gray-600/50 hover:text-cyan-300 transition-all duration-300 font-semibold neon-border-cyan"
                     >
                       Close
                     </button>
