@@ -239,6 +239,7 @@ const AppContent: React.FC = () => {
         activeSection={activeSection} 
         onSectionChange={setActiveSection} 
       />
+      <InfoRow cameras={cameras} />
       
       <main className="h-full no-scroll">
         {/* Top-level Tab Navigation */}
