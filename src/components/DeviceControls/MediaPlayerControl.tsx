@@ -31,30 +31,30 @@ const MediaPlayerControl: React.FC<MediaPlayerControlProps> = ({ device }) => {
   console.log(`🎵 MediaPlayerControl render: ${currentDevice.entity_id} state=${currentDevice.state} isPlaying=${isPlaying}`);
 
   return (
-    <div className="bg-gray-50/80 rounded-2xl p-5 border border-gray-200/50">
+    <div className="device-control rounded-2xl p-5">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h4 className="font-semibold text-gray-900">Now Playing</h4>
-          <p className="text-sm text-gray-600">{currentDevice.media_title || 'No media'}</p>
-          <p className="text-xs text-gray-500 mt-1">Source: {currentDevice.source || 'Unknown'}</p>
+          <h4 className="font-semibold text-white" style={{ fontFamily: 'Poppins, sans-serif' }}>Now Playing</h4>
+          <p className="text-sm" style={{ color: 'rgba(255, 255, 255, 0.7)', fontFamily: 'Poppins, sans-serif' }}>{currentDevice.media_title || 'No media'}</p>
+          <p className="text-xs mt-1" style={{ color: 'rgba(255, 255, 255, 0.5)', fontFamily: 'Poppins, sans-serif' }}>Source: {currentDevice.source || 'Unknown'}</p>
         </div>
         <button
           onClick={handlePlayPause}
-          className={`p-3 rounded-full transition-colors ${
-            isPlaying ? 'bg-purple-500 text-white' : 'bg-gray-200 text-gray-600'
+          className={`seamless-toggle relative inline-flex h-12 w-12 items-center justify-center rounded-full transition-colors ${
+            isPlaying ? 'active' : ''
           }`}
         >
-          {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
+          {isPlaying ? <Pause className="w-5 h-5 text-white" /> : <Play className="w-5 h-5 text-white" />}
         </button>
       </div>
       
       <div>
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center space-x-2">
-            <Volume2 className="w-4 h-4 text-gray-600" />
-            <span className="text-sm font-medium text-gray-700">Volume</span>
+            <Volume2 className="w-4 h-4" style={{ color: 'rgba(255, 255, 255, 0.7)' }} />
+            <span className="text-sm font-medium" style={{ color: 'rgba(255, 255, 255, 0.7)', fontFamily: 'Poppins, sans-serif' }}>Volume</span>
           </div>
-          <span className="text-sm text-gray-500">{volumePercentage}%</span>
+          <span className="text-sm" style={{ color: 'rgba(255, 255, 255, 0.5)', fontFamily: 'Poppins, sans-serif' }}>{volumePercentage}%</span>
         </div>
         <input
           type="range"
@@ -62,7 +62,7 @@ const MediaPlayerControl: React.FC<MediaPlayerControlProps> = ({ device }) => {
           max="100"
           value={volumePercentage}
           onChange={(e) => handleVolumeChange(parseInt(e.target.value))}
-          className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+          className="seamless-slider w-full cursor-pointer"
         />
       </div>
 

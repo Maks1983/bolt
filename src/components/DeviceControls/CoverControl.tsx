@@ -38,12 +38,12 @@ const CoverControl: React.FC<CoverControlProps> = ({ device, type = 'blind' }) =
 
   const colorClasses = {
     blue: {
-      button: 'bg-blue-100 text-blue-700 hover:bg-blue-200',
-      buttonPrimary: 'bg-blue-500 text-white hover:bg-blue-600'
+      button: 'seamless-button',
+      buttonPrimary: 'seamless-button-primary'
     },
     purple: {
-      button: 'bg-purple-100 text-purple-700 hover:bg-purple-200',
-      buttonPrimary: 'bg-purple-500 text-white hover:bg-purple-600'
+      button: 'seamless-button',
+      buttonPrimary: 'seamless-button-primary'
     }
   };
 
@@ -53,19 +53,21 @@ const CoverControl: React.FC<CoverControlProps> = ({ device, type = 'blind' }) =
   console.log(`🪟 CoverControl render: ${currentDevice.entity_id} state=${currentDevice.state} position=${currentDevice.position}`);
 
   return (
-    <div className="bg-gray-50/80 rounded-2xl p-5 border border-gray-200/50">
+    <div className="device-control rounded-2xl p-5">
       <div className="flex items-center justify-between mb-4">
-        <h4 className="font-semibold text-gray-900">{currentDevice.friendly_name}</h4>
+        <h4 className="font-semibold text-white" style={{ fontFamily: 'Poppins, sans-serif' }}>{currentDevice.friendly_name}</h4>
         <div className="flex items-center space-x-2">
           <button
             onClick={handleClose}
-            className={`px-3 py-1.5 rounded-lg transition-colors text-sm font-medium ${colors.button}`}
+            className={`${colors.button} px-3 py-1.5 rounded-lg transition-colors text-sm font-medium`}
+            style={{ fontFamily: 'Poppins, sans-serif' }}
           >
             Close
           </button>
           <button
             onClick={handleOpen}
-            className={`px-3 py-1.5 rounded-lg transition-colors text-sm font-medium ${colors.buttonPrimary}`}
+            className={`${colors.buttonPrimary} px-3 py-1.5 rounded-lg transition-colors text-sm font-medium`}
+            style={{ fontFamily: 'Poppins, sans-serif' }}
           >
             Open
           </button>
@@ -74,8 +76,8 @@ const CoverControl: React.FC<CoverControlProps> = ({ device, type = 'blind' }) =
       
       <div>
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium text-gray-700">Position</span>
-          <span className="text-sm text-gray-500">{currentDevice.position || 0}% open</span>
+          <span className="text-sm font-medium" style={{ color: 'rgba(255, 255, 255, 0.7)', fontFamily: 'Poppins, sans-serif' }}>Position</span>
+          <span className="text-sm" style={{ color: 'rgba(255, 255, 255, 0.5)', fontFamily: 'Poppins, sans-serif' }}>{currentDevice.position || 0}% open</span>
         </div>
         <input
           type="range"
@@ -83,7 +85,7 @@ const CoverControl: React.FC<CoverControlProps> = ({ device, type = 'blind' }) =
           max="100"
           value={currentDevice.position || 0}
           onChange={(e) => handlePositionChange(parseInt(e.target.value))}
-          className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+          className="seamless-slider w-full cursor-pointer"
         />
       </div>
 

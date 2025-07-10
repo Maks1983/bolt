@@ -35,12 +35,12 @@ const LockControl: React.FC<LockControlProps> = ({ device, variant = 'card' }) =
       <div className="flex flex-col items-center gap-2 text-white/80 text-sm font-medium">
         <div className="flex items-center justify-center gap-4">
           <div className="text-right">
-            <div className="text-base font-semibold text-white">Doorlock</div>
-            <div>{isLocked ? 'Locked' : 'Unlocked'}</div>
+            <div className="text-base font-semibold text-white" style={{ fontFamily: 'Poppins, sans-serif' }}>Doorlock</div>
+            <div style={{ color: 'rgba(255, 255, 255, 0.7)', fontFamily: 'Poppins, sans-serif' }}>{isLocked ? 'Locked' : 'Unlocked'}</div>
           </div>
           <button
             onClick={handleToggle}
-            className="p-3 rounded-full bg-white/10 hover:bg-white/20 hover:scale-105 shadow transition-all cursor-pointer"
+            className="p-3 rounded-full glass-card hover:primary-glass hover:scale-105 shadow transition-all cursor-pointer"
             aria-label={isLocked ? 'Unlock' : 'Lock'}
           >
             {isLocked ? (
@@ -56,7 +56,7 @@ const LockControl: React.FC<LockControlProps> = ({ device, variant = 'card' }) =
 
   // Default: full card variant
   return (
-    <div className="bg-gray-50/80 rounded-2xl p-5 border border-gray-200/50">
+    <div className="device-control rounded-2xl p-5">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-3">
           {isLocked ? (
@@ -65,17 +65,16 @@ const LockControl: React.FC<LockControlProps> = ({ device, variant = 'card' }) =
             <Unlock className="w-6 h-6 text-red-600" />
           )}
           <div>
-            <h4 className="font-semibold text-gray-900">{currentDevice.friendly_name}</h4>
-            <p className="text-sm text-gray-600">{isLocked ? 'Locked' : 'Unlocked'}</p>
+            <h4 className="font-semibold text-white" style={{ fontFamily: 'Poppins, sans-serif' }}>{currentDevice.friendly_name}</h4>
+            <p className="text-sm" style={{ color: 'rgba(255, 255, 255, 0.7)', fontFamily: 'Poppins, sans-serif' }}>{isLocked ? 'Locked' : 'Unlocked'}</p>
           </div>
         </div>
 
         <div className="ml-6">
           <button
             onClick={handleToggle}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-              isLocked ? 'bg-green-500 text-white hover:bg-green-600' : 'bg-red-500 text-white hover:bg-red-600'
-            }`}
+            className={`seamless-button-primary px-4 py-2 rounded-lg font-medium transition-colors`}
+            style={{ fontFamily: 'Poppins, sans-serif' }}
           >
             {isLocked ? 'Unlock' : 'Lock'}
           </button>

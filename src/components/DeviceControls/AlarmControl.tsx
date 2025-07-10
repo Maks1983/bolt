@@ -65,17 +65,17 @@ const AlarmControl: React.FC<AlarmControlProps> = ({ device }) => {
   const getStatusColor = () => {
     switch (currentDevice.state) {
       case 'disarmed':
-        return 'bg-green-100 text-green-800 border-green-200';
+        return 'glass-card text-green-400';
       case 'armed_home':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
+        return 'glass-card text-blue-400';
       case 'armed_away':
-        return 'bg-orange-100 text-orange-800 border-orange-200';
+        return 'glass-card text-orange-400';
       case 'pending':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+        return 'glass-card text-yellow-400';
       case 'triggered':
-        return 'bg-red-100 text-red-800 border-red-200';
+        return 'glass-card-strong text-red-400';
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return 'glass-card';
     }
   };
 
@@ -114,19 +114,19 @@ const AlarmControl: React.FC<AlarmControlProps> = ({ device }) => {
   };
 
   return (
-    <div className="bg-gray-50/80 rounded-2xl p-6 border border-gray-200/50">
+    <div className="device-control rounded-2xl p-6">
       {/* Status Display */}
       <div className="text-center mb-6">
-        <div className={`inline-flex items-center space-x-3 px-6 py-3 rounded-2xl border-2 ${getStatusColor()}`}>
+        <div className={`inline-flex items-center space-x-3 px-6 py-3 rounded-2xl ${getStatusColor()}`}>
           {getStatusIcon()}
-          <span className="text-xl font-bold">{getStatusText()}</span>
+          <span className="text-xl font-bold" style={{ fontFamily: 'Poppins, sans-serif' }}>{getStatusText()}</span>
         </div>
         
         {entryDelay > 0 && (
-          <div className="mt-4 p-3 bg-yellow-100 rounded-lg border border-yellow-200">
+          <div className="mt-4 p-3 glass-card-strong rounded-lg">
             <div className="flex items-center justify-center space-x-2">
-              <Clock className="w-5 h-5 text-yellow-600" />
-              <span className="text-yellow-800 font-semibold">
+              <Clock className="w-5 h-5 text-yellow-400" />
+              <span className="text-yellow-400 font-semibold" style={{ fontFamily: 'Poppins, sans-serif' }}>
                 Entry/Exit Delay: {entryDelay}s
               </span>
             </div>
@@ -137,12 +137,12 @@ const AlarmControl: React.FC<AlarmControlProps> = ({ device }) => {
       {/* Code Input */}
       <div className="mb-6">
         <div className="text-center mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium mb-2" style={{ color: 'rgba(255, 255, 255, 0.7)', fontFamily: 'Poppins, sans-serif' }}>
             Enter Security Code
           </label>
           <div className="flex justify-center">
-            <div className="bg-white border-2 border-gray-300 rounded-lg px-4 py-3 min-w-[200px] text-center">
-              <span className="text-2xl font-mono tracking-wider">
+            <div className="glass-card rounded-lg px-4 py-3 min-w-[200px] text-center">
+              <span className="text-2xl font-mono tracking-wider text-white">
                 {showCode ? code : '•'.repeat(code.length)}
                 {code.length === 0 && <span className="text-gray-400">----</span>}
               </span>
@@ -150,7 +150,8 @@ const AlarmControl: React.FC<AlarmControlProps> = ({ device }) => {
           </div>
           <button
             onClick={() => setShowCode(!showCode)}
-            className="mt-2 text-sm text-blue-600 hover:text-blue-800"
+            className="mt-2 text-sm seamless-button px-3 py-1 rounded-lg"
+            style={{ fontFamily: 'Poppins, sans-serif' }}
           >
             {showCode ? 'Hide' : 'Show'} Code
           </button>
@@ -162,26 +163,30 @@ const AlarmControl: React.FC<AlarmControlProps> = ({ device }) => {
             <button
               key={num}
               onClick={() => handleNumberClick(num.toString())}
-              className="bg-white border border-gray-300 rounded-lg py-4 text-xl font-semibold hover:bg-gray-50 transition-colors"
+              className="glass-card rounded-lg py-4 text-xl font-semibold text-white hover:glass-card-strong transition-colors"
+              style={{ fontFamily: 'Poppins, sans-serif' }}
             >
               {num}
             </button>
           ))}
           <button
             onClick={handleClear}
-            className="bg-gray-200 border border-gray-300 rounded-lg py-4 text-sm font-semibold hover:bg-gray-300 transition-colors"
+            className="glass-card rounded-lg py-4 text-sm font-semibold text-white hover:glass-card-strong transition-colors"
+            style={{ fontFamily: 'Poppins, sans-serif' }}
           >
             Clear
           </button>
           <button
             onClick={() => handleNumberClick('0')}
-            className="bg-white border border-gray-300 rounded-lg py-4 text-xl font-semibold hover:bg-gray-50 transition-colors"
+            className="glass-card rounded-lg py-4 text-xl font-semibold text-white hover:glass-card-strong transition-colors"
+            style={{ fontFamily: 'Poppins, sans-serif' }}
           >
             0
           </button>
           <button
             onClick={handleBackspace}
-            className="bg-gray-200 border border-gray-300 rounded-lg py-4 text-sm font-semibold hover:bg-gray-300 transition-colors"
+            className="glass-card rounded-lg py-4 text-sm font-semibold text-white hover:glass-card-strong transition-colors"
+            style={{ fontFamily: 'Poppins, sans-serif' }}
           >
             ⌫
           </button>
@@ -192,7 +197,8 @@ const AlarmControl: React.FC<AlarmControlProps> = ({ device }) => {
       <div className="grid grid-cols-2 gap-4">
         <button
           onClick={() => handleAction('arm_home')}
-          className="flex items-center justify-center space-x-2 bg-blue-500 text-white py-3 px-4 rounded-lg hover:bg-blue-600 transition-colors font-semibold"
+          className="seamless-button-primary flex items-center justify-center space-x-2 py-3 px-4 rounded-lg font-semibold"
+          style={{ fontFamily: 'Poppins, sans-serif' }}
         >
           <Home className="w-5 h-5" />
           <span>Arm Home</span>
@@ -200,7 +206,8 @@ const AlarmControl: React.FC<AlarmControlProps> = ({ device }) => {
         
         <button
           onClick={() => handleAction('arm_away')}
-          className="flex items-center justify-center space-x-2 bg-orange-500 text-white py-3 px-4 rounded-lg hover:bg-orange-600 transition-colors font-semibold"
+          className="seamless-button-primary flex items-center justify-center space-x-2 py-3 px-4 rounded-lg font-semibold"
+          style={{ fontFamily: 'Poppins, sans-serif' }}
         >
           <Plane className="w-5 h-5" />
           <span>Arm Away</span>
@@ -208,7 +215,8 @@ const AlarmControl: React.FC<AlarmControlProps> = ({ device }) => {
         
         <button
           onClick={() => handleAction('disarm')}
-          className="flex items-center justify-center space-x-2 bg-green-500 text-white py-3 px-4 rounded-lg hover:bg-green-600 transition-colors font-semibold"
+          className="seamless-button-primary flex items-center justify-center space-x-2 py-3 px-4 rounded-lg font-semibold"
+          style={{ fontFamily: 'Poppins, sans-serif' }}
         >
           <Shield className="w-5 h-5" />
           <span>Disarm</span>
@@ -216,7 +224,8 @@ const AlarmControl: React.FC<AlarmControlProps> = ({ device }) => {
         
         <button
           onClick={() => handleAction('panic')}
-          className="flex items-center justify-center space-x-2 bg-red-500 text-white py-3 px-4 rounded-lg hover:bg-red-600 transition-colors font-semibold"
+          className="seamless-button flex items-center justify-center space-x-2 py-3 px-4 rounded-lg font-semibold text-red-400 hover:text-red-300"
+          style={{ fontFamily: 'Poppins, sans-serif' }}
         >
           <AlertTriangle className="w-5 h-5" />
           <span>Panic</span>
@@ -224,7 +233,7 @@ const AlarmControl: React.FC<AlarmControlProps> = ({ device }) => {
       </div>
 
       {/* Additional Info */}
-      <div className="mt-6 text-center text-sm text-gray-600">
+      <div className="mt-6 text-center text-sm" style={{ color: 'rgba(255, 255, 255, 0.7)', fontFamily: 'Poppins, sans-serif' }}>
         <p>Last changed by: {currentDevice.changed_by || 'System'}</p>
       </div>
 

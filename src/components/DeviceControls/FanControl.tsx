@@ -29,13 +29,13 @@ const FanControl: React.FC<FanControlProps> = ({ device }) => {
   console.log(`🌀 FanControl render: ${currentDevice.entity_id} state=${currentDevice.state} isOn=${isOn}`);
 
   return (
-    <div className="bg-gray-50/80 rounded-2xl p-5 border border-gray-200/50">
+    <div className="device-control rounded-2xl p-5">
       <div className="flex items-center justify-between mb-4">
-        <h4 className="font-semibold text-gray-900">{currentDevice.friendly_name}</h4>
+        <h4 className="font-semibold text-white" style={{ fontFamily: 'Poppins, sans-serif' }}>{currentDevice.friendly_name}</h4>
         <button
           onClick={handleToggle}
-          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-            isOn ? 'bg-cyan-500' : 'bg-gray-300'
+          className={`seamless-toggle relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+            isOn ? 'active' : ''
           }`}
         >
           <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
@@ -47,8 +47,8 @@ const FanControl: React.FC<FanControlProps> = ({ device }) => {
       {isOn && (
         <div>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-700">Speed</span>
-            <span className="text-sm text-gray-500">{currentDevice.percentage || 0}%</span>
+            <span className="text-sm font-medium" style={{ color: 'rgba(255, 255, 255, 0.7)', fontFamily: 'Poppins, sans-serif' }}>Speed</span>
+            <span className="text-sm" style={{ color: 'rgba(255, 255, 255, 0.5)', fontFamily: 'Poppins, sans-serif' }}>{currentDevice.percentage || 0}%</span>
           </div>
           <input
             type="range"
@@ -56,7 +56,7 @@ const FanControl: React.FC<FanControlProps> = ({ device }) => {
             max="100"
             value={currentDevice.percentage || 0}
             onChange={(e) => handleSpeedChange(parseInt(e.target.value))}
-            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+            className="seamless-slider w-full cursor-pointer"
           />
         </div>
       )}

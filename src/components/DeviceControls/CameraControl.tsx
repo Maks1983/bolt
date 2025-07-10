@@ -80,18 +80,18 @@ const CameraControl: React.FC<CameraControlProps> = ({ device }) => {
   const isStreaming = currentDevice.state === 'streaming';
 
   return (
-    <div className="bg-gray-50/80 rounded-2xl p-5 border border-gray-200/50">
+    <div className="device-control rounded-2xl p-5">
       {/* Camera Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-3">
-          <div className={`p-2 rounded-lg ${isRecording ? 'bg-red-100' : isStreaming ? 'bg-blue-100' : 'bg-gray-100'}`}>
+          <div className={`p-2 rounded-lg ${isRecording ? 'bg-red-500/20' : isStreaming ? 'bg-blue-500/20' : 'glass-card'}`}>
             <Camera className={`w-5 h-5 ${isRecording ? 'text-red-600' : isStreaming ? 'text-blue-600' : 'text-gray-600'}`} />
           </div>
           <div>
-            <h4 className="font-semibold text-gray-900">{currentDevice.friendly_name}</h4>
+            <h4 className="font-semibold text-white" style={{ fontFamily: 'Poppins, sans-serif' }}>{currentDevice.friendly_name}</h4>
             <div className="flex items-center space-x-2">
               <div className={`w-2 h-2 rounded-full ${isRecording ? 'bg-red-500' : isStreaming ? 'bg-blue-500' : 'bg-gray-400'}`}></div>
-              <span className="text-sm text-gray-600 capitalize">{currentDevice.state}</span>
+              <span className="text-sm capitalize" style={{ color: 'rgba(255, 255, 255, 0.7)', fontFamily: 'Poppins, sans-serif' }}>{currentDevice.state}</span>
               {detectionsByType.night_mode?.state === 'on' && (
                 <Moon className="w-4 h-4 text-purple-500" />
               )}
@@ -101,11 +101,12 @@ const CameraControl: React.FC<CameraControlProps> = ({ device }) => {
         
         <button
           onClick={handleFeedToggle}
-          className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors ${
+          className={`seamless-button flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors ${
             showFeed 
-              ? 'bg-blue-500 text-white hover:bg-blue-600' 
-              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              ? 'seamless-button-primary' 
+              : 'seamless-button'
           }`}
+          style={{ fontFamily: 'Poppins, sans-serif' }}
         >
           {showFeed ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
           <span className="text-sm font-medium">{showFeed ? 'Hide' : 'View'}</span>
@@ -154,7 +155,7 @@ const CameraControl: React.FC<CameraControlProps> = ({ device }) => {
       {/* AI Detection Status */}
       {detectionSensors.length > 0 && (
         <div className="mb-4">
-          <h5 className="text-sm font-medium text-gray-700 mb-3">AI Detection Status</h5>
+          <h5 className="text-sm font-medium mb-3" style={{ color: 'rgba(255, 255, 255, 0.7)', fontFamily: 'Poppins, sans-serif' }}>AI Detection Status</h5>
           <div className="grid grid-cols-2 gap-2">
             {Object.entries(detectionsByType).map(([type, sensor]) => {
               const IconComponent = getDetectionIcon(type);
@@ -163,11 +164,12 @@ const CameraControl: React.FC<CameraControlProps> = ({ device }) => {
               return (
                 <div
                   key={type}
-                  className={`flex items-center space-x-2 p-2 rounded-lg border transition-colors ${
+                  className={`flex items-center space-x-2 p-2 rounded-lg transition-colors ${
                     isActive 
-                      ? 'bg-red-50 border-red-200 text-red-700' 
-                      : 'bg-gray-50 border-gray-200 text-gray-600'
+                      ? 'glass-card-strong text-red-400' 
+                      : 'glass-card'
                   }`}
+                  style={{ color: isActive ? '#f87171' : 'rgba(255, 255, 255, 0.7)' }}
                 >
                   {typeof IconComponent === 'string' ? (
                     <span className="text-sm">{IconComponent}</span>
@@ -175,8 +177,8 @@ const CameraControl: React.FC<CameraControlProps> = ({ device }) => {
                     <IconComponent className="w-4 h-4" />
                   )}
                   <div className="flex-1">
-                    <div className="text-xs font-medium">{getDetectionLabel(type)}</div>
-                    <div className="text-xs opacity-75">
+                    <div className="text-xs font-medium" style={{ fontFamily: 'Poppins, sans-serif' }}>{getDetectionLabel(type)}</div>
+                    <div className="text-xs opacity-75" style={{ fontFamily: 'Poppins, sans-serif' }}>
                       {isActive ? 'Detected' : 'Clear'}
                     </div>
                   </div>
@@ -189,7 +191,7 @@ const CameraControl: React.FC<CameraControlProps> = ({ device }) => {
       )}
 
       {/* Camera Features */}
-      <div className="flex items-center justify-between text-sm text-gray-600 mb-4">
+      <div className="flex items-center justify-between text-sm mb-4" style={{ color: 'rgba(255, 255, 255, 0.7)', fontFamily: 'Poppins, sans-serif' }}>
         <div className="flex items-center space-x-4">
           {currentDevice.motion_detection && (
             <div className="flex items-center space-x-1">
