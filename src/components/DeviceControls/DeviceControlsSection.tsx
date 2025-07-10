@@ -412,7 +412,7 @@ const DeviceControlsSection: React.FC<DeviceControlsSectionProps> = ({ activeTab
       {selectedDeviceType && currentDeviceTypeData && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xl z-50 overflow-y-auto scrollbar-width-none -ms-overflow-style-none">
           <div className="min-h-screen flex items-start justify-center p-4 pt-8">
-            <div className="seamless-modal rounded-3xl max-w-4xl w-full animate-in fade-in-0 zoom-in-95 duration-300 mb-8 overflow-hidden">
+            <div className="seamless-modal rounded-3xl max-w-4xl w-full animate-in fade-in-0 zoom-in-95 duration-300 mb-8 overflow-hidden max-h-[calc(100vh-4rem)]">
               {/* Header */}
               <div className="relative h-48 overflow-hidden">
                 <div 
@@ -462,7 +462,7 @@ const DeviceControlsSection: React.FC<DeviceControlsSectionProps> = ({ activeTab
               </div>
               
               {/* Content */}
-              <div className="p-6">
+              <div className="p-6 overflow-y-auto max-h-[calc(100vh-20rem)]">
                 <h3 className="text-xl font-bold text-primary mb-6">Individual Device Controls</h3>
                 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -490,29 +490,29 @@ const DeviceControlsSection: React.FC<DeviceControlsSectionProps> = ({ activeTab
                     <LockControl key={lock.entity_id} device={lock} variant="card" />
                   ))}
                 </div>
-              </div>
-              
-              {/* Footer */}
-              <div className="p-6 border-t border-gray-700/20 bg-gray-800/20">
-                <div className="flex items-center justify-between">
-                  <div className="text-secondary">
-                    <span className="text-sm">
-                      {currentDeviceTypeData.devices.length} device{currentDeviceTypeData.devices.length !== 1 ? 's' : ''} total
-                    </span>
-                  </div>
-                  <div className="flex space-x-3">
-                    <button
-                      onClick={currentDeviceTypeData.onToggleAll}
-                      className="unified-button-primary px-6 py-3 text-white rounded-2xl font-semibold"
-                    >
-                      {currentDeviceTypeData.toggleAllText}
-                    </button>
-                    <button 
-                      onClick={() => setSelectedDeviceType(null)}
-                      className="unified-button px-6 py-3 text-secondary rounded-2xl hover:text-accent font-semibold"
-                    >
-                      Close
-                    </button>
+                
+                {/* Footer */}
+                <div className="mt-6 pt-6 border-t border-gray-700/20">
+                  <div className="flex items-center justify-between">
+                    <div className="text-secondary">
+                      <span className="text-sm">
+                        {currentDeviceTypeData.devices.length} device{currentDeviceTypeData.devices.length !== 1 ? 's' : ''} total
+                      </span>
+                    </div>
+                    <div className="flex space-x-3">
+                      <button
+                        onClick={currentDeviceTypeData.onToggleAll}
+                        className="unified-button-primary px-6 py-3 text-white rounded-2xl font-semibold"
+                      >
+                        {currentDeviceTypeData.toggleAllText}
+                      </button>
+                      <button 
+                        onClick={() => setSelectedDeviceType(null)}
+                        className="unified-button px-6 py-3 text-secondary rounded-2xl hover:text-accent font-semibold"
+                      >
+                        Close
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
