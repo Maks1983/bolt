@@ -435,6 +435,7 @@ const LocationModal: React.FC<LocationModalProps> = ({ user, onClose }) => {
           </div>
         </div>
       </div>
+    </div>
   );
 };
 
