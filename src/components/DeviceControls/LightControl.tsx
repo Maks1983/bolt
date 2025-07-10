@@ -45,19 +45,19 @@ const LightControl: React.FC<LightControlProps> = ({ device }) => {
   console.log(`💡 LightControl render: ${currentDevice.entity_id} state=${currentDevice.state} isOn=${isOn} brightness=${currentDevice.brightness}`);
 
   return (
-    <div className="glass-morphism rounded-2xl p-5 neon-border-blue device-control">
+    <div className="seamless-card rounded-2xl p-5 device-control">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-3">
           <div 
-            className="w-4 h-4 rounded-full border-2 border-gray-600"
+            className="w-4 h-4 rounded-full border border-gray-600/30"
             style={{ backgroundColor: isOn ? (currentDevice.rgb_color ? rgbToHex(currentDevice.rgb_color) : '#ffffff') : '#e5e7eb' }}
           ></div>
           <h4 className="font-semibold text-gray-100">{currentDevice.friendly_name}</h4>
         </div>
         <button
           onClick={handleToggle}
-          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-300 ${
-            isOn ? 'bg-gradient-to-r from-yellow-400 to-orange-500 neon-glow-yellow' : 'bg-gray-600'
+          className={`seamless-toggle relative inline-flex h-6 w-11 items-center rounded-full ${
+            isOn ? 'active' : ''
           }`}
         >
           <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
@@ -70,8 +70,8 @@ const LightControl: React.FC<LightControlProps> = ({ device }) => {
         <div className="space-y-4">
           <div>
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-gray-300">Brightness</span>
-              <span className="text-sm text-gray-400">{Math.round((currentDevice.brightness || 0) / 255 * 100)}%</span>
+              <span className="text-sm font-medium text-secondary">Brightness</span>
+              <span className="text-sm text-muted">{Math.round((currentDevice.brightness || 0) / 255 * 100)}%</span>
             </div>
             <input
               type="range"
@@ -79,23 +79,23 @@ const LightControl: React.FC<LightControlProps> = ({ device }) => {
               max="255"
               value={currentDevice.brightness || 0}
               onChange={(e) => handleBrightnessChange(parseInt(e.target.value))}
-              className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer slider"
+              className="seamless-slider w-full appearance-none cursor-pointer"
             />
           </div>
           
           {hasColorSupport && (
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-300">Color</span>
+              <span className="text-sm font-medium text-secondary">Color</span>
               <div className="flex items-center space-x-2">
                 <input
                   type="color"
                   value={rgbToHex(currentDevice.rgb_color)}
                   onChange={(e) => handleColorChange(e.target.value)}
-                  className="w-8 h-8 rounded-lg border border-gray-600 cursor-pointer neon-border-cyan"
+                  className="w-8 h-8 rounded-lg seamless-border cursor-pointer"
                 />
                 <button
                   onClick={() => handleColorChange('#ffffff')}
-                  className="p-2 bg-gray-700/50 border border-gray-600 rounded-lg hover:bg-gray-600/50 transition-colors neon-border-blue"
+                  className="unified-button p-2 rounded-lg transition-colors"
                 >
                   <Sun className="w-4 h-4 text-yellow-400" />
                 </button>
