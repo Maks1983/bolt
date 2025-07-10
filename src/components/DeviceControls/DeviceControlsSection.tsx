@@ -385,56 +385,56 @@ const DeviceControlsSection: React.FC<DeviceControlsSectionProps> = ({ activeTab
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xl z-50 overflow-y-auto scrollbar-width-none -ms-overflow-style-none">
           <div className="min-h-screen flex items-start justify-center p-4 pt-8">
             <div className="seamless-modal rounded-3xl max-w-4xl w-full animate-in fade-in-0 zoom-in-95 duration-300 mb-8 overflow-hidden">
-            {/* Header */}
-            <div className="relative h-48 overflow-hidden">
-              <div 
-                className="absolute inset-0 bg-cover bg-center scale-110"
-                style={{ backgroundImage: `url(${currentDeviceTypeData.backgroundImage})` }}
-              >
-                <div className="absolute inset-0 bg-gradient-to-t from-gray-900/95 via-gray-900/60 to-gray-900/30"></div>
-              </div>
-              <div className="relative p-6 h-full flex flex-col justify-between">
-                <div className="flex justify-between items-start">
-                  <div className="flex items-center space-x-4">
-                    <div className="unified-button p-3 rounded-xl">
-                      {currentDeviceTypeData.icon}
-                    </div>
-                    <div>
-                      <h2 className="text-3xl font-bold text-white mb-1">{currentDeviceTypeData.title}</h2>
-                      <p className="text-white/90 text-lg">
-                        {currentDeviceTypeData.activeCount} of {currentDeviceTypeData.totalCount} active
-                      </p>
-                    </div>
-                  </div>
-                  <button 
-                    onClick={() => setSelectedDeviceType(null)}
-                    className="unified-button p-3 rounded-full transition-colors"
-                  >
-                    <X className="w-6 h-6 text-white" />
-                  </button>
+              {/* Header */}
+              <div className="relative h-48 overflow-hidden">
+                <div 
+                  className="absolute inset-0 bg-cover bg-center scale-110"
+                  style={{ backgroundImage: `url(${currentDeviceTypeData.backgroundImage})` }}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-t from-gray-900/95 via-gray-900/60 to-gray-900/30"></div>
                 </div>
-                
-                <div className="flex justify-between items-end">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-white">
-                      {Math.round((currentDeviceTypeData.activeCount / currentDeviceTypeData.totalCount) * 100)}%
+                <div className="relative p-6 h-full flex flex-col justify-between">
+                  <div className="flex justify-between items-start">
+                    <div className="flex items-center space-x-4">
+                      <div className="unified-button p-3 rounded-xl">
+                        {currentDeviceTypeData.icon}
+                      </div>
+                      <div>
+                        <h2 className="text-3xl font-bold text-white mb-1">{currentDeviceTypeData.title}</h2>
+                        <p className="text-white/90 text-lg">
+                          {currentDeviceTypeData.activeCount} of {currentDeviceTypeData.totalCount} active
+                        </p>
+                      </div>
                     </div>
-                    <div className="text-white/80 text-sm font-medium">Activity Level</div>
+                    <button 
+                      onClick={() => setSelectedDeviceType(null)}
+                      className="unified-button p-3 rounded-full transition-colors"
+                    >
+                      <X className="w-6 h-6 text-white" />
+                    </button>
                   </div>
                   
-                  <button
-                    onClick={currentDeviceTypeData.onToggleAll}
-                    className="unified-button flex items-center space-x-2 text-white px-6 py-3 rounded-xl font-semibold"
-                  >
-                    <Zap className="w-5 h-5" />
-                    <span>{currentDeviceTypeData.toggleAllText}</span>
-                  </button>
+                  <div className="flex justify-between items-end">
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-white">
+                        {Math.round((currentDeviceTypeData.activeCount / currentDeviceTypeData.totalCount) * 100)}%
+                      </div>
+                      <div className="text-white/80 text-sm font-medium">Activity Level</div>
+                    </div>
+                    
+                    <button
+                      onClick={currentDeviceTypeData.onToggleAll}
+                      className="unified-button flex items-center space-x-2 text-white px-6 py-3 rounded-xl font-semibold"
+                    >
+                      <Zap className="w-5 h-5" />
+                      <span>{currentDeviceTypeData.toggleAllText}</span>
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-            
-            {/* Content */}
-            <div className="p-6">
+              
+              {/* Content */}
+              <div className="p-6">
                 <h3 className="text-xl font-bold text-primary mb-6">Individual Device Controls</h3>
                 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -463,32 +463,33 @@ const DeviceControlsSection: React.FC<DeviceControlsSectionProps> = ({ activeTab
                   ))}
                 </div>
               </div>
-            
-            {/* Footer */}
-            <div className="p-6 border-t border-gray-700/20 bg-gray-800/20">
-              <div className="flex items-center justify-between">
-                <div className="text-secondary">
-                  <span className="text-sm">
-                    {currentDeviceTypeData.devices.length} device{currentDeviceTypeData.devices.length !== 1 ? 's' : ''} total
-                  </span>
-                </div>
-                <div className="flex space-x-3">
-                  <button
-                    onClick={currentDeviceTypeData.onToggleAll}
-                    className="unified-button-primary px-6 py-3 text-white rounded-2xl font-semibold"
-                  >
-                    {currentDeviceTypeData.toggleAllText}
-                  </button>
-                  <button 
-                    onClick={() => setSelectedDeviceType(null)}
-                    className="unified-button px-6 py-3 text-secondary rounded-2xl hover:text-accent font-semibold"
-                  >
-                    Close
-                  </button>
+              
+              {/* Footer */}
+              <div className="p-6 border-t border-gray-700/20 bg-gray-800/20">
+                <div className="flex items-center justify-between">
+                  <div className="text-secondary">
+                    <span className="text-sm">
+                      {currentDeviceTypeData.devices.length} device{currentDeviceTypeData.devices.length !== 1 ? 's' : ''} total
+                    </span>
+                  </div>
+                  <div className="flex space-x-3">
+                    <button
+                      onClick={currentDeviceTypeData.onToggleAll}
+                      className="unified-button-primary px-6 py-3 text-white rounded-2xl font-semibold"
+                    >
+                      {currentDeviceTypeData.toggleAllText}
+                    </button>
+                    <button 
+                      onClick={() => setSelectedDeviceType(null)}
+                      className="unified-button px-6 py-3 text-secondary rounded-2xl hover:text-accent font-semibold"
+                    >
+                      Close
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
-            </div>
+          </div>
         </div>
       )}
     </>
