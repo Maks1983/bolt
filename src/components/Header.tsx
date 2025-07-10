@@ -208,31 +208,34 @@ const Header: React.FC<HeaderProps> = ({ activeSection, onSectionChange }) => {
           </div>
 
           {/* Status/Controls Toggle - Center */}
-          <div className="flex items-center space-x-3">
-            <div className="relative bg-gray-100/80 rounded-2xl p-1 shadow-sm border border-gray-200/50">
-              <div className="flex items-center">
-                <button
-                  onClick={() => onSectionChange('status')}
-                  className={`relative px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-300 ${
-                    activeSection === 'status'
-                      ? 'bg-white text-gray-900 shadow-md'
-                      : 'text-gray-600 hover:text-gray-900'
-                  }`}
-                >
-                  Status
-                </button>
-                <button
-                  onClick={() => onSectionChange('controls')}
-                  className={`relative px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-300 ${
-                    activeSection === 'controls'
-                      ? 'bg-white text-gray-900 shadow-md'
-                      : 'text-gray-600 hover:text-gray-900'
-                  }`}
-                >
-                  Controls
-                </button>
-              </div>
-            </div>
+          <div className="flex items-center space-x-1">
+            <button
+              onClick={() => onSectionChange('status')}
+              className={`relative px-2 py-1 text-base font-medium transition-all duration-200 ${
+                activeSection === 'status'
+                  ? 'text-gray-900'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              Status
+              {activeSection === 'status' && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500 rounded-full"></div>
+              )}
+            </button>
+            <span className="text-gray-400 font-light">|</span>
+            <button
+              onClick={() => onSectionChange('controls')}
+              className={`relative px-2 py-1 text-base font-medium transition-all duration-200 ${
+                activeSection === 'controls'
+                  ? 'text-gray-900'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              Controls
+              {activeSection === 'controls' && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500 rounded-full"></div>
+              )}
+            </button>
           </div>
 
           {/* Action Icons - Right */}
