@@ -435,16 +435,43 @@
   border-radius: 1.5rem;
 }
 
-/* Tablet modal fix - ensure proper bottom padding */
+/* Tablet-specific modal fixes */
 @media (min-width: 768px) and (max-width: 1024px) {
-  /* Ensure modal container has enough bottom padding on tablets */
-  .fixed.inset-0.bg-black\/60.backdrop-blur-xl.z-50.overflow-y-auto {
-    padding-bottom: 4rem;
+  .seamless-modal {
+    max-height: calc(100vh - 4rem);
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
   }
   
-  /* Ensure modal content wrapper has proper spacing */
-  .min-h-screen.flex.items-start.justify-center.p-4.pt-8 {
-    padding-bottom: 4rem;
+  .seamless-modal::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Ensure modal content doesn't get cut off on tablets */
+  .fixed.inset-0.bg-black\/60 {
+    padding-bottom: 2rem;
+  }
+  
+  /* Adjust modal positioning for tablets */
+  .min-h-screen.flex.items-start.justify-center {
+    align-items: flex-start;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+  }
+}
+
+/* Mobile modal adjustments */
+@media (max-width: 767px) {
+  .seamless-modal {
+    max-height: calc(100vh - 2rem);
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  
+  .seamless-modal::-webkit-scrollbar {
+    display: none;
   }
 }
 
