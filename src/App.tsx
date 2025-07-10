@@ -234,51 +234,57 @@ const AppContent: React.FC = () => {
   };
 
   return (
-    <div className="h-screen no-scroll" style={{ backgroundColor: '#010d14' }}>
-      <Header 
-        activeSection={activeSection} 
-        onSectionChange={setActiveSection} 
-      />
-      <InfoRow cameras={cameras} />
-      
-      <main className="h-full no-scroll">
-        {/* Top-level Tab Navigation */}
-        <div className="px-6 h-full no-scroll">
-          {/* Dynamic Tab Navigation */}
-          <div className="flex items-end">
-            {availableTabs.map((tab, index) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`seamless-tab relative px-6 py-3 font-medium text-sm transition-all duration-300 ${
-                  activeTab === tab.id
-                    ? 'active'
-                    : ''
-                }`}
-                style={{
-                  borderRadius: '12px 12px 0 0',
-                  // Equal width distribution across full container
-                  width: `${100 / availableTabs.length}%`,
-                  marginRight: index < availableTabs.length - 1 ? '2px' : '0'
-                }}
-              >
-                <span className="relative whitespace-nowrap">{tab.label}</span>
-                {activeTab === tab.id && (
-                  <div className="absolute inset-x-0 bottom-0 h-0.5" style={{ background: 'linear-gradient(90deg, transparent, #028ee5, transparent)' }}></div>
-                )}
-              </button>
-            ))}
-          </div>
-          
-          {/* Tab Content Background with Sidebar */}
-          <div className="seamless-modal rounded-2xl -mt-px relative h-[calc(100vh-120px)] no-scroll">
-            {/* Main Content Area */}
-            <div className="p-6 h-full content-scroll">
-              {getCurrentContent()}
+    <div className="main-scroll-container" style={{ backgroundColor: '#010d14' }}>
+      <div className="content-wrapper">
+        {/* Fixed Header */}
+        <div className="fixed-header">
+          <Header 
+            activeSection={activeSection} 
+            onSectionChange={setActiveSection} 
+          />
+          <InfoRow cameras={cameras} />
+        </div>
+        
+        {/* Main Content */}
+        <main className="main-content">
+          {/* Top-level Tab Navigation */}
+          <div className="px-6">
+            {/* Dynamic Tab Navigation */}
+            <div className="flex items-end">
+              {availableTabs.map((tab, index) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`seamless-tab relative px-6 py-3 font-medium text-sm transition-all duration-300 ${
+                    activeTab === tab.id
+                      ? 'active'
+                      : ''
+                  }`}
+                  style={{
+                    borderRadius: '12px 12px 0 0',
+                    // Equal width distribution across full container
+                    width: `${100 / availableTabs.length}%`,
+                    marginRight: index < availableTabs.length - 1 ? '2px' : '0'
+                  }}
+                >
+                  <span className="relative whitespace-nowrap">{tab.label}</span>
+                  {activeTab === tab.id && (
+                    <div className="absolute inset-x-0 bottom-0 h-0.5" style={{ background: 'linear-gradient(90deg, transparent, #028ee5, transparent)' }}></div>
+                  )}
+                </button>
+              ))}
+            </div>
+            
+            {/* Tab Content Background */}
+            <div className="seamless-modal rounded-2xl -mt-px relative">
+              {/* Main Content Area */}
+              <div className="tab-content-area">
+                {getCurrentContent()}
+              </div>
             </div>
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
     </div>
   );
 };
