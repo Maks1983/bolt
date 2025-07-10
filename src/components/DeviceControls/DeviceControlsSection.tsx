@@ -433,8 +433,8 @@ const DeviceControlsSection: React.FC<DeviceControlsSectionProps> = ({ activeTab
               </div>
             </div>
             
-            {/* Scrollable Content */}
-            <div>
+            {/* Content */}
+            <div className="max-h-[60vh] overflow-y-auto scrollbar-width-none -ms-overflow-style-none">
               <div className="p-6">
                 <h3 className="text-xl font-bold text-primary mb-6">Individual Device Controls</h3>
                 
@@ -464,29 +464,29 @@ const DeviceControlsSection: React.FC<DeviceControlsSectionProps> = ({ activeTab
                   ))}
                 </div>
               </div>
-              
-              {/* Footer */}
-              <div className="p-6 border-t border-gray-700/20 bg-gray-800/20">
-                <div className="flex items-center justify-between">
-                  <div className="text-secondary">
-                    <span className="text-sm">
-                      {currentDeviceTypeData.devices.length} device{currentDeviceTypeData.devices.length !== 1 ? 's' : ''} total
-                    </span>
-                  </div>
-                  <div className="flex space-x-3">
-                    <button
-                      onClick={currentDeviceTypeData.onToggleAll}
-                      className="unified-button-primary px-6 py-3 text-white rounded-2xl font-semibold"
-                    >
-                      {currentDeviceTypeData.toggleAllText}
-                    </button>
-                    <button 
-                      onClick={() => setSelectedDeviceType(null)}
-                      className="unified-button px-6 py-3 text-secondary rounded-2xl hover:text-accent font-semibold"
-                    >
-                      Close
-                    </button>
-                  </div>
+            </div>
+            
+            {/* Footer */}
+            <div className="p-6 border-t border-gray-700/20 bg-gray-800/20">
+              <div className="flex items-center justify-between">
+                <div className="text-secondary">
+                  <span className="text-sm">
+                    {currentDeviceTypeData.devices.length} device{currentDeviceTypeData.devices.length !== 1 ? 's' : ''} total
+                  </span>
+                </div>
+                <div className="flex space-x-3">
+                  <button
+                    onClick={currentDeviceTypeData.onToggleAll}
+                    className="unified-button-primary px-6 py-3 text-white rounded-2xl font-semibold"
+                  >
+                    {currentDeviceTypeData.toggleAllText}
+                  </button>
+                  <button 
+                    onClick={() => setSelectedDeviceType(null)}
+                    className="unified-button px-6 py-3 text-secondary rounded-2xl hover:text-accent font-semibold"
+                  >
+                    Close
+                  </button>
                 </div>
               </div>
             </div>

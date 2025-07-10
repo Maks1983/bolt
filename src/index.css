@@ -419,7 +419,6 @@
 .modal-content {
   width: 100%;
   max-width: 64rem;
-  max-height: calc(100vh - 8rem);
   margin-top: 0;
   margin-bottom: 4rem;
   overflow: hidden;
@@ -427,15 +426,6 @@
 }
 
 .modal-scrollable {
-  max-height: calc(100vh - 20rem);
-  overflow-y: auto;
-  overflow-x: hidden;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.modal-scrollable::-webkit-scrollbar {
-  display: none;
 }
 
 /* Unified button styles */

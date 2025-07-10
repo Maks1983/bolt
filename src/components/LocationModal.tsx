@@ -245,8 +245,9 @@ const LocationModal: React.FC<LocationModalProps> = ({ user, onClose }) => {
           </div>
         </div>
 
-        {/* Map Container */}
-        <div className="p-6">
+        {/* Content */}
+        <div className="max-h-[60vh] overflow-y-auto scrollbar-width-none -ms-overflow-style-none">
+          <div className="p-6">
           <div className="seamless-card rounded-2xl h-96 overflow-hidden relative">
             <MapContainer
               center={mapCenter}
@@ -425,18 +426,21 @@ const LocationModal: React.FC<LocationModalProps> = ({ user, onClose }) => {
               <p className="text-sm text-yellow-400" style={{ fontFamily: 'Poppins, sans-serif' }}>
                 <strong>Note:</strong> Currently showing mock location data. To enable real GPS tracking:
               </p>
-              <ul className="text-sm text-secondary mt-2 list-disc list-inside">
-                <li>Ensure your device trackers have GPS coordinates in their attributes</li>
-                <li>The map will automatically use real coordinates when available</li>
-                <li>GPS accuracy and battery level will be displayed when provided</li>
-                <li>Update HOME_COORDINATES in LocationModal.tsx with your actual home location</li>
-              </ul>
-            </div>
-          )}
         </div>
+            
+            <div className="flex space-x-2">
+              <button 
+                onClick={onClose}
+                className="unified-button px-6 py-2 rounded-lg"
+              >
+                Close
+              </button>
+            </div>
       </div>
-      </div>
-    </div>
+        </div>
+        {/* Footer */}
+        <div className="p-6 glass-card">
+          <div className="flex items-center justify-between">
   );
 };
 
