@@ -435,7 +435,45 @@
   border-radius: 1.5rem;
 }
 
-.modal-scrollable {
+/* Standardized modal structure */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 50;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.modal-overlay::-webkit-scrollbar {
+  display: none;
+}
+
+.modal-container-inner {
+  min-height: 100vh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 2rem;
+  padding-top: 4rem;
+}
+
+.modal-content-wrapper {
+  width: 100%;
+  max-width: 64rem;
+  margin-bottom: 4rem;
+  border-radius: 1.5rem;
+  overflow: hidden;
+  background: rgba(1, 13, 20, 0.95);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
 }
 
 /* Unified button styles */

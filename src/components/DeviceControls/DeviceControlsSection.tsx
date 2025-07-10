@@ -410,9 +410,9 @@ const DeviceControlsSection: React.FC<DeviceControlsSectionProps> = ({ activeTab
 
       {/* Device Type Modal */}
       {selectedDeviceType && currentDeviceTypeData && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-xl z-50 overflow-y-auto scrollbar-width-none -ms-overflow-style-none">
-          <div className="min-h-screen flex items-start justify-center p-4 pt-8">
-            <div className="seamless-modal rounded-3xl max-w-4xl w-full animate-in fade-in-0 zoom-in-95 duration-300 mb-8 overflow-hidden">
+        <div className="modal-overlay">
+          <div className="modal-container-inner">
+            <div className="modal-content-wrapper max-w-4xl w-full animate-in fade-in-0 zoom-in-95 duration-300">
               {/* Header */}
               <div className="relative h-48 overflow-hidden">
                 <div 
@@ -461,7 +461,7 @@ const DeviceControlsSection: React.FC<DeviceControlsSectionProps> = ({ activeTab
                 </div>
               </div>
               
-              {/* Content */}
+              {/* Scrollable Content */}
               <div className="p-6">
                 <h3 className="text-xl font-bold text-primary mb-6">Individual Device Controls</h3>
                 
