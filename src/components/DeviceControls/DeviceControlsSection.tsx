@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Lightbulb, Columns2, Volume2, Fan, Lock, X, Zap } from 'lucide-react';
 import { useDevices } from '../../context/DeviceContext';
 import { Device, LightDevice, BlindDevice, MediaPlayerDevice, FanDevice, LockDevice } from '../../types/devices';
