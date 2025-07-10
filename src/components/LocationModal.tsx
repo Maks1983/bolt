@@ -214,11 +214,11 @@ const LocationModal: React.FC<LocationModalProps> = ({ user, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 overflow-y-auto scrollbar-width-none -ms-overflow-style-none">
-      <div className="min-h-screen flex items-start justify-center p-4 pt-8">
-        <div className="seamless-modal rounded-3xl max-w-4xl w-full mb-8 overflow-hidden">
+    <div className="modal-backdrop bg-black/60 backdrop-blur-sm">
+      <div className="modal-content-wrapper">
+        <div className="modal-content-container seamless-modal">
           {/* Header */}
-          <div className="p-6 border-b border-gray-700/20">
+          <div className="p-6 border-b border-gray-700/20 flex-shrink-0">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white text-xl font-medium shadow-sm">
@@ -265,7 +265,8 @@ const LocationModal: React.FC<LocationModalProps> = ({ user, onClose }) => {
           </div>
 
           {/* Content */}
-          <div className="p-6">
+          <div className="modal-scrollable-content">
+            <div className="p-6">
               <div className="seamless-card rounded-2xl h-96 overflow-hidden relative">
                 <MapContainer
                   center={mapCenter}
@@ -446,9 +447,10 @@ const LocationModal: React.FC<LocationModalProps> = ({ user, onClose }) => {
                 </div>
               )}
             </div>
+          </div>
           
           {/* Footer */}
-          <div className="p-6 glass-card">
+          <div className="p-6 glass-card flex-shrink-0">
             <div className="flex items-center justify-between">
             </div>
           </div>

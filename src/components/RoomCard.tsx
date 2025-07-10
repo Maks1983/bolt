@@ -263,11 +263,11 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
 
       {/* Expanded Modal */}
       {expanded && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-xl z-50 overflow-y-auto scrollbar-width-none -ms-overflow-style-none">
-          <div className="min-h-screen flex items-start justify-center p-4 pt-8">
-            <div className="seamless-modal rounded-3xl max-w-4xl w-full animate-in fade-in-0 zoom-in-95 duration-300 mb-8 overflow-hidden">
+        <div className="modal-backdrop bg-black/60 backdrop-blur-xl">
+          <div className="modal-content-wrapper">
+            <div className="modal-content-container seamless-modal animate-in fade-in-0 zoom-in-95 duration-300">
               {/* Header */}
-              <div className="relative h-48 overflow-hidden">
+              <div className="relative h-48 overflow-hidden flex-shrink-0">
                 <div 
                   className="absolute inset-0 bg-cover bg-center scale-110"
                   style={{ backgroundImage: `url(${backgroundImage})` }}
@@ -340,242 +340,244 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
               </div>
               
               {/* Content */}
-              <div className="p-6 space-y-8">
+              <div className="modal-scrollable-content">
+                <div className="p-6 space-y-8">
                 
-                {/* Lighting Controls */}
-                {roomDevices.lights.length > 0 && (
-                  <div>
-                    <div className="flex items-center space-x-3 mb-6">
-                      <div className="p-2 glass-card rounded-xl">
-                        <Lightbulb className="w-5 h-5 text-yellow-400" />
-                      </div>
-                      <h3 className="text-xl font-bold text-white" style={{ fontFamily: 'Poppins, sans-serif' }}>Lighting Controls</h3>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                      {roomDevices.lights.map((light) => (
-                        <LightControl key={light.entity_id} device={light as any} />
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Security Controls */}
-                {roomDevices.locks.length > 0 && (
-                  <div>
-                    <div className="flex items-center space-x-3 mb-6">
-                      <div className="p-2 glass-card rounded-xl">
-                        <Shield className="w-5 h-5 text-red-400" />
-                      </div>
-                      <h3 className="text-xl font-bold text-white" style={{ fontFamily: 'Poppins, sans-serif' }}>Security</h3>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                      {roomDevices.locks.map((lock) => (
-                        <LockControl key={lock.entity_id} device={lock as any} variant="card" />
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Cover Controls (Blinds/Curtains) */}
-                {roomDevices.covers.length > 0 && (
-                  <div>
-                    <div className="flex items-center space-x-3 mb-6">
-                      <div className="p-2 glass-card rounded-xl">
-                        <Columns2 className="w-5 h-5 text-blue-400" />
-                      </div>
-                      <h3 className="text-xl font-bold text-white" style={{ fontFamily: 'Poppins, sans-serif' }}>Window Covers</h3>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                      {roomDevices.covers.map((cover) => (
-                        <CoverControl 
-                          key={cover.entity_id} 
-                          device={cover as any}
-                          type={cover.friendly_name.toLowerCase().includes('curtain') ? 'curtain' : 'blind'}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Fan Controls */}
-                {roomDevices.fans.length > 0 && (
-                  <div>
-                    <div className="flex items-center space-x-3 mb-6">
-                      <div className="p-2 glass-card rounded-xl">
-                        <Wind className="w-5 h-5 text-cyan-400" />
-                      </div>
-                      <h3 className="text-xl font-bold text-white" style={{ fontFamily: 'Poppins, sans-serif' }}>Fans</h3>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                      {roomDevices.fans.map((fan) => (
-                        <FanControl key={fan.entity_id} device={fan as any} />
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Media Controls */}
-                {roomDevices.mediaPlayers.length > 0 && (
-                  <div>
-                    <div className="flex items-center space-x-3 mb-6">
-                      <div className="p-2 glass-card rounded-xl">
-                        <Lightbulb className="w-5 h-5 text-purple-400" />
-                      </div>
-                      <h3 className="text-xl font-bold text-white" style={{ fontFamily: 'Poppins, sans-serif' }}>Media Controls</h3>
-                    </div>
-                    
-                    <div className="space-y-4">
-                      {roomDevices.mediaPlayers.map((player) => (
-                        <MediaPlayerControl key={player.entity_id} device={player as any} />
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Camera Controls */}
-                {roomDevices.cameras.length > 0 && (
-                  <div>
-                    <div className="flex items-center space-x-3 mb-6">
-                      <div className="p-2 glass-card rounded-xl">
-                        <Camera className="w-5 h-5 text-indigo-400" />
-                      </div>
-                      <h3 className="text-xl font-bold text-white" style={{ fontFamily: 'Poppins, sans-serif' }}>Security Cameras</h3>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                      {roomDevices.cameras.map((camera) => (
-                        <CameraControl key={camera.entity_id} device={camera as any} />
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Sensors Information */}
-                {(roomDevices.sensors.length > 0 || roomDevices.binarySensors.length > 0) && (
-                  <div>
-                    <div className="flex items-center space-x-3 mb-6">
-                      <div className="p-2 glass-card rounded-xl">
-                        <Thermometer className="w-5 h-5 text-green-400" />
-                      </div>
-                      <h3 className="text-xl font-bold text-white" style={{ fontFamily: 'Poppins, sans-serif' }}>Sensors</h3>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {/* Temperature Sensors */}
-                      {roomDevices.sensors.filter(s => (s as any).sensor_type === 'temperature').map((sensor) => (
-                        <div key={sensor.entity_id} className="seamless-card rounded-2xl p-4">
-                          <div className="flex items-center space-x-3">
-                            <Thermometer className="w-5 h-5 text-blue-400" />
-                            <div>
-                              <h4 className="font-semibold text-white">{sensor.friendly_name}</h4>
-                              <p className="text-lg font-bold text-blue-400">{formatTemperature(sensor.state)}</p>
-                            </div>
-                          </div>
+                  {/* Lighting Controls */}
+                  {roomDevices.lights.length > 0 && (
+                    <div>
+                      <div className="flex items-center space-x-3 mb-6">
+                        <div className="p-2 glass-card rounded-xl">
+                          <Lightbulb className="w-5 h-5 text-yellow-400" />
                         </div>
-                      ))}
+                        <h3 className="text-xl font-bold text-white" style={{ fontFamily: 'Poppins, sans-serif' }}>Lighting Controls</h3>
+                      </div>
                       
-                      {/* Humidity Sensors */}
-                      {roomDevices.sensors.filter(s => (s as any).sensor_type === 'humidity').map((sensor) => (
-                        <div key={sensor.entity_id} className="seamless-card rounded-2xl p-4">
-                          <div className="flex items-center space-x-3">
-                            <Droplets className="w-5 h-5 text-cyan-400" />
-                            <div>
-                              <h4 className="font-semibold text-white">{sensor.friendly_name}</h4>
-                              <p className="text-lg font-bold text-cyan-400">{formatHumidity(sensor.state)}</p>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                      
-                      {/* Motion Sensors */}
-                      {roomDevices.binarySensors.filter(s => (s as any).sensor_type === 'motion').map((sensor) => (
-                        <div key={sensor.entity_id} className="seamless-card rounded-2xl p-4">
-                          <div className="flex items-center space-x-3">
-                            <User className={`w-5 h-5 ${sensor.state === 'on' ? 'text-cyan-400' : 'text-gray-500'}`} />
-                            <div>
-                              <h4 className="font-semibold text-white">{sensor.friendly_name}</h4>
-                              <p className={`text-lg font-bold ${sensor.state === 'on' ? 'text-cyan-400' : 'text-gray-500'}`}>
-                                {sensor.state === 'on' ? 'Motion' : 'No Motion'}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                      
-                      {/* Door/Window Sensors */}
-                      {roomDevices.binarySensors.filter(s => 
-                        (s as any).sensor_type === 'door' || (s as any).sensor_type === 'window'
-                      ).map((sensor) => (
-                        <div key={sensor.entity_id} className="seamless-card rounded-2xl p-4">
-                          <div className="flex items-center space-x-3">
-                            {(sensor as any).sensor_type === 'door' ? (
-                              sensor.state === 'on' ? <DoorOpen className="w-5 h-5 text-orange-400" /> : <DoorClosed className="w-5 h-5 text-green-400" />
-                            ) : (
-                              <Columns2 className={`w-5 h-5 ${sensor.state === 'on' ? 'text-orange-400' : 'text-green-400'}`} />
-                            )}
-                            <div>
-                              <h4 className="font-semibold text-white">{sensor.friendly_name}</h4>
-                              <p className={`text-lg font-bold ${sensor.state === 'on' ? 'text-orange-400' : 'text-green-400'}`}>
-                                {sensor.state === 'on' ? 'Open' : 'Closed'}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-
-                      {/* Flood Sensors */}
-                      {roomDevices.binarySensors.filter(s => (s as any).sensor_type === 'flood').map((sensor) => (
-                        <div key={sensor.entity_id} className={`seamless-card rounded-2xl p-4 ${sensor.state === 'on' ? 'subtle-glow-red' : ''}`}>
-                          <div className="flex items-center space-x-3">
-                            <Waves className={`w-5 h-5 ${sensor.state === 'on' ? 'text-red-400' : 'text-blue-400'}`} />
-                            <div>
-                              <h4 className="font-semibold text-white">{sensor.friendly_name}</h4>
-                              <p className={`text-lg font-bold ${sensor.state === 'on' ? 'text-red-400' : 'text-green-400'}`}>
-                                {sensor.state === 'on' ? 'FLOOD DETECTED' : 'Dry'}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-
-                      {/* Smoke Sensors */}
-                      {roomDevices.binarySensors.filter(s => (s as any).sensor_type === 'smoke').map((sensor) => (
-                        <div key={sensor.entity_id} className={`seamless-card rounded-2xl p-4 ${sensor.state === 'on' ? 'subtle-glow-red' : ''}`}>
-                          <div className="flex items-center space-x-3">
-                            <Flame className={`w-5 h-5 ${sensor.state === 'on' ? 'text-red-400' : 'text-orange-400'}`} />
-                            <div>
-                              <h4 className="font-semibold text-white">{sensor.friendly_name}</h4>
-                              <p className={`text-lg font-bold ${sensor.state === 'on' ? 'text-red-400' : 'text-green-400'}`}>
-                                {sensor.state === 'on' ? 'SMOKE DETECTED' : 'Clear'}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        {roomDevices.lights.map((light) => (
+                          <LightControl key={light.entity_id} device={light as any} />
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
-            
-              {/* Footer */}
-              <div className="p-6 glass-card">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2" style={{ color: 'rgba(255, 255, 255, 0.7)' }}>
-                    <Clock className="w-4 h-4" />
-                    <span className="text-sm" style={{ fontFamily: 'Poppins, sans-serif' }}>Last updated: {lastUpdate}</span>
-                  </div>
-                  <div className="flex space-x-3">
-                    <button 
-                      onClick={() => setExpanded(false)}
-                      className="unified-button px-6 py-3 rounded-2xl font-semibold"
-                      style={{ fontFamily: 'Poppins, sans-serif' }}
-                    >
-                      Close
-                    </button>
+                  )}
+
+                  {/* Security Controls */}
+                  {roomDevices.locks.length > 0 && (
+                    <div>
+                      <div className="flex items-center space-x-3 mb-6">
+                        <div className="p-2 glass-card rounded-xl">
+                          <Shield className="w-5 h-5 text-red-400" />
+                        </div>
+                        <h3 className="text-xl font-bold text-white" style={{ fontFamily: 'Poppins, sans-serif' }}>Security</h3>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        {roomDevices.locks.map((lock) => (
+                          <LockControl key={lock.entity_id} device={lock as any} variant="card" />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Cover Controls (Blinds/Curtains) */}
+                  {roomDevices.covers.length > 0 && (
+                    <div>
+                      <div className="flex items-center space-x-3 mb-6">
+                        <div className="p-2 glass-card rounded-xl">
+                          <Columns2 className="w-5 h-5 text-blue-400" />
+                        </div>
+                        <h3 className="text-xl font-bold text-white" style={{ fontFamily: 'Poppins, sans-serif' }}>Window Covers</h3>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        {roomDevices.covers.map((cover) => (
+                          <CoverControl 
+                            key={cover.entity_id} 
+                            device={cover as any}
+                            type={cover.friendly_name.toLowerCase().includes('curtain') ? 'curtain' : 'blind'}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Fan Controls */}
+                  {roomDevices.fans.length > 0 && (
+                    <div>
+                      <div className="flex items-center space-x-3 mb-6">
+                        <div className="p-2 glass-card rounded-xl">
+                          <Wind className="w-5 h-5 text-cyan-400" />
+                        </div>
+                        <h3 className="text-xl font-bold text-white" style={{ fontFamily: 'Poppins, sans-serif' }}>Fans</h3>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        {roomDevices.fans.map((fan) => (
+                          <FanControl key={fan.entity_id} device={fan as any} />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Media Controls */}
+                  {roomDevices.mediaPlayers.length > 0 && (
+                    <div>
+                      <div className="flex items-center space-x-3 mb-6">
+                        <div className="p-2 glass-card rounded-xl">
+                          <Lightbulb className="w-5 h-5 text-purple-400" />
+                        </div>
+                        <h3 className="text-xl font-bold text-white" style={{ fontFamily: 'Poppins, sans-serif' }}>Media Controls</h3>
+                      </div>
+                      
+                      <div className="space-y-4">
+                        {roomDevices.mediaPlayers.map((player) => (
+                          <MediaPlayerControl key={player.entity_id} device={player as any} />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Camera Controls */}
+                  {roomDevices.cameras.length > 0 && (
+                    <div>
+                      <div className="flex items-center space-x-3 mb-6">
+                        <div className="p-2 glass-card rounded-xl">
+                          <Camera className="w-5 h-5 text-indigo-400" />
+                        </div>
+                        <h3 className="text-xl font-bold text-white" style={{ fontFamily: 'Poppins, sans-serif' }}>Security Cameras</h3>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        {roomDevices.cameras.map((camera) => (
+                          <CameraControl key={camera.entity_id} device={camera as any} />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Sensors Information */}
+                  {(roomDevices.sensors.length > 0 || roomDevices.binarySensors.length > 0) && (
+                    <div>
+                      <div className="flex items-center space-x-3 mb-6">
+                        <div className="p-2 glass-card rounded-xl">
+                          <Thermometer className="w-5 h-5 text-green-400" />
+                        </div>
+                        <h3 className="text-xl font-bold text-white" style={{ fontFamily: 'Poppins, sans-serif' }}>Sensors</h3>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {/* Temperature Sensors */}
+                        {roomDevices.sensors.filter(s => (s as any).sensor_type === 'temperature').map((sensor) => (
+                          <div key={sensor.entity_id} className="seamless-card rounded-2xl p-4">
+                            <div className="flex items-center space-x-3">
+                              <Thermometer className="w-5 h-5 text-blue-400" />
+                              <div>
+                                <h4 className="font-semibold text-white">{sensor.friendly_name}</h4>
+                                <p className="text-lg font-bold text-blue-400">{formatTemperature(sensor.state)}</p>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                        
+                        {/* Humidity Sensors */}
+                        {roomDevices.sensors.filter(s => (s as any).sensor_type === 'humidity').map((sensor) => (
+                          <div key={sensor.entity_id} className="seamless-card rounded-2xl p-4">
+                            <div className="flex items-center space-x-3">
+                              <Droplets className="w-5 h-5 text-cyan-400" />
+                              <div>
+                                <h4 className="font-semibold text-white">{sensor.friendly_name}</h4>
+                                <p className="text-lg font-bold text-cyan-400">{formatHumidity(sensor.state)}</p>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                        
+                        {/* Motion Sensors */}
+                        {roomDevices.binarySensors.filter(s => (s as any).sensor_type === 'motion').map((sensor) => (
+                          <div key={sensor.entity_id} className="seamless-card rounded-2xl p-4">
+                            <div className="flex items-center space-x-3">
+                              <User className={`w-5 h-5 ${sensor.state === 'on' ? 'text-cyan-400' : 'text-gray-500'}`} />
+                              <div>
+                                <h4 className="font-semibold text-white">{sensor.friendly_name}</h4>
+                                <p className={`text-lg font-bold ${sensor.state === 'on' ? 'text-cyan-400' : 'text-gray-500'}`}>
+                                  {sensor.state === 'on' ? 'Motion' : 'No Motion'}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                        
+                        {/* Door/Window Sensors */}
+                        {roomDevices.binarySensors.filter(s => 
+                          (s as any).sensor_type === 'door' || (s as any).sensor_type === 'window'
+                        ).map((sensor) => (
+                          <div key={sensor.entity_id} className="seamless-card rounded-2xl p-4">
+                            <div className="flex items-center space-x-3">
+                              {(sensor as any).sensor_type === 'door' ? (
+                                sensor.state === 'on' ? <DoorOpen className="w-5 h-5 text-orange-400" /> : <DoorClosed className="w-5 h-5 text-green-400" />
+                              ) : (
+                                <Columns2 className={`w-5 h-5 ${sensor.state === 'on' ? 'text-orange-400' : 'text-green-400'}`} />
+                              )}
+                              <div>
+                                <h4 className="font-semibold text-white">{sensor.friendly_name}</h4>
+                                <p className={`text-lg font-bold ${sensor.state === 'on' ? 'text-orange-400' : 'text-green-400'}`}>
+                                  {sensor.state === 'on' ? 'Open' : 'Closed'}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+
+                        {/* Flood Sensors */}
+                        {roomDevices.binarySensors.filter(s => (s as any).sensor_type === 'flood').map((sensor) => (
+                          <div key={sensor.entity_id} className={`seamless-card rounded-2xl p-4 ${sensor.state === 'on' ? 'subtle-glow-red' : ''}`}>
+                            <div className="flex items-center space-x-3">
+                              <Waves className={`w-5 h-5 ${sensor.state === 'on' ? 'text-red-400' : 'text-blue-400'}`} />
+                              <div>
+                                <h4 className="font-semibold text-white">{sensor.friendly_name}</h4>
+                                <p className={`text-lg font-bold ${sensor.state === 'on' ? 'text-red-400' : 'text-green-400'}`}>
+                                  {sensor.state === 'on' ? 'FLOOD DETECTED' : 'Dry'}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+
+                        {/* Smoke Sensors */}
+                        {roomDevices.binarySensors.filter(s => (s as any).sensor_type === 'smoke').map((sensor) => (
+                          <div key={sensor.entity_id} className={`seamless-card rounded-2xl p-4 ${sensor.state === 'on' ? 'subtle-glow-red' : ''}`}>
+                            <div className="flex items-center space-x-3">
+                              <Flame className={`w-5 h-5 ${sensor.state === 'on' ? 'text-red-400' : 'text-orange-400'}`} />
+                              <div>
+                                <h4 className="font-semibold text-white">{sensor.friendly_name}</h4>
+                                <p className={`text-lg font-bold ${sensor.state === 'on' ? 'text-red-400' : 'text-green-400'}`}>
+                                  {sensor.state === 'on' ? 'SMOKE DETECTED' : 'Clear'}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                
+                  {/* Footer */}
+                  <div className="mt-8 pt-6 border-t border-gray-700/20">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2" style={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                        <Clock className="w-4 h-4" />
+                        <span className="text-sm" style={{ fontFamily: 'Poppins, sans-serif' }}>Last updated: {lastUpdate}</span>
+                      </div>
+                      <div className="flex space-x-3">
+                        <button 
+                          onClick={() => setExpanded(false)}
+                          className="unified-button px-6 py-3 rounded-2xl font-semibold"
+                          style={{ fontFamily: 'Poppins, sans-serif' }}
+                        >
+                          Close
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
