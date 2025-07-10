@@ -46,6 +46,29 @@
   scrollbar-width: none;
 }
 
+/* Enable scrolling but hide scrollbars */
+.scrollable {
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scrollable::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollable-x {
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scrollable-x::-webkit-scrollbar {
+  display: none;
+}
+
 /* Glassmorphism cards with minimal opacity */
 .glass-card {
   background: rgba(255, 255, 255, 0.02);
@@ -334,9 +357,16 @@
 
 /* Ensure no scrollbars anywhere */
 .no-scroll {
-  overflow: hidden !important;
+  overflow: hidden;
 }
 
-.no-scroll * {
-  overflow: hidden !important;
+.content-scroll {
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.content-scroll::-webkit-scrollbar {
+  display: none;
 }

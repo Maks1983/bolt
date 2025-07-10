@@ -311,7 +311,7 @@ const AppContent: React.FC = () => {
             </div>
 
             {/* Main Content Area */}
-            <div className="p-6 h-[calc(100%-100px)] no-scroll">
+            <div className="p-6 h-[calc(100%-100px)] content-scroll">
               {getCurrentContent()}
             </div>
           </div>

@@ -433,7 +433,7 @@ const DeviceControlsSection: React.FC<DeviceControlsSectionProps> = ({ activeTab
             </div>
             
             {/* Scrollable Content */}
-            <div className="max-h-[calc(95vh-12rem)] overflow-y-auto">
+            <div className="max-h-[calc(95vh-12rem)] content-scroll">
               <div className="p-6">
                 <h3 className="text-xl font-bold text-primary mb-6">Individual Device Controls</h3>
                 
