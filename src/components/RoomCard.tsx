@@ -235,8 +235,8 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
 
       {/* Expanded Modal */}
       {expanded && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-xl z-50 flex items-center justify-center p-4">
-          <div className="seamless-modal rounded-3xl max-w-4xl w-full max-h-[95vh] overflow-hidden animate-in fade-in-0 zoom-in-95 duration-300">
+        <div className="modal-container bg-black/80 backdrop-blur-xl">
+          <div className="modal-content seamless-modal animate-in fade-in-0 zoom-in-95 duration-300">
             {/* Header */}
             <div className="relative h-48 overflow-hidden">
               <div 
@@ -311,7 +311,7 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
             </div>
             
             {/* Scrollable Content */}
-            <div className="max-h-[calc(95vh-12rem)] content-scroll">
+            <div className="modal-scrollable">
               <div className="p-6 space-y-8">
                 
                 {/* Lighting Controls */}
