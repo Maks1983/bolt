@@ -22,6 +22,34 @@ interface RoomCardProps {
 const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage }) => {
   const [expanded, setExpanded] = useState(false);
   
+  // Prevent background scroll when modal is open
+  useEffect(() => {
+    if (expanded) {
+      document.body.classList.add('modal-open');
+      // Prevent scroll on the main container
+      const mainContainer = document.querySelector('.main-scroll-container');
+      if (mainContainer) {
+        (mainContainer as HTMLElement).style.overflow = 'hidden';
+      }
+    } else {
+      document.body.classList.remove('modal-open');
+      // Restore scroll on the main container
+      const mainContainer = document.querySelector('.main-scroll-container');
+      if (mainContainer) {
+        (mainContainer as HTMLElement).style.overflow = 'auto';
+      }
+    }
+    
+    // Cleanup on unmount
+    return () => {
+      document.body.classList.remove('modal-open');
+      const mainContainer = document.querySelector('.main-scroll-container');
+      if (mainContainer) {
+        (mainContainer as HTMLElement).style.overflow = 'auto';
+      }
+    };
+  }, [expanded]);
+  
   // Use real-time room devices hook
   const roomDevices = useRoomDevices(roomName);
 

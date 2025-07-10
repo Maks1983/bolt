@@ -46,6 +46,16 @@
   scrollbar-width: none;
 }
 
+/* Prevent background scroll when modal is open */
+.modal-open {
+  overflow: hidden !important;
+  height: 100vh !important;
+}
+
+.modal-open .main-scroll-container {
+  overflow: hidden !important;
+}
+
 /* Enable scrolling but hide scrollbars */
 .scrollable {
   overflow-y: auto;

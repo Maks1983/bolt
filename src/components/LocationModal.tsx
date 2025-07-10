@@ -131,6 +131,25 @@ interface LocationModalProps {
 
 const LocationModal: React.FC<LocationModalProps> = ({ user, onClose }) => {
   const [mapReady, setMapReady] = useState(false);
+  
+  // Prevent background scroll when modal is open
+  useEffect(() => {
+    document.body.classList.add('modal-open');
+    // Prevent scroll on the main container
+    const mainContainer = document.querySelector('.main-scroll-container');
+    if (mainContainer) {
+      (mainContainer as HTMLElement).style.overflow = 'hidden';
+    }
+    
+    // Cleanup on unmount
+    return () => {
+      document.body.classList.remove('modal-open');
+      const mainContainer = document.querySelector('.main-scroll-container');
+      if (mainContainer) {
+        (mainContainer as HTMLElement).style.overflow = 'auto';
+      }
+    };
+  }, []);
 
   // Get real GPS coordinates from device tracker entity
   const getRealLocation = () => {

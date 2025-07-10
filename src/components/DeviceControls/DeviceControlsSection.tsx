@@ -15,6 +15,34 @@ interface DeviceControlsSectionProps {
 const DeviceControlsSection: React.FC<DeviceControlsSectionProps> = ({ activeTab }) => {
   const { state, controlLight, controlCover, controlMediaPlayer, controlFan, controlLock } = useDevices();
   const [selectedDeviceType, setSelectedDeviceType] = useState<string | null>(null);
+  
+  // Prevent background scroll when modal is open
+  useEffect(() => {
+    if (selectedDeviceType) {
+      document.body.classList.add('modal-open');
+      // Prevent scroll on the main container
+      const mainContainer = document.querySelector('.main-scroll-container');
+      if (mainContainer) {
+        (mainContainer as HTMLElement).style.overflow = 'hidden';
+      }
+    } else {
+      document.body.classList.remove('modal-open');
+      // Restore scroll on the main container
+      const mainContainer = document.querySelector('.main-scroll-container');
+      if (mainContainer) {
+        (mainContainer as HTMLElement).style.overflow = 'auto';
+      }
+    }
+    
+    // Cleanup on unmount
+    return () => {
+      document.body.classList.remove('modal-open');
+      const mainContainer = document.querySelector('.main-scroll-container');
+      if (mainContainer) {
+        (mainContainer as HTMLElement).style.overflow = 'auto';
+      }
+    };
+  }, [selectedDeviceType]);
 
   // Filter devices based on active tab
   const getFilteredDevices = useMemo(() => {
