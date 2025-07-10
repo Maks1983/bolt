@@ -271,47 +271,8 @@ const AppContent: React.FC = () => {
           
           {/* Tab Content Background with Sidebar */}
           <div className="seamless-modal rounded-2xl -mt-px relative h-[calc(100vh-120px)] no-scroll">
-            {/* Header with Toggle Button */}
-            <div className="flex items-center justify-between p-6">
-              <div>
-                <h2 className="text-2xl font-bold text-primary">
-                  {getTabTitle()} - {activeSection === 'status' ? 'Status' : 'Controls'}
-                </h2>
-                <p className="text-secondary mt-1" style={{ color: 'rgba(255, 255, 255, 0.7)' }}>
-                  {activeSection === 'status' 
-                    ? 'Monitor device status and detailed information'
-                    : 'Quick device controls and toggles'
-                  }
-                </p>
-              </div>
-              
-              {/* Toggle Button */}
-              <div className="flex items-center space-x-3">
-                <span className={`text-sm font-medium transition-colors ${
-                  activeSection === 'status' ? 'text-accent' : 'text-muted'
-                }`}>
-                  Status
-                </span>
-                <button
-                  onClick={() => setActiveSection(activeSection === 'status' ? 'controls' : 'status')}
-                  className={`seamless-toggle relative inline-flex h-8 w-14 items-center rounded-full ${
-                    activeSection === 'controls' ? 'active' : ''
-                  }`}
-                >
-                  <span className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
-                    activeSection === 'controls' ? 'translate-x-7' : 'translate-x-1'
-                  }`} />
-                </button>
-                <span className={`text-sm font-medium transition-colors ${
-                  activeSection === 'controls' ? 'text-accent' : 'text-muted'
-                }`}>
-                  Controls
-                </span>
-              </div>
-            </div>
-
             {/* Main Content Area */}
-            <div className="p-6 h-[calc(100%-100px)] content-scroll">
+            <div className="p-6 h-full content-scroll">
               {getCurrentContent()}
             </div>
           </div>
