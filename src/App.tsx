@@ -124,7 +124,7 @@ const AppContent: React.FC = () => {
               {upperFloorRooms.length > 0 && (
                 <div>
                   <div className="flex items-center mb-6">
-                    <h2 className="text-2xl font-bold text-gray-900">Upper Floor</h2>
+                    <h2 className="text-2xl font-bold text-white" style={{ fontFamily: 'Poppins, sans-serif' }}>Upper Floor</h2>
                     <div className="flex-1 ml-4 h-px bg-gradient-to-r from-gray-300 to-transparent"></div>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
@@ -144,7 +144,7 @@ const AppContent: React.FC = () => {
               {lowerFloorRooms.length > 0 && (
                 <div>
                   <div className="flex items-center mb-6">
-                    <h2 className="text-2xl font-bold text-gray-900">Lower Floor</h2>
+                    <h2 className="text-2xl font-bold text-white" style={{ fontFamily: 'Poppins, sans-serif' }}>Lower Floor</h2>
                     <div className="flex-1 ml-4 h-px bg-gradient-to-r from-gray-300 to-transparent"></div>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
@@ -164,7 +164,7 @@ const AppContent: React.FC = () => {
               {apartmentRooms.length > 0 && (
                 <div>
                   <div className="flex items-center mb-6">
-                    <h2 className="text-2xl font-bold text-gray-900">Apartment</h2>
+                    <h2 className="text-2xl font-bold text-white" style={{ fontFamily: 'Poppins, sans-serif' }}>Apartment</h2>
                     <div className="flex-1 ml-4 h-px bg-gradient-to-r from-gray-300 to-transparent"></div>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
@@ -186,7 +186,7 @@ const AppContent: React.FC = () => {
                   <div className="text-gray-400 text-lg font-medium">
                     No rooms configured
                   </div>
-                  <div className="text-gray-500 text-sm mt-2">
+                  <div className="text-secondary text-sm mt-2" style={{ color: 'rgba(255, 255, 255, 0.7)', fontFamily: 'Poppins, sans-serif' }}>
                     Add rooms to your configuration to see them here
                   </div>
                 </div>
@@ -220,7 +220,7 @@ const AppContent: React.FC = () => {
           <div className="text-gray-400 text-lg font-medium">
             No rooms configured for {title}
           </div>
-          <div className="text-gray-500 text-sm mt-2">
+          <div className="text-secondary text-sm mt-2" style={{ color: 'rgba(255, 255, 255, 0.7)', fontFamily: 'Poppins, sans-serif' }}>
             Add rooms to this area in your configuration
           </div>
         </div>
