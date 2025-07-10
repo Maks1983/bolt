@@ -238,81 +238,81 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xl z-50 overflow-y-auto scrollbar-width-none -ms-overflow-style-none">
           <div className="min-h-screen flex items-start justify-center p-4 pt-8">
             <div className="seamless-modal rounded-3xl max-w-4xl w-full animate-in fade-in-0 zoom-in-95 duration-300 mb-8 overflow-hidden">
-            {/* Header */}
-            <div className="relative h-48 overflow-hidden">
-              <div 
-                className="absolute inset-0 bg-cover bg-center scale-110"
-                style={{ backgroundImage: `url(${backgroundImage})` }}
-              >
-                <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-black/30"></div>
-              </div>
-              <div className="relative p-6 h-full flex flex-col justify-between">
-                <div className="flex justify-between items-start">
-                  <div className="flex items-center space-x-4">
-                    <div>
-                      <h2 className="text-3xl font-bold text-white mb-1" style={{ fontFamily: 'Poppins, sans-serif' }}>{roomName}</h2>
-                    </div>
-                    {/* Sensor Icons in Modal - Same layout as card */}
-                    <div className="flex items-center space-x-3">
-                      {roomStats.motionSensor && (
-                        <div className={`p-3 ${roomStats.presence ? 'primary-glass' : 'glass-card'} rounded-full`}>
-                          <User className="w-5 h-5 text-white" />
-                        </div>
-                      )}
-                      {(roomStats.windowSensors.length > 0 || roomStats.doorSensors.length > 0) && (
-                        <div className={`p-3 ${roomStats.windowOpen ? 'bg-orange-500/60' : 'glass-card'} rounded-full`}>
-                          {React.createElement(getOpenCloseIcon(), { 
-                            className: `w-4 h-4 ${roomStats.windowOpen ? 'text-white' : 'text-white'}` 
-                          })}                        
-                        </div>
-                      )}
-                      {roomStats.floodSensors.length > 0 && (
-                        <div className={`p-3 ${roomStats.floodAlert ? 'bg-red-500/60' : 'glass-card'} rounded-full`}>
-                          <Waves className="w-5 h-5 text-white" />
-                        </div>
-                      )}
-                      {roomStats.smokeSensors.length > 0 && (
-                        <div className={`p-3 ${roomStats.smokeAlert ? 'bg-red-500/60' : 'glass-card'} rounded-full`}>
-                          <Flame className="w-5 h-5 text-white" />
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  <button 
-                    onClick={() => setExpanded(false)}
-                    className="unified-button p-3 rounded-full transition-colors"
-                  >
-                    <X className="w-6 h-6 text-white" />
-                  </button>
+              {/* Header */}
+              <div className="relative h-48 overflow-hidden">
+                <div 
+                  className="absolute inset-0 bg-cover bg-center scale-110"
+                  style={{ backgroundImage: `url(${backgroundImage})` }}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-black/30"></div>
                 </div>
-                
-                <div className="grid grid-cols-3 gap-6">
-                  {roomStats.temperature !== null && (
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-white" style={{ fontFamily: 'Poppins, sans-serif' }}>{formatTemperature(roomStats.temperature)}</div>
-                    <div className="text-white/80 text-sm font-medium" style={{ fontFamily: 'Poppins, sans-serif' }}>Temperature</div>
-                  </div>
-                  )}
-                  {roomStats.humidity !== null && (
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-white" style={{ fontFamily: 'Poppins, sans-serif' }}>{formatHumidity(roomStats.humidity)}</div>
-                      <div className="text-white/80 text-sm font-medium" style={{ fontFamily: 'Poppins, sans-serif' }}>Humidity</div>
-                    </div>
-                  )}
-                  
-                  <div className="text-center">
-                    {roomDevices.locks.map((lock) => (
-                      <div key={lock.entity_id}>
-                        <LockControl device={lock as any} variant="icon"  />
+                <div className="relative p-6 h-full flex flex-col justify-between">
+                  <div className="flex justify-between items-start">
+                    <div className="flex items-center space-x-4">
+                      <div>
+                        <h2 className="text-3xl font-bold text-white mb-1" style={{ fontFamily: 'Poppins, sans-serif' }}>{roomName}</h2>
                       </div>
-                    ))}
+                      {/* Sensor Icons in Modal - Same layout as card */}
+                      <div className="flex items-center space-x-3">
+                        {roomStats.motionSensor && (
+                          <div className={`p-3 ${roomStats.presence ? 'primary-glass' : 'glass-card'} rounded-full`}>
+                            <User className="w-5 h-5 text-white" />
+                          </div>
+                        )}
+                        {(roomStats.windowSensors.length > 0 || roomStats.doorSensors.length > 0) && (
+                          <div className={`p-3 ${roomStats.windowOpen ? 'bg-orange-500/60' : 'glass-card'} rounded-full`}>
+                            {React.createElement(getOpenCloseIcon(), { 
+                              className: `w-4 h-4 ${roomStats.windowOpen ? 'text-white' : 'text-white'}` 
+                            })}                        
+                          </div>
+                        )}
+                        {roomStats.floodSensors.length > 0 && (
+                          <div className={`p-3 ${roomStats.floodAlert ? 'bg-red-500/60' : 'glass-card'} rounded-full`}>
+                            <Waves className="w-5 h-5 text-white" />
+                          </div>
+                        )}
+                        {roomStats.smokeSensors.length > 0 && (
+                          <div className={`p-3 ${roomStats.smokeAlert ? 'bg-red-500/60' : 'glass-card'} rounded-full`}>
+                            <Flame className="w-5 h-5 text-white" />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => setExpanded(false)}
+                      className="unified-button p-3 rounded-full transition-colors"
+                    >
+                      <X className="w-6 h-6 text-white" />
+                    </button>
+                  </div>
+                  
+                  <div className="grid grid-cols-3 gap-6">
+                    {roomStats.temperature !== null && (
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-white" style={{ fontFamily: 'Poppins, sans-serif' }}>{formatTemperature(roomStats.temperature)}</div>
+                        <div className="text-white/80 text-sm font-medium" style={{ fontFamily: 'Poppins, sans-serif' }}>Temperature</div>
+                      </div>
+                    )}
+                    {roomStats.humidity !== null && (
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-white" style={{ fontFamily: 'Poppins, sans-serif' }}>{formatHumidity(roomStats.humidity)}</div>
+                        <div className="text-white/80 text-sm font-medium" style={{ fontFamily: 'Poppins, sans-serif' }}>Humidity</div>
+                      </div>
+                    )}
+                    
+                    <div className="text-center">
+                      {roomDevices.locks.map((lock) => (
+                        <div key={lock.entity_id}>
+                          <LockControl device={lock as any} variant="icon"  />
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-            
-            {/* Content */}
-            <div className="p-6 space-y-8">
+              
+              {/* Content */}
+              <div className="p-6 space-y-8">
                 
                 {/* Lighting Controls */}
                 {roomDevices.lights.length > 0 && (
@@ -533,21 +533,22 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
                 )}
               </div>
             
-            {/* Footer */}
-            <div className="p-6 glass-card">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2" style={{ color: 'rgba(255, 255, 255, 0.7)' }}>
-                  <Clock className="w-4 h-4" />
-                  <span className="text-sm" style={{ fontFamily: 'Poppins, sans-serif' }}>Last updated: {lastUpdate}</span>
-                </div>
-                <div className="flex space-x-3">
-                  <button 
-                    onClick={() => setExpanded(false)}
-                    className="unified-button px-6 py-3 rounded-2xl font-semibold"
-                    style={{ fontFamily: 'Poppins, sans-serif' }}
-                  >
-                    Close
-                  </button>
+              {/* Footer */}
+              <div className="p-6 glass-card">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2" style={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                    <Clock className="w-4 h-4" />
+                    <span className="text-sm" style={{ fontFamily: 'Poppins, sans-serif' }}>Last updated: {lastUpdate}</span>
+                  </div>
+                  <div className="flex space-x-3">
+                    <button 
+                      onClick={() => setExpanded(false)}
+                      className="unified-button px-6 py-3 rounded-2xl font-semibold"
+                      style={{ fontFamily: 'Poppins, sans-serif' }}
+                    >
+                      Close
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
