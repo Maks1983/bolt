@@ -12,7 +12,7 @@ interface FloorSectionProps {
 
 const FloorSection: React.FC<FloorSectionProps> = ({ title, rooms }) => {
   return (
-    <div className="w-full">
+    <div className="w-full min-h-[60vh]">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 auto-rows-max">
         {rooms.map((room, index) => (
           <RoomCard 
@@ -23,6 +23,9 @@ const FloorSection: React.FC<FloorSectionProps> = ({ title, rooms }) => {
           />
         ))}
       </div>
+      
+      {/* Add padding to ensure consistent modal height */}
+      <div className="h-32"></div>
     </div>
   );
 };
