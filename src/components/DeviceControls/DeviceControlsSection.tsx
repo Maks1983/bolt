@@ -410,11 +410,11 @@ const DeviceControlsSection: React.FC<DeviceControlsSectionProps> = ({ activeTab
 
       {/* Device Type Modal */}
       {selectedDeviceType && currentDeviceTypeData && (
-        <div className="modal-backdrop bg-black/60 backdrop-blur-xl">
-          <div className="modal-content-wrapper">
-            <div className="modal-content-container seamless-modal animate-in fade-in-0 zoom-in-95 duration-300">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xl z-50 overflow-y-auto scrollbar-width-none -ms-overflow-style-none">
+          <div className="min-h-screen flex items-start justify-center p-4 pt-8">
+            <div className="seamless-modal rounded-3xl max-w-4xl w-full animate-in fade-in-0 zoom-in-95 duration-300 mb-8 overflow-hidden max-h-[calc(100vh-4rem)]">
               {/* Header */}
-              <div className="relative h-48 overflow-hidden flex-shrink-0">
+              <div className="relative h-48 overflow-hidden">
                 <div 
                   className="absolute inset-0 bg-cover bg-center scale-110"
                   style={{ backgroundImage: `url(${currentDeviceTypeData.backgroundImage})` }}
@@ -462,7 +462,7 @@ const DeviceControlsSection: React.FC<DeviceControlsSectionProps> = ({ activeTab
               </div>
               
               {/* Content */}
-              <div className="modal-scrollable-content p-6">
+              <div className="p-6 overflow-y-auto max-h-[calc(100vh-20rem)]">
                 <h3 className="text-xl font-bold text-primary mb-6">Individual Device Controls</h3>
                 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

@@ -49,60 +49,11 @@
 /* Prevent background scroll when modal is open */
 .modal-open {
   overflow: hidden !important;
+  height: 100vh !important;
 }
 
 .modal-open .main-scroll-container {
   overflow: hidden !important;
-}
-
-/* Ensure modal containers handle scroll properly */
-.modal-backdrop {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 50;
-  overflow-y: auto;
-  overflow-x: hidden;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.modal-backdrop::-webkit-scrollbar {
-  display: none;
-}
-
-.modal-content-wrapper {
-  min-height: 100vh;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding: 2rem;
-  padding-top: 4rem;
-}
-
-.modal-content-container {
-  width: 100%;
-  max-width: 64rem;
-  margin-bottom: 4rem;
-  border-radius: 1.5rem;
-  overflow: hidden;
-  max-height: calc(100vh - 8rem);
-  display: flex;
-  flex-direction: column;
-}
-
-.modal-scrollable-content {
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.modal-scrollable-content::-webkit-scrollbar {
-  display: none;
 }
 
 /* Enable scrolling but hide scrollbars */
@@ -455,6 +406,36 @@
 }
 /* Modal positioning and sizing fixes */
 .modal-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 50;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 2rem;
+  padding-top: 4rem;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.modal-container::-webkit-scrollbar {
+  display: none;
+}
+
+.modal-content {
+  width: 100%;
+  max-width: 64rem;
+  margin-top: 0;
+  margin-bottom: 4rem;
+  overflow: hidden;
+  border-radius: 1.5rem;
+}
+
+.modal-scrollable {
 }
 
 /* Unified button styles */
