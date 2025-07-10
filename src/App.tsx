@@ -235,7 +235,10 @@ const AppContent: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
-      <Header />
+      <Header 
+        activeSection={activeSection} 
+        onSectionChange={setActiveSection} 
+      />
       <InfoRow cameras={cameras} />
       
       <main className="py-4 pb-8">
