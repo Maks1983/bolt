@@ -594,7 +594,6 @@ const RoomCard: React.FC<RoomCardProps> = ({ roomName, floor, backgroundImage })
             </div>
           </div>
           </div>
-        </div>
       )}
     </>
   );
