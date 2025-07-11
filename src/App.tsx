@@ -271,9 +271,9 @@ const AppContent: React.FC = () => {
           </div>
           
           {/* Tab Content Background with Sidebar */}
-          <div className="seamless-modal rounded-2xl -mt-px relative h-[calc(100vh-120px)] no-scroll">
+          <div className="seamless-modal rounded-2xl -mt-px relative min-h-[calc(100vh-120px)] overflow-y-auto">
             {/* Main Content Area */}
-            <div className="p-6 h-full content-scroll">
+            <div className="p-6 pb-8">
               {getCurrentContent()}
             </div>
           </div>

@@ -368,44 +368,6 @@
 }
 
 /* Single seamless scroll container */
-.main-scroll-container {
-  height: 100vh;
-  overflow-y: auto;
-  overflow-x: hidden;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  scroll-behavior: smooth;
-}
-
-.main-scroll-container::-webkit-scrollbar {
-  display: none;
-}
-
-/* Content wrapper that allows natural scrolling */
-.content-wrapper {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Fixed header */
-.fixed-header {
-  position: sticky;
-  top: 0;
-  z-index: 40;
-}
-
-/* Main content area */
-.main-content {
-  flex: 1;
-  padding-bottom: 2rem;
-}
-
-/* Tab content area */
-.tab-content-area {
-  min-height: calc(100vh - 200px);
-  padding: 1.5rem;
-}
 /* Modal positioning and sizing fixes */
 .modal-container {
   position: fixed;
