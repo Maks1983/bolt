@@ -243,7 +243,7 @@ const AppContent: React.FC = () => {
       
       <main className="h-full no-scroll">
         {/* Top-level Tab Navigation */}
-        <div className="px-6 h-full main-content-container">
+        <div className="px-6 main-content-container" style={{ height: 'calc(100vh - 120px)' }}>
           {/* Dynamic Tab Navigation */}
           <div className="flex items-end">
             {availableTabs.map((tab, index) => (
@@ -271,7 +271,7 @@ const AppContent: React.FC = () => {
           </div>
           
           {/* Tab Content Background with Sidebar */}
-          <div className="seamless-modal rounded-2xl -mt-px relative min-h-[calc(100vh-120px)] overflow-y-auto">
+          <div className="seamless-modal rounded-2xl -mt-px relative overflow-y-auto" style={{ height: 'calc(100vh - 160px)' }}>
             {/* Main Content Area */}
             <div className="p-6 pb-8">
               {getCurrentContent()}
