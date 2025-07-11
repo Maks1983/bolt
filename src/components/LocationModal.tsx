@@ -135,27 +135,10 @@ const LocationModal: React.FC<LocationModalProps> = ({ user, onClose }) => {
   // Prevent background scroll when modal is open
   useEffect(() => {
     document.body.classList.add('modal-open');
-    document.documentElement.classList.add('background-frozen');
-    // Prevent scroll on the main content container
-    const mainContainer = document.querySelector('.main-content-container');
-    if (mainContainer) {
-      (mainContainer as HTMLElement).style.overflow = 'hidden';
-      (mainContainer as HTMLElement).style.height = '100vh';
-      (mainContainer as HTMLElement).style.position = 'fixed';
-      (mainContainer as HTMLElement).style.width = '100%';
-    }
     
     // Cleanup on unmount
     return () => {
       document.body.classList.remove('modal-open');
-      document.documentElement.classList.remove('background-frozen');
-      const mainContainer = document.querySelector('.main-content-container');
-      if (mainContainer) {
-        (mainContainer as HTMLElement).style.overflow = '';
-        (mainContainer as HTMLElement).style.height = '';
-        (mainContainer as HTMLElement).style.position = '';
-        (mainContainer as HTMLElement).style.width = '';
-      }
     };
   }, []);
 

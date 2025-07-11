@@ -234,16 +234,16 @@ const AppContent: React.FC = () => {
   };
 
   return (
-    <div className="h-screen no-scroll" style={{ backgroundColor: '#010d14' }}>
+    <div className="min-h-screen" style={{ backgroundColor: '#010d14' }}>
       <Header 
         activeSection={activeSection} 
         onSectionChange={setActiveSection} 
       />
       <InfoRow cameras={cameras} />
       
-      <main className="h-full no-scroll">
+      <main>
         {/* Top-level Tab Navigation */}
-        <div className="px-6 main-content-container" style={{ height: 'calc(100vh - 120px)' }}>
+        <div className="px-6">
           {/* Dynamic Tab Navigation */}
           <div className="flex items-end">
             {availableTabs.map((tab, index) => (
@@ -271,9 +271,9 @@ const AppContent: React.FC = () => {
           </div>
           
           {/* Tab Content Background with Sidebar */}
-          <div className="seamless-modal rounded-2xl -mt-px relative overflow-y-auto" style={{ height: 'calc(100vh - 160px)' }}>
+          <div className="seamless-modal rounded-2xl -mt-px relative">
             {/* Main Content Area */}
-            <div className="p-6 pb-8">
+            <div className="p-6 pb-20">
               {getCurrentContent()}
             </div>
           </div>
