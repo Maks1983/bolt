@@ -350,7 +350,12 @@
 /* Expandable Window Styling */
 .expandable-window {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
   z-index: 50;
   background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(12px);
@@ -364,17 +369,20 @@
 }
 
 .expandable-window-container {
-  min-height: 100%;
+  min-height: 100vh;
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding: 2rem 1rem;
+  padding: 1rem;
+  /* Ensure content can scroll to very bottom */
+  padding-bottom: 2rem;
 }
 
 /* Mobile-specific adjustments */
 @media (max-width: 768px) {
   .expandable-window-container {
-    padding: 1rem 0.5rem 4rem 0.5rem;
+    padding: 0.5rem;
+    padding-bottom: 3rem;
   }
 }
 
