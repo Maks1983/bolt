@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Lightbulb, Columns2, Volume2, Fan, Lock, X, Zap } from 'lucide-react';
 import { useDevices } from '../../context/DeviceContext';
 import { Device, LightDevice, BlindDevice, MediaPlayerDevice, FanDevice, LockDevice } from '../../types/devices';
@@ -301,6 +302,123 @@ const DeviceControlsSection: React.FC<DeviceControlsSectionProps> = ({ activeTab
 
   const currentDeviceTypeData = getCurrentDeviceTypeData();
 
+  // Render device type modal using portal to document.body
+  const renderDeviceTypeModal = () => {
+    if (!selectedDeviceType || !currentDeviceTypeData) return null;
+
+    return createPortal(
+      <div className="expandable-window">
+        <div className="expandable-window-container">
+          <div className="expandable-window-content seamless-modal rounded-3xl max-w-4xl animate-in fade-in-0 zoom-in-95 duration-300">
+            {/* Header */}
+            <div className="relative h-48 overflow-hidden">
+              <div 
+                className="absolute inset-0 bg-cover bg-center scale-110"
+                style={{ backgroundImage: `url(${currentDeviceTypeData.backgroundImage})` }}
+              >
+                <div className="absolute inset-0 bg-gradient-to-t from-gray-900/95 via-gray-900/60 to-gray-900/30"></div>
+              </div>
+              <div className="relative p-6 h-full flex flex-col justify-between">
+                <div className="flex justify-between items-start">
+                  <div className="flex items-center space-x-4">
+                    <div className="unified-button p-3 rounded-xl">
+                      {currentDeviceTypeData.icon}
+                    </div>
+                    <div>
+                      <h2 className="text-3xl font-bold text-white mb-1">{currentDeviceTypeData.title}</h2>
+                      <p className="text-white/90 text-lg">
+                        {currentDeviceTypeData.activeCount} of {currentDeviceTypeData.totalCount} active
+                      </p>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={() => setSelectedDeviceType(null)}
+                    className="unified-button p-3 rounded-full transition-colors"
+                  >
+                    <X className="w-6 h-6 text-white" />
+                  </button>
+                </div>
+                
+                <div className="flex justify-between items-end">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-white">
+                      {Math.round((currentDeviceTypeData.activeCount / currentDeviceTypeData.totalCount) * 100)}%
+                    </div>
+                    <div className="text-white/80 text-sm font-medium">Activity Level</div>
+                  </div>
+                  
+                  <button
+                    onClick={currentDeviceTypeData.onToggleAll}
+                    className="unified-button flex items-center space-x-2 text-white px-6 py-3 rounded-xl font-semibold"
+                  >
+                    <Zap className="w-5 h-5" />
+                    <span>{currentDeviceTypeData.toggleAllText}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            {/* Content */}
+            <div className="p-6">
+              <h3 className="text-xl font-bold text-primary mb-6">Individual Device Controls</h3>
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                {selectedDeviceType === 'lights' && lights.map((light) => (
+                  <LightControl key={light.entity_id} device={light} />
+                ))}
+                
+                {selectedDeviceType === 'covers' && covers.map((cover) => (
+                  <CoverControl 
+                    key={cover.entity_id} 
+                    device={cover}
+                    type={cover.friendly_name.toLowerCase().includes('curtain') ? 'curtain' : 'blind'}
+                  />
+                ))}
+                
+                {selectedDeviceType === 'media' && mediaPlayers.map((player) => (
+                  <MediaPlayerControl key={player.entity_id} device={player} />
+                ))}
+                
+                {selectedDeviceType === 'fans' && fans.map((fan) => (
+                  <FanControl key={fan.entity_id} device={fan} />
+                ))}
+                
+                {selectedDeviceType === 'locks' && locks.map((lock) => (
+                  <LockControl key={lock.entity_id} device={lock} variant="card" />
+                ))}
+              </div>
+            </div>
+            
+            {/* Footer */}
+            <div className="p-6 border-t border-gray-700/20 bg-gray-800/20">
+              <div className="flex items-center justify-between">
+                <div className="text-secondary">
+                  <span className="text-sm">
+                    {currentDeviceTypeData.devices.length} device{currentDeviceTypeData.devices.length !== 1 ? 's' : ''} total
+                  </span>
+                </div>
+                <div className="flex space-x-3">
+                  <button
+                    onClick={currentDeviceTypeData.onToggleAll}
+                    className="unified-button-primary px-6 py-3 text-white rounded-2xl font-semibold"
+                  >
+                    {currentDeviceTypeData.toggleAllText}
+                  </button>
+                  <button 
+                    onClick={() => setSelectedDeviceType(null)}
+                    className="unified-button px-6 py-3 text-secondary rounded-2xl hover:text-accent font-semibold"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>,
+      document.body
+    );
+  };
   return (
     <>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
@@ -394,118 +512,8 @@ const DeviceControlsSection: React.FC<DeviceControlsSectionProps> = ({ activeTab
         )}
       </div>
 
-      {/* Device Type Modal */}
-      {selectedDeviceType && currentDeviceTypeData && (
-        <div className="expandable-window">
-          <div className="expandable-window-container">
-            <div className="expandable-window-content seamless-modal rounded-3xl max-w-4xl animate-in fade-in-0 zoom-in-95 duration-300">
-              {/* Header */}
-              <div className="relative h-48 overflow-hidden">
-                <div 
-                  className="absolute inset-0 bg-cover bg-center scale-110"
-                  style={{ backgroundImage: `url(${currentDeviceTypeData.backgroundImage})` }}
-                >
-                  <div className="absolute inset-0 bg-gradient-to-t from-gray-900/95 via-gray-900/60 to-gray-900/30"></div>
-                </div>
-                <div className="relative p-6 h-full flex flex-col justify-between">
-                  <div className="flex justify-between items-start">
-                    <div className="flex items-center space-x-4">
-                      <div className="unified-button p-3 rounded-xl">
-                        {currentDeviceTypeData.icon}
-                      </div>
-                      <div>
-                        <h2 className="text-3xl font-bold text-white mb-1">{currentDeviceTypeData.title}</h2>
-                        <p className="text-white/90 text-lg">
-                          {currentDeviceTypeData.activeCount} of {currentDeviceTypeData.totalCount} active
-                        </p>
-                      </div>
-                    </div>
-                    <button 
-                      onClick={() => setSelectedDeviceType(null)}
-                      className="unified-button p-3 rounded-full transition-colors"
-                    >
-                      <X className="w-6 h-6 text-white" />
-                    </button>
-                  </div>
-                  
-                  <div className="flex justify-between items-end">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-white">
-                        {Math.round((currentDeviceTypeData.activeCount / currentDeviceTypeData.totalCount) * 100)}%
-                      </div>
-                      <div className="text-white/80 text-sm font-medium">Activity Level</div>
-                    </div>
-                    
-                    <button
-                      onClick={currentDeviceTypeData.onToggleAll}
-                      className="unified-button flex items-center space-x-2 text-white px-6 py-3 rounded-xl font-semibold"
-                    >
-                      <Zap className="w-5 h-5" />
-                      <span>{currentDeviceTypeData.toggleAllText}</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Content */}
-              <div className="p-6">
-                <h3 className="text-xl font-bold text-primary mb-6">Individual Device Controls</h3>
-                
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                  {selectedDeviceType === 'lights' && lights.map((light) => (
-                    <LightControl key={light.entity_id} device={light} />
-                  ))}
-                  
-                  {selectedDeviceType === 'covers' && covers.map((cover) => (
-                    <CoverControl 
-                      key={cover.entity_id} 
-                      device={cover}
-                      type={cover.friendly_name.toLowerCase().includes('curtain') ? 'curtain' : 'blind'}
-                    />
-                  ))}
-                  
-                  {selectedDeviceType === 'media' && mediaPlayers.map((player) => (
-                    <MediaPlayerControl key={player.entity_id} device={player} />
-                  ))}
-                  
-                  {selectedDeviceType === 'fans' && fans.map((fan) => (
-                    <FanControl key={fan.entity_id} device={fan} />
-                  ))}
-                  
-                  {selectedDeviceType === 'locks' && locks.map((lock) => (
-                    <LockControl key={lock.entity_id} device={lock} variant="card" />
-                  ))}
-                </div>
-              </div>
-              
-              {/* Footer */}
-              <div className="p-6 border-t border-gray-700/20 bg-gray-800/20">
-                <div className="flex items-center justify-between">
-                  <div className="text-secondary">
-                    <span className="text-sm">
-                      {currentDeviceTypeData.devices.length} device{currentDeviceTypeData.devices.length !== 1 ? 's' : ''} total
-                    </span>
-                  </div>
-                  <div className="flex space-x-3">
-                    <button
-                      onClick={currentDeviceTypeData.onToggleAll}
-                      className="unified-button-primary px-6 py-3 text-white rounded-2xl font-semibold"
-                    >
-                      {currentDeviceTypeData.toggleAllText}
-                    </button>
-                    <button 
-                      onClick={() => setSelectedDeviceType(null)}
-                      className="unified-button px-6 py-3 text-secondary rounded-2xl hover:text-accent font-semibold"
-                    >
-                      Close
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Render device type modal using React Portal */}
+      {renderDeviceTypeModal()}
     </>
   );
 };

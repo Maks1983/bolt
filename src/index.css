@@ -356,7 +356,7 @@
   bottom: 0;
   width: 100vw;
   height: 100vh;
-  z-index: 50;
+  z-index: 9999;
   background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -373,16 +373,16 @@
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding: 1rem;
+  padding: 0.5rem;
   /* Ensure content can scroll to very bottom */
-  padding-bottom: 2rem;
+  padding-bottom: 3rem;
 }
 
 /* Mobile-specific adjustments */
 @media (max-width: 768px) {
   .expandable-window-container {
-    padding: 0.5rem;
-    padding-bottom: 3rem;
+    padding: 0.25rem;
+    padding-bottom: 4rem;
   }
 }
 
