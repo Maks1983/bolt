@@ -455,13 +455,7 @@ const LocationModal: React.FC<LocationModalProps> = ({ user, onClose }) => {
               )}
             </div>
           
-          {/* Footer */}
-          <div className="p-6 glass-card">
-            <div className="flex items-center justify-between">
-            </div>
-          </div>
         </div>
-      </div>
       </div>
     </div>
   );
