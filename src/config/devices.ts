@@ -13,14 +13,14 @@ export const roomConfigs: Room[] = [
     id: 'master_bedroom',
     name: 'Master Bedroom',
     floor: 'Upper Floor',
-    background_image: 'https://images.pexels.com/photos/164595/pexels-photo-164595.jpeg?auto=compress&cs=tinysrgb&w=800',
+    background_image: 'https://images.pexels.com/photos/6970025/pexels-photo-6970025.jpeg?auto=compress&cs=tinysrgb&w=800',
     devices: []
   },
   {
     id: 'bedroom',
     name: 'Bedroom',
     floor: 'Upper Floor',
-    background_image: 'https://images.pexels.com/photos/1643383/pexels-photo-1643383.jpeg?auto=compress&cs=tinysrgb&w=800',
+    background_image: 'https://images.pexels.com/photos/271624/pexels-photo-271624.jpeg?auto=compress&cs=tinysrgb&w=800',
     devices: []
   },
   {
@@ -34,7 +34,7 @@ export const roomConfigs: Room[] = [
     id: 'kitchen',
     name: 'Kitchen',
     floor: 'Upper Floor',
-    background_image: 'https://images.pexels.com/photos/279648/pexels-photo-279648.jpeg?auto=compress&cs=tinysrgb&w=800',
+    background_image: 'https://images.pexels.com/photos/6489127/pexels-photo-6489127.jpeg?auto=compress&cs=tinysrgb&w=800',
     devices: []
   },
   {
@@ -48,14 +48,14 @@ export const roomConfigs: Room[] = [
     id: 'entrance',
     name: 'Entrance',
     floor: 'Lower Floor',
-    background_image: 'https://images.pexels.com/photos/1428348/pexels-photo-1428348.jpeg?auto=compress&cs=tinysrgb&w=800',
+    background_image: 'https://images.pexels.com/photos/6585748/pexels-photo-6585748.jpeg?auto=compress&cs=tinysrgb&w=800',
     devices: []
   },
   {
     id: 'office',
     name: 'Office',
     floor: 'Lower Floor',
-    background_image: 'https://images.pexels.com/photos/667838/pexels-photo-667838.jpeg?auto=compress&cs=tinysrgb&w=800',
+    background_image: 'https://images.pexels.com/photos/8082224/pexels-photo-8082224.jpeg?auto=compress&cs=tinysrgb&w=800',
     devices: []
   },
   {
@@ -65,13 +65,13 @@ export const roomConfigs: Room[] = [
     background_image: 'https://images.pexels.com/photos/4993073/pexels-photo-4993073.jpeg?auto=compress&cs=tinysrgb&w=800',
     devices: []
   },
-  {
+  /*{
     id: 'ap_living_room',
     name: 'Ap Living Room',
     floor: 'Apartment',
     background_image: 'https://images.pexels.com/photos/1571453/pexels-photo-1571453.jpeg?auto=compress&cs=tinysrgb&w=800',
     devices: []
-  }
+  }*/
 ];
 
 // Floor configurations
