@@ -135,18 +135,26 @@ const LocationModal: React.FC<LocationModalProps> = ({ user, onClose }) => {
   // Prevent background scroll when modal is open
   useEffect(() => {
     document.body.classList.add('modal-open');
-    // Prevent scroll on the main container
-    const mainContainer = document.querySelector('.main-scroll-container');
+    document.documentElement.classList.add('background-frozen');
+    // Prevent scroll on the main content container
+    const mainContainer = document.querySelector('.main-content-container');
     if (mainContainer) {
       (mainContainer as HTMLElement).style.overflow = 'hidden';
+      (mainContainer as HTMLElement).style.height = '100vh';
+      (mainContainer as HTMLElement).style.position = 'fixed';
+      (mainContainer as HTMLElement).style.width = '100%';
     }
     
     // Cleanup on unmount
     return () => {
       document.body.classList.remove('modal-open');
-      const mainContainer = document.querySelector('.main-scroll-container');
+      document.documentElement.classList.remove('background-frozen');
+      const mainContainer = document.querySelector('.main-content-container');
       if (mainContainer) {
-        (mainContainer as HTMLElement).style.overflow = 'auto';
+        (mainContainer as HTMLElement).style.overflow = '';
+        (mainContainer as HTMLElement).style.height = '';
+        (mainContainer as HTMLElement).style.position = '';
+        (mainContainer as HTMLElement).style.width = '';
       }
     };
   }, []);
@@ -214,9 +222,9 @@ const LocationModal: React.FC<LocationModalProps> = ({ user, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 overflow-y-auto scrollbar-width-none -ms-overflow-style-none">
-      <div className="min-h-screen flex items-start justify-center p-4 pt-8">
-        <div className="seamless-modal rounded-3xl max-w-4xl w-full mb-8 overflow-hidden">
+    <div className="expandable-window">
+      <div className="expandable-window-container">
+        <div className="expandable-window-content seamless-modal rounded-3xl max-w-4xl">
           {/* Header */}
           <div className="p-6 border-b border-gray-700/20">
             <div className="flex items-center justify-between">
@@ -453,6 +461,7 @@ const LocationModal: React.FC<LocationModalProps> = ({ user, onClose }) => {
             </div>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

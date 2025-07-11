@@ -243,7 +243,7 @@ const AppContent: React.FC = () => {
       
       <main className="h-full no-scroll">
         {/* Top-level Tab Navigation */}
-        <div className="px-6 h-full no-scroll">
+        <div className="px-6 h-full main-content-container">
           {/* Dynamic Tab Navigation */}
           <div className="flex items-end">
             {availableTabs.map((tab, index) => (
