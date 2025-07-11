@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { MapPin, X, Navigation, Clock, Battery, Wifi, Car, Home } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
@@ -204,7 +205,8 @@ const LocationModal: React.FC<LocationModalProps> = ({ user, onClose }) => {
     }, 500);
   };
 
-  return (
+  // Render modal using portal to document.body
+  return createPortal(
     <div className="expandable-window">
       <div className="expandable-window-container">
         <div className="expandable-window-content seamless-modal rounded-3xl max-w-4xl">
@@ -440,7 +442,8 @@ const LocationModal: React.FC<LocationModalProps> = ({ user, onClose }) => {
           
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
